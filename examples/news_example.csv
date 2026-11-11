@@ -1,0 +1,1374 @@
+date,symbol,headline
+2018-01-02,ACC01,"beats estimates, raises guidance"
+2018-01-02,ACC09,"misses estimates, cuts guidance"
+2018-01-02,ACC10,lawsuit and investigation weigh on shares
+2018-01-02,ACC13,"beats estimates, raises guidance"
+2018-01-02,ACC14,"misses estimates, cuts guidance"
+2018-01-02,ACC24,"strong demand, expands partnership"
+2018-01-09,ACC12,"misses estimates, cuts guidance"
+2018-01-09,ACC15,"beats estimates, raises guidance"
+2018-01-09,ACC16,"record profit, upgrade to buy"
+2018-01-09,ACC19,"misses estimates, cuts guidance"
+2018-01-09,ACC21,"record profit, upgrade to buy"
+2018-01-09,ACC22,downgrade after weak quarter
+2018-01-09,ACC23,"misses estimates, cuts guidance"
+2018-01-09,ACC24,"record profit, upgrade to buy"
+2018-01-16,ACC17,"strong demand, expands partnership"
+2018-01-16,ACC19,"strong demand, expands partnership"
+2018-01-16,ACC22,"record profit, upgrade to buy"
+2018-01-23,ACC00,lawsuit and investigation weigh on shares
+2018-01-23,ACC02,"record profit, upgrade to buy"
+2018-01-23,ACC04,"record profit, upgrade to buy"
+2018-01-23,ACC06,"beats estimates, raises guidance"
+2018-01-23,ACC10,"misses estimates, cuts guidance"
+2018-01-23,ACC11,"misses estimates, cuts guidance"
+2018-01-23,ACC14,downgrade after weak quarter
+2018-01-23,ACC16,lawsuit and investigation weigh on shares
+2018-01-23,ACC20,"record profit, upgrade to buy"
+2018-01-30,ACC03,"misses estimates, cuts guidance"
+2018-01-30,ACC04,lawsuit and investigation weigh on shares
+2018-01-30,ACC07,"misses estimates, cuts guidance"
+2018-01-30,ACC09,"misses estimates, cuts guidance"
+2018-01-30,ACC11,downgrade after weak quarter
+2018-01-30,ACC18,"beats estimates, raises guidance"
+2018-01-30,ACC24,"misses estimates, cuts guidance"
+2018-02-06,ACC05,lawsuit and investigation weigh on shares
+2018-02-06,ACC08,lawsuit and investigation weigh on shares
+2018-02-06,ACC11,lawsuit and investigation weigh on shares
+2018-02-06,ACC13,"misses estimates, cuts guidance"
+2018-02-06,ACC14,"record profit, upgrade to buy"
+2018-02-06,ACC18,downgrade after weak quarter
+2018-02-06,ACC22,"beats estimates, raises guidance"
+2018-02-06,ACC24,"misses estimates, cuts guidance"
+2018-02-13,ACC06,"beats estimates, raises guidance"
+2018-02-13,ACC07,"strong demand, expands partnership"
+2018-02-13,ACC09,"record profit, upgrade to buy"
+2018-02-13,ACC15,"beats estimates, raises guidance"
+2018-02-13,ACC19,"misses estimates, cuts guidance"
+2018-02-20,ACC01,"beats estimates, raises guidance"
+2018-02-20,ACC08,downgrade after weak quarter
+2018-02-20,ACC13,lawsuit and investigation weigh on shares
+2018-02-20,ACC15,"record profit, upgrade to buy"
+2018-02-20,ACC16,"beats estimates, raises guidance"
+2018-02-20,ACC17,lawsuit and investigation weigh on shares
+2018-02-27,ACC05,downgrade after weak quarter
+2018-02-27,ACC06,"record profit, upgrade to buy"
+2018-02-27,ACC07,"misses estimates, cuts guidance"
+2018-02-27,ACC10,"record profit, upgrade to buy"
+2018-02-27,ACC15,downgrade after weak quarter
+2018-02-27,ACC21,downgrade after weak quarter
+2018-03-06,ACC00,"beats estimates, raises guidance"
+2018-03-06,ACC01,"beats estimates, raises guidance"
+2018-03-06,ACC05,"misses estimates, cuts guidance"
+2018-03-06,ACC06,"beats estimates, raises guidance"
+2018-03-06,ACC10,"record profit, upgrade to buy"
+2018-03-06,ACC11,"beats estimates, raises guidance"
+2018-03-06,ACC14,"record profit, upgrade to buy"
+2018-03-06,ACC19,"misses estimates, cuts guidance"
+2018-03-06,ACC24,lawsuit and investigation weigh on shares
+2018-03-13,ACC00,"strong demand, expands partnership"
+2018-03-13,ACC04,"misses estimates, cuts guidance"
+2018-03-13,ACC06,downgrade after weak quarter
+2018-03-13,ACC07,downgrade after weak quarter
+2018-03-13,ACC09,"beats estimates, raises guidance"
+2018-03-13,ACC11,"record profit, upgrade to buy"
+2018-03-13,ACC13,downgrade after weak quarter
+2018-03-13,ACC16,downgrade after weak quarter
+2018-03-13,ACC17,"strong demand, expands partnership"
+2018-03-20,ACC03,"strong demand, expands partnership"
+2018-03-20,ACC06,"misses estimates, cuts guidance"
+2018-03-20,ACC07,"strong demand, expands partnership"
+2018-03-20,ACC09,"beats estimates, raises guidance"
+2018-03-20,ACC10,"strong demand, expands partnership"
+2018-03-20,ACC21,lawsuit and investigation weigh on shares
+2018-03-20,ACC22,downgrade after weak quarter
+2018-03-27,ACC00,"record profit, upgrade to buy"
+2018-03-27,ACC06,"record profit, upgrade to buy"
+2018-03-27,ACC08,"strong demand, expands partnership"
+2018-03-27,ACC14,"record profit, upgrade to buy"
+2018-03-27,ACC22,lawsuit and investigation weigh on shares
+2018-03-27,ACC24,"beats estimates, raises guidance"
+2018-04-03,ACC02,"record profit, upgrade to buy"
+2018-04-03,ACC05,"record profit, upgrade to buy"
+2018-04-03,ACC06,"record profit, upgrade to buy"
+2018-04-03,ACC10,"strong demand, expands partnership"
+2018-04-10,ACC05,"record profit, upgrade to buy"
+2018-04-10,ACC07,"record profit, upgrade to buy"
+2018-04-10,ACC08,downgrade after weak quarter
+2018-04-10,ACC15,"strong demand, expands partnership"
+2018-04-10,ACC18,downgrade after weak quarter
+2018-04-10,ACC20,"record profit, upgrade to buy"
+2018-04-17,ACC04,"record profit, upgrade to buy"
+2018-04-17,ACC05,downgrade after weak quarter
+2018-04-17,ACC06,downgrade after weak quarter
+2018-04-17,ACC12,"misses estimates, cuts guidance"
+2018-04-17,ACC18,"strong demand, expands partnership"
+2018-04-17,ACC19,"beats estimates, raises guidance"
+2018-04-17,ACC24,"beats estimates, raises guidance"
+2018-04-24,ACC00,"strong demand, expands partnership"
+2018-04-24,ACC01,"record profit, upgrade to buy"
+2018-04-24,ACC02,"misses estimates, cuts guidance"
+2018-04-24,ACC03,downgrade after weak quarter
+2018-04-24,ACC10,"strong demand, expands partnership"
+2018-04-24,ACC13,"strong demand, expands partnership"
+2018-04-24,ACC24,"record profit, upgrade to buy"
+2018-05-01,ACC04,"strong demand, expands partnership"
+2018-05-01,ACC05,"strong demand, expands partnership"
+2018-05-01,ACC07,downgrade after weak quarter
+2018-05-01,ACC11,"beats estimates, raises guidance"
+2018-05-01,ACC14,lawsuit and investigation weigh on shares
+2018-05-01,ACC16,"misses estimates, cuts guidance"
+2018-05-01,ACC19,"record profit, upgrade to buy"
+2018-05-01,ACC20,"strong demand, expands partnership"
+2018-05-01,ACC24,"beats estimates, raises guidance"
+2018-05-08,ACC00,"record profit, upgrade to buy"
+2018-05-08,ACC05,"strong demand, expands partnership"
+2018-05-08,ACC10,"strong demand, expands partnership"
+2018-05-08,ACC11,"strong demand, expands partnership"
+2018-05-08,ACC12,"record profit, upgrade to buy"
+2018-05-08,ACC13,"strong demand, expands partnership"
+2018-05-08,ACC15,"record profit, upgrade to buy"
+2018-05-08,ACC16,downgrade after weak quarter
+2018-05-08,ACC21,"record profit, upgrade to buy"
+2018-05-08,ACC23,"beats estimates, raises guidance"
+2018-05-15,ACC01,"record profit, upgrade to buy"
+2018-05-15,ACC02,"record profit, upgrade to buy"
+2018-05-15,ACC07,"misses estimates, cuts guidance"
+2018-05-15,ACC10,"record profit, upgrade to buy"
+2018-05-15,ACC15,"strong demand, expands partnership"
+2018-05-15,ACC17,"record profit, upgrade to buy"
+2018-05-15,ACC18,"strong demand, expands partnership"
+2018-05-22,ACC03,"record profit, upgrade to buy"
+2018-05-22,ACC05,"record profit, upgrade to buy"
+2018-05-22,ACC06,"strong demand, expands partnership"
+2018-05-22,ACC16,lawsuit and investigation weigh on shares
+2018-05-22,ACC19,"beats estimates, raises guidance"
+2018-05-22,ACC22,"record profit, upgrade to buy"
+2018-05-22,ACC23,"beats estimates, raises guidance"
+2018-05-29,ACC01,"strong demand, expands partnership"
+2018-05-29,ACC06,downgrade after weak quarter
+2018-05-29,ACC08,"beats estimates, raises guidance"
+2018-05-29,ACC11,"misses estimates, cuts guidance"
+2018-05-29,ACC16,"strong demand, expands partnership"
+2018-05-29,ACC17,"beats estimates, raises guidance"
+2018-05-29,ACC19,lawsuit and investigation weigh on shares
+2018-05-29,ACC20,"misses estimates, cuts guidance"
+2018-05-29,ACC24,"record profit, upgrade to buy"
+2018-06-05,ACC00,"record profit, upgrade to buy"
+2018-06-05,ACC03,lawsuit and investigation weigh on shares
+2018-06-05,ACC07,downgrade after weak quarter
+2018-06-05,ACC09,"beats estimates, raises guidance"
+2018-06-05,ACC12,"misses estimates, cuts guidance"
+2018-06-05,ACC14,"strong demand, expands partnership"
+2018-06-05,ACC21,"record profit, upgrade to buy"
+2018-06-05,ACC23,"record profit, upgrade to buy"
+2018-06-12,ACC03,"misses estimates, cuts guidance"
+2018-06-12,ACC04,downgrade after weak quarter
+2018-06-12,ACC06,"misses estimates, cuts guidance"
+2018-06-12,ACC09,"strong demand, expands partnership"
+2018-06-12,ACC15,"beats estimates, raises guidance"
+2018-06-12,ACC19,downgrade after weak quarter
+2018-06-12,ACC21,"beats estimates, raises guidance"
+2018-06-12,ACC24,"record profit, upgrade to buy"
+2018-06-19,ACC06,lawsuit and investigation weigh on shares
+2018-06-19,ACC24,downgrade after weak quarter
+2018-06-26,ACC02,"misses estimates, cuts guidance"
+2018-06-26,ACC12,lawsuit and investigation weigh on shares
+2018-06-26,ACC16,"misses estimates, cuts guidance"
+2018-06-26,ACC21,"beats estimates, raises guidance"
+2018-06-26,ACC24,"misses estimates, cuts guidance"
+2018-07-03,ACC04,lawsuit and investigation weigh on shares
+2018-07-03,ACC07,"record profit, upgrade to buy"
+2018-07-03,ACC08,"beats estimates, raises guidance"
+2018-07-03,ACC11,lawsuit and investigation weigh on shares
+2018-07-03,ACC17,"strong demand, expands partnership"
+2018-07-03,ACC23,"misses estimates, cuts guidance"
+2018-07-10,ACC04,"strong demand, expands partnership"
+2018-07-10,ACC09,"misses estimates, cuts guidance"
+2018-07-10,ACC20,"misses estimates, cuts guidance"
+2018-07-10,ACC21,lawsuit and investigation weigh on shares
+2018-07-17,ACC02,downgrade after weak quarter
+2018-07-17,ACC03,lawsuit and investigation weigh on shares
+2018-07-17,ACC04,"strong demand, expands partnership"
+2018-07-17,ACC10,"beats estimates, raises guidance"
+2018-07-17,ACC11,"record profit, upgrade to buy"
+2018-07-17,ACC12,"misses estimates, cuts guidance"
+2018-07-17,ACC13,"beats estimates, raises guidance"
+2018-07-17,ACC14,lawsuit and investigation weigh on shares
+2018-07-17,ACC19,"strong demand, expands partnership"
+2018-07-17,ACC21,downgrade after weak quarter
+2018-07-24,ACC04,"record profit, upgrade to buy"
+2018-07-24,ACC07,"record profit, upgrade to buy"
+2018-07-24,ACC08,"record profit, upgrade to buy"
+2018-07-24,ACC12,lawsuit and investigation weigh on shares
+2018-07-24,ACC15,"strong demand, expands partnership"
+2018-07-24,ACC17,"record profit, upgrade to buy"
+2018-07-24,ACC18,downgrade after weak quarter
+2018-07-24,ACC19,"beats estimates, raises guidance"
+2018-07-31,ACC02,"strong demand, expands partnership"
+2018-07-31,ACC03,"strong demand, expands partnership"
+2018-07-31,ACC06,"strong demand, expands partnership"
+2018-07-31,ACC08,lawsuit and investigation weigh on shares
+2018-07-31,ACC18,downgrade after weak quarter
+2018-07-31,ACC19,"beats estimates, raises guidance"
+2018-07-31,ACC23,"strong demand, expands partnership"
+2018-07-31,ACC24,"beats estimates, raises guidance"
+2018-08-07,ACC00,downgrade after weak quarter
+2018-08-07,ACC01,"record profit, upgrade to buy"
+2018-08-07,ACC06,"beats estimates, raises guidance"
+2018-08-07,ACC18,"misses estimates, cuts guidance"
+2018-08-07,ACC24,"beats estimates, raises guidance"
+2018-08-14,ACC02,"misses estimates, cuts guidance"
+2018-08-14,ACC09,"beats estimates, raises guidance"
+2018-08-14,ACC10,downgrade after weak quarter
+2018-08-14,ACC13,"strong demand, expands partnership"
+2018-08-14,ACC15,"record profit, upgrade to buy"
+2018-08-14,ACC17,"beats estimates, raises guidance"
+2018-08-14,ACC19,"strong demand, expands partnership"
+2018-08-21,ACC04,"misses estimates, cuts guidance"
+2018-08-21,ACC06,downgrade after weak quarter
+2018-08-21,ACC09,"record profit, upgrade to buy"
+2018-08-21,ACC12,downgrade after weak quarter
+2018-08-21,ACC13,"misses estimates, cuts guidance"
+2018-08-21,ACC14,"strong demand, expands partnership"
+2018-08-21,ACC15,downgrade after weak quarter
+2018-08-21,ACC23,"beats estimates, raises guidance"
+2018-08-21,ACC24,downgrade after weak quarter
+2018-08-28,ACC02,lawsuit and investigation weigh on shares
+2018-08-28,ACC06,downgrade after weak quarter
+2018-08-28,ACC08,"misses estimates, cuts guidance"
+2018-08-28,ACC15,"misses estimates, cuts guidance"
+2018-08-28,ACC19,downgrade after weak quarter
+2018-08-28,ACC20,downgrade after weak quarter
+2018-09-04,ACC00,downgrade after weak quarter
+2018-09-04,ACC01,downgrade after weak quarter
+2018-09-04,ACC02,"misses estimates, cuts guidance"
+2018-09-04,ACC03,"beats estimates, raises guidance"
+2018-09-04,ACC09,"beats estimates, raises guidance"
+2018-09-04,ACC16,downgrade after weak quarter
+2018-09-04,ACC18,"beats estimates, raises guidance"
+2018-09-04,ACC20,"beats estimates, raises guidance"
+2018-09-04,ACC24,lawsuit and investigation weigh on shares
+2018-09-11,ACC02,"misses estimates, cuts guidance"
+2018-09-11,ACC05,downgrade after weak quarter
+2018-09-11,ACC07,lawsuit and investigation weigh on shares
+2018-09-11,ACC15,downgrade after weak quarter
+2018-09-11,ACC18,lawsuit and investigation weigh on shares
+2018-09-11,ACC23,"record profit, upgrade to buy"
+2018-09-18,ACC00,lawsuit and investigation weigh on shares
+2018-09-18,ACC01,"misses estimates, cuts guidance"
+2018-09-18,ACC02,"strong demand, expands partnership"
+2018-09-18,ACC03,"misses estimates, cuts guidance"
+2018-09-18,ACC04,"beats estimates, raises guidance"
+2018-09-18,ACC12,downgrade after weak quarter
+2018-09-18,ACC15,lawsuit and investigation weigh on shares
+2018-09-18,ACC18,lawsuit and investigation weigh on shares
+2018-09-18,ACC19,"strong demand, expands partnership"
+2018-09-18,ACC21,downgrade after weak quarter
+2018-09-25,ACC02,"record profit, upgrade to buy"
+2018-09-25,ACC06,"strong demand, expands partnership"
+2018-09-25,ACC09,"misses estimates, cuts guidance"
+2018-09-25,ACC12,downgrade after weak quarter
+2018-09-25,ACC13,"beats estimates, raises guidance"
+2018-10-02,ACC03,downgrade after weak quarter
+2018-10-02,ACC07,"beats estimates, raises guidance"
+2018-10-02,ACC09,"record profit, upgrade to buy"
+2018-10-02,ACC11,"misses estimates, cuts guidance"
+2018-10-02,ACC15,"record profit, upgrade to buy"
+2018-10-02,ACC21,lawsuit and investigation weigh on shares
+2018-10-09,ACC04,"strong demand, expands partnership"
+2018-10-09,ACC05,"misses estimates, cuts guidance"
+2018-10-09,ACC07,"record profit, upgrade to buy"
+2018-10-09,ACC08,"misses estimates, cuts guidance"
+2018-10-09,ACC09,"beats estimates, raises guidance"
+2018-10-09,ACC11,lawsuit and investigation weigh on shares
+2018-10-09,ACC15,"record profit, upgrade to buy"
+2018-10-09,ACC16,"strong demand, expands partnership"
+2018-10-09,ACC18,downgrade after weak quarter
+2018-10-09,ACC19,"record profit, upgrade to buy"
+2018-10-09,ACC20,"strong demand, expands partnership"
+2018-10-16,ACC01,"strong demand, expands partnership"
+2018-10-16,ACC06,"misses estimates, cuts guidance"
+2018-10-16,ACC11,"misses estimates, cuts guidance"
+2018-10-16,ACC13,lawsuit and investigation weigh on shares
+2018-10-16,ACC17,"beats estimates, raises guidance"
+2018-10-16,ACC23,"beats estimates, raises guidance"
+2018-10-16,ACC24,downgrade after weak quarter
+2018-10-23,ACC02,"misses estimates, cuts guidance"
+2018-10-23,ACC16,"record profit, upgrade to buy"
+2018-10-23,ACC18,lawsuit and investigation weigh on shares
+2018-10-23,ACC20,downgrade after weak quarter
+2018-10-23,ACC23,"beats estimates, raises guidance"
+2018-10-30,ACC01,"misses estimates, cuts guidance"
+2018-10-30,ACC02,"beats estimates, raises guidance"
+2018-10-30,ACC03,lawsuit and investigation weigh on shares
+2018-10-30,ACC06,"misses estimates, cuts guidance"
+2018-10-30,ACC10,"record profit, upgrade to buy"
+2018-10-30,ACC12,"misses estimates, cuts guidance"
+2018-10-30,ACC16,"record profit, upgrade to buy"
+2018-11-06,ACC03,"misses estimates, cuts guidance"
+2018-11-06,ACC05,"misses estimates, cuts guidance"
+2018-11-06,ACC11,lawsuit and investigation weigh on shares
+2018-11-06,ACC12,lawsuit and investigation weigh on shares
+2018-11-06,ACC20,lawsuit and investigation weigh on shares
+2018-11-13,ACC02,"misses estimates, cuts guidance"
+2018-11-13,ACC08,lawsuit and investigation weigh on shares
+2018-11-13,ACC12,"misses estimates, cuts guidance"
+2018-11-13,ACC13,downgrade after weak quarter
+2018-11-13,ACC14,"record profit, upgrade to buy"
+2018-11-13,ACC18,"misses estimates, cuts guidance"
+2018-11-13,ACC20,"misses estimates, cuts guidance"
+2018-11-13,ACC22,"beats estimates, raises guidance"
+2018-11-13,ACC24,downgrade after weak quarter
+2018-11-20,ACC00,lawsuit and investigation weigh on shares
+2018-11-20,ACC07,downgrade after weak quarter
+2018-11-20,ACC09,"misses estimates, cuts guidance"
+2018-11-20,ACC14,"record profit, upgrade to buy"
+2018-11-20,ACC15,downgrade after weak quarter
+2018-11-20,ACC22,"beats estimates, raises guidance"
+2018-11-20,ACC23,"record profit, upgrade to buy"
+2018-11-20,ACC24,"strong demand, expands partnership"
+2018-11-27,ACC02,"record profit, upgrade to buy"
+2018-11-27,ACC03,lawsuit and investigation weigh on shares
+2018-11-27,ACC07,"record profit, upgrade to buy"
+2018-11-27,ACC14,"beats estimates, raises guidance"
+2018-11-27,ACC15,"misses estimates, cuts guidance"
+2018-11-27,ACC18,"beats estimates, raises guidance"
+2018-11-27,ACC23,"beats estimates, raises guidance"
+2018-12-04,ACC01,"record profit, upgrade to buy"
+2018-12-04,ACC08,lawsuit and investigation weigh on shares
+2018-12-04,ACC09,"strong demand, expands partnership"
+2018-12-04,ACC10,"strong demand, expands partnership"
+2018-12-04,ACC14,"beats estimates, raises guidance"
+2018-12-04,ACC15,"record profit, upgrade to buy"
+2018-12-04,ACC22,"strong demand, expands partnership"
+2018-12-11,ACC03,lawsuit and investigation weigh on shares
+2018-12-11,ACC05,lawsuit and investigation weigh on shares
+2018-12-11,ACC13,"record profit, upgrade to buy"
+2018-12-11,ACC16,"strong demand, expands partnership"
+2018-12-11,ACC18,"strong demand, expands partnership"
+2018-12-11,ACC23,"record profit, upgrade to buy"
+2018-12-18,ACC00,"record profit, upgrade to buy"
+2018-12-18,ACC01,"strong demand, expands partnership"
+2018-12-18,ACC03,"beats estimates, raises guidance"
+2018-12-18,ACC04,"beats estimates, raises guidance"
+2018-12-18,ACC05,lawsuit and investigation weigh on shares
+2018-12-18,ACC07,"beats estimates, raises guidance"
+2018-12-18,ACC10,"misses estimates, cuts guidance"
+2018-12-18,ACC12,"misses estimates, cuts guidance"
+2018-12-18,ACC13,downgrade after weak quarter
+2018-12-18,ACC14,"beats estimates, raises guidance"
+2018-12-18,ACC17,"misses estimates, cuts guidance"
+2018-12-18,ACC19,"misses estimates, cuts guidance"
+2018-12-18,ACC21,"beats estimates, raises guidance"
+2018-12-25,ACC01,"record profit, upgrade to buy"
+2018-12-25,ACC02,"misses estimates, cuts guidance"
+2018-12-25,ACC04,"beats estimates, raises guidance"
+2018-12-25,ACC07,"beats estimates, raises guidance"
+2018-12-25,ACC10,downgrade after weak quarter
+2018-12-25,ACC11,lawsuit and investigation weigh on shares
+2018-12-25,ACC12,downgrade after weak quarter
+2018-12-25,ACC18,"beats estimates, raises guidance"
+2018-12-25,ACC20,"strong demand, expands partnership"
+2019-01-01,ACC01,"beats estimates, raises guidance"
+2019-01-01,ACC05,"misses estimates, cuts guidance"
+2019-01-01,ACC08,"beats estimates, raises guidance"
+2019-01-01,ACC11,"misses estimates, cuts guidance"
+2019-01-01,ACC16,"record profit, upgrade to buy"
+2019-01-01,ACC18,"beats estimates, raises guidance"
+2019-01-01,ACC20,"beats estimates, raises guidance"
+2019-01-01,ACC21,"beats estimates, raises guidance"
+2019-01-01,ACC22,"misses estimates, cuts guidance"
+2019-01-01,ACC23,"record profit, upgrade to buy"
+2019-01-08,ACC01,"strong demand, expands partnership"
+2019-01-08,ACC05,lawsuit and investigation weigh on shares
+2019-01-08,ACC06,"strong demand, expands partnership"
+2019-01-08,ACC07,"beats estimates, raises guidance"
+2019-01-08,ACC10,"misses estimates, cuts guidance"
+2019-01-08,ACC11,"misses estimates, cuts guidance"
+2019-01-08,ACC12,lawsuit and investigation weigh on shares
+2019-01-08,ACC16,"record profit, upgrade to buy"
+2019-01-08,ACC18,lawsuit and investigation weigh on shares
+2019-01-08,ACC19,downgrade after weak quarter
+2019-01-08,ACC21,lawsuit and investigation weigh on shares
+2019-01-15,ACC00,"misses estimates, cuts guidance"
+2019-01-15,ACC04,"beats estimates, raises guidance"
+2019-01-15,ACC05,"record profit, upgrade to buy"
+2019-01-15,ACC07,downgrade after weak quarter
+2019-01-15,ACC08,"beats estimates, raises guidance"
+2019-01-15,ACC10,"misses estimates, cuts guidance"
+2019-01-15,ACC14,"record profit, upgrade to buy"
+2019-01-15,ACC16,"record profit, upgrade to buy"
+2019-01-15,ACC24,"beats estimates, raises guidance"
+2019-01-22,ACC02,"misses estimates, cuts guidance"
+2019-01-22,ACC03,"beats estimates, raises guidance"
+2019-01-22,ACC06,"beats estimates, raises guidance"
+2019-01-22,ACC08,"record profit, upgrade to buy"
+2019-01-22,ACC09,"misses estimates, cuts guidance"
+2019-01-22,ACC11,downgrade after weak quarter
+2019-01-22,ACC14,"misses estimates, cuts guidance"
+2019-01-22,ACC17,lawsuit and investigation weigh on shares
+2019-01-22,ACC19,downgrade after weak quarter
+2019-01-22,ACC20,"record profit, upgrade to buy"
+2019-01-22,ACC22,"strong demand, expands partnership"
+2019-01-22,ACC24,"strong demand, expands partnership"
+2019-01-29,ACC02,"beats estimates, raises guidance"
+2019-01-29,ACC05,lawsuit and investigation weigh on shares
+2019-01-29,ACC08,"misses estimates, cuts guidance"
+2019-01-29,ACC10,"strong demand, expands partnership"
+2019-01-29,ACC16,"beats estimates, raises guidance"
+2019-01-29,ACC19,lawsuit and investigation weigh on shares
+2019-01-29,ACC23,"misses estimates, cuts guidance"
+2019-01-29,ACC24,"misses estimates, cuts guidance"
+2019-02-05,ACC05,"strong demand, expands partnership"
+2019-02-05,ACC06,"record profit, upgrade to buy"
+2019-02-05,ACC08,downgrade after weak quarter
+2019-02-05,ACC09,"misses estimates, cuts guidance"
+2019-02-05,ACC10,"record profit, upgrade to buy"
+2019-02-05,ACC13,"strong demand, expands partnership"
+2019-02-05,ACC14,"strong demand, expands partnership"
+2019-02-05,ACC16,"misses estimates, cuts guidance"
+2019-02-05,ACC17,"beats estimates, raises guidance"
+2019-02-05,ACC19,"misses estimates, cuts guidance"
+2019-02-05,ACC22,"record profit, upgrade to buy"
+2019-02-12,ACC02,"strong demand, expands partnership"
+2019-02-12,ACC04,downgrade after weak quarter
+2019-02-12,ACC05,"record profit, upgrade to buy"
+2019-02-12,ACC07,"beats estimates, raises guidance"
+2019-02-12,ACC08,"strong demand, expands partnership"
+2019-02-12,ACC10,"strong demand, expands partnership"
+2019-02-12,ACC12,"misses estimates, cuts guidance"
+2019-02-12,ACC22,"record profit, upgrade to buy"
+2019-02-19,ACC00,downgrade after weak quarter
+2019-02-19,ACC01,"misses estimates, cuts guidance"
+2019-02-19,ACC07,"beats estimates, raises guidance"
+2019-02-19,ACC10,"beats estimates, raises guidance"
+2019-02-19,ACC11,"misses estimates, cuts guidance"
+2019-02-19,ACC15,lawsuit and investigation weigh on shares
+2019-02-19,ACC22,"record profit, upgrade to buy"
+2019-02-19,ACC24,downgrade after weak quarter
+2019-02-26,ACC02,"misses estimates, cuts guidance"
+2019-02-26,ACC06,"record profit, upgrade to buy"
+2019-02-26,ACC08,"beats estimates, raises guidance"
+2019-02-26,ACC09,lawsuit and investigation weigh on shares
+2019-02-26,ACC16,lawsuit and investigation weigh on shares
+2019-02-26,ACC19,"record profit, upgrade to buy"
+2019-02-26,ACC22,"misses estimates, cuts guidance"
+2019-02-26,ACC24,"beats estimates, raises guidance"
+2019-03-05,ACC02,downgrade after weak quarter
+2019-03-05,ACC12,"beats estimates, raises guidance"
+2019-03-05,ACC13,lawsuit and investigation weigh on shares
+2019-03-05,ACC15,lawsuit and investigation weigh on shares
+2019-03-05,ACC20,"misses estimates, cuts guidance"
+2019-03-05,ACC21,downgrade after weak quarter
+2019-03-05,ACC23,"strong demand, expands partnership"
+2019-03-05,ACC24,downgrade after weak quarter
+2019-03-12,ACC01,lawsuit and investigation weigh on shares
+2019-03-12,ACC04,downgrade after weak quarter
+2019-03-12,ACC06,"beats estimates, raises guidance"
+2019-03-12,ACC08,"beats estimates, raises guidance"
+2019-03-12,ACC10,"misses estimates, cuts guidance"
+2019-03-12,ACC17,"misses estimates, cuts guidance"
+2019-03-12,ACC23,"record profit, upgrade to buy"
+2019-03-19,ACC05,"beats estimates, raises guidance"
+2019-03-19,ACC12,downgrade after weak quarter
+2019-03-19,ACC18,lawsuit and investigation weigh on shares
+2019-03-19,ACC20,lawsuit and investigation weigh on shares
+2019-03-19,ACC23,"record profit, upgrade to buy"
+2019-03-26,ACC01,"misses estimates, cuts guidance"
+2019-03-26,ACC03,"misses estimates, cuts guidance"
+2019-03-26,ACC06,"beats estimates, raises guidance"
+2019-03-26,ACC07,"record profit, upgrade to buy"
+2019-03-26,ACC09,downgrade after weak quarter
+2019-03-26,ACC13,"strong demand, expands partnership"
+2019-03-26,ACC14,"record profit, upgrade to buy"
+2019-03-26,ACC24,"beats estimates, raises guidance"
+2019-04-02,ACC01,lawsuit and investigation weigh on shares
+2019-04-02,ACC02,"strong demand, expands partnership"
+2019-04-02,ACC03,"misses estimates, cuts guidance"
+2019-04-02,ACC12,"beats estimates, raises guidance"
+2019-04-02,ACC16,"record profit, upgrade to buy"
+2019-04-02,ACC21,downgrade after weak quarter
+2019-04-02,ACC22,lawsuit and investigation weigh on shares
+2019-04-02,ACC24,"record profit, upgrade to buy"
+2019-04-09,ACC01,"beats estimates, raises guidance"
+2019-04-09,ACC04,"record profit, upgrade to buy"
+2019-04-09,ACC05,"record profit, upgrade to buy"
+2019-04-09,ACC10,"record profit, upgrade to buy"
+2019-04-09,ACC15,"beats estimates, raises guidance"
+2019-04-09,ACC18,"record profit, upgrade to buy"
+2019-04-09,ACC23,"strong demand, expands partnership"
+2019-04-09,ACC24,"strong demand, expands partnership"
+2019-04-16,ACC00,"misses estimates, cuts guidance"
+2019-04-16,ACC04,"strong demand, expands partnership"
+2019-04-16,ACC11,"misses estimates, cuts guidance"
+2019-04-16,ACC20,lawsuit and investigation weigh on shares
+2019-04-16,ACC22,"record profit, upgrade to buy"
+2019-04-16,ACC23,"strong demand, expands partnership"
+2019-04-23,ACC07,"strong demand, expands partnership"
+2019-04-23,ACC08,"beats estimates, raises guidance"
+2019-04-23,ACC13,"record profit, upgrade to buy"
+2019-04-23,ACC15,"record profit, upgrade to buy"
+2019-04-23,ACC17,"strong demand, expands partnership"
+2019-04-23,ACC21,"beats estimates, raises guidance"
+2019-04-23,ACC23,"strong demand, expands partnership"
+2019-04-23,ACC24,"beats estimates, raises guidance"
+2019-04-30,ACC03,lawsuit and investigation weigh on shares
+2019-04-30,ACC11,lawsuit and investigation weigh on shares
+2019-04-30,ACC13,"record profit, upgrade to buy"
+2019-04-30,ACC16,"beats estimates, raises guidance"
+2019-04-30,ACC21,"strong demand, expands partnership"
+2019-04-30,ACC22,"beats estimates, raises guidance"
+2019-05-07,ACC01,"record profit, upgrade to buy"
+2019-05-07,ACC02,"misses estimates, cuts guidance"
+2019-05-07,ACC05,"beats estimates, raises guidance"
+2019-05-07,ACC09,downgrade after weak quarter
+2019-05-07,ACC11,lawsuit and investigation weigh on shares
+2019-05-07,ACC15,"beats estimates, raises guidance"
+2019-05-07,ACC21,"beats estimates, raises guidance"
+2019-05-07,ACC22,"strong demand, expands partnership"
+2019-05-07,ACC24,"strong demand, expands partnership"
+2019-05-14,ACC04,"record profit, upgrade to buy"
+2019-05-14,ACC05,"record profit, upgrade to buy"
+2019-05-14,ACC06,"strong demand, expands partnership"
+2019-05-14,ACC11,lawsuit and investigation weigh on shares
+2019-05-14,ACC24,"strong demand, expands partnership"
+2019-05-21,ACC01,"beats estimates, raises guidance"
+2019-05-21,ACC06,"strong demand, expands partnership"
+2019-05-21,ACC07,"record profit, upgrade to buy"
+2019-05-21,ACC08,lawsuit and investigation weigh on shares
+2019-05-21,ACC16,"strong demand, expands partnership"
+2019-05-21,ACC17,"record profit, upgrade to buy"
+2019-05-21,ACC18,"strong demand, expands partnership"
+2019-05-21,ACC19,downgrade after weak quarter
+2019-05-21,ACC20,"misses estimates, cuts guidance"
+2019-05-28,ACC01,"record profit, upgrade to buy"
+2019-05-28,ACC03,"record profit, upgrade to buy"
+2019-05-28,ACC07,downgrade after weak quarter
+2019-05-28,ACC09,downgrade after weak quarter
+2019-05-28,ACC15,"beats estimates, raises guidance"
+2019-05-28,ACC16,"strong demand, expands partnership"
+2019-05-28,ACC17,"strong demand, expands partnership"
+2019-05-28,ACC18,lawsuit and investigation weigh on shares
+2019-05-28,ACC20,downgrade after weak quarter
+2019-05-28,ACC21,"record profit, upgrade to buy"
+2019-05-28,ACC22,"beats estimates, raises guidance"
+2019-05-28,ACC23,"beats estimates, raises guidance"
+2019-05-28,ACC24,"record profit, upgrade to buy"
+2019-06-04,ACC00,"record profit, upgrade to buy"
+2019-06-04,ACC02,downgrade after weak quarter
+2019-06-04,ACC03,downgrade after weak quarter
+2019-06-04,ACC04,"beats estimates, raises guidance"
+2019-06-04,ACC05,"misses estimates, cuts guidance"
+2019-06-04,ACC17,"record profit, upgrade to buy"
+2019-06-04,ACC19,"beats estimates, raises guidance"
+2019-06-04,ACC21,"record profit, upgrade to buy"
+2019-06-04,ACC24,lawsuit and investigation weigh on shares
+2019-06-11,ACC04,"strong demand, expands partnership"
+2019-06-11,ACC09,lawsuit and investigation weigh on shares
+2019-06-11,ACC10,"strong demand, expands partnership"
+2019-06-11,ACC12,"strong demand, expands partnership"
+2019-06-11,ACC14,"misses estimates, cuts guidance"
+2019-06-11,ACC16,"record profit, upgrade to buy"
+2019-06-11,ACC18,downgrade after weak quarter
+2019-06-11,ACC19,"strong demand, expands partnership"
+2019-06-11,ACC24,downgrade after weak quarter
+2019-06-18,ACC00,"strong demand, expands partnership"
+2019-06-18,ACC01,"misses estimates, cuts guidance"
+2019-06-18,ACC10,"strong demand, expands partnership"
+2019-06-18,ACC11,"beats estimates, raises guidance"
+2019-06-18,ACC16,lawsuit and investigation weigh on shares
+2019-06-18,ACC18,downgrade after weak quarter
+2019-06-25,ACC03,"misses estimates, cuts guidance"
+2019-06-25,ACC08,"misses estimates, cuts guidance"
+2019-06-25,ACC13,"beats estimates, raises guidance"
+2019-06-25,ACC15,lawsuit and investigation weigh on shares
+2019-06-25,ACC16,"beats estimates, raises guidance"
+2019-07-02,ACC09,lawsuit and investigation weigh on shares
+2019-07-02,ACC12,"beats estimates, raises guidance"
+2019-07-02,ACC13,"strong demand, expands partnership"
+2019-07-09,ACC00,"record profit, upgrade to buy"
+2019-07-09,ACC04,"beats estimates, raises guidance"
+2019-07-09,ACC11,"beats estimates, raises guidance"
+2019-07-09,ACC17,downgrade after weak quarter
+2019-07-09,ACC19,"strong demand, expands partnership"
+2019-07-16,ACC02,lawsuit and investigation weigh on shares
+2019-07-16,ACC06,"misses estimates, cuts guidance"
+2019-07-16,ACC10,lawsuit and investigation weigh on shares
+2019-07-16,ACC15,lawsuit and investigation weigh on shares
+2019-07-16,ACC20,"beats estimates, raises guidance"
+2019-07-16,ACC23,"strong demand, expands partnership"
+2019-07-23,ACC05,"beats estimates, raises guidance"
+2019-07-23,ACC06,"record profit, upgrade to buy"
+2019-07-23,ACC07,"record profit, upgrade to buy"
+2019-07-23,ACC10,"misses estimates, cuts guidance"
+2019-07-23,ACC15,downgrade after weak quarter
+2019-07-23,ACC17,"misses estimates, cuts guidance"
+2019-07-23,ACC20,"beats estimates, raises guidance"
+2019-07-30,ACC00,"record profit, upgrade to buy"
+2019-07-30,ACC01,"record profit, upgrade to buy"
+2019-07-30,ACC03,"strong demand, expands partnership"
+2019-07-30,ACC04,"strong demand, expands partnership"
+2019-07-30,ACC06,lawsuit and investigation weigh on shares
+2019-07-30,ACC08,downgrade after weak quarter
+2019-07-30,ACC09,"misses estimates, cuts guidance"
+2019-07-30,ACC10,"misses estimates, cuts guidance"
+2019-07-30,ACC11,"beats estimates, raises guidance"
+2019-07-30,ACC14,"beats estimates, raises guidance"
+2019-07-30,ACC21,"misses estimates, cuts guidance"
+2019-07-30,ACC22,"record profit, upgrade to buy"
+2019-08-06,ACC02,"beats estimates, raises guidance"
+2019-08-06,ACC03,"beats estimates, raises guidance"
+2019-08-06,ACC06,"record profit, upgrade to buy"
+2019-08-06,ACC07,"beats estimates, raises guidance"
+2019-08-06,ACC10,downgrade after weak quarter
+2019-08-06,ACC12,"misses estimates, cuts guidance"
+2019-08-06,ACC13,downgrade after weak quarter
+2019-08-06,ACC18,"record profit, upgrade to buy"
+2019-08-06,ACC20,downgrade after weak quarter
+2019-08-13,ACC00,downgrade after weak quarter
+2019-08-13,ACC04,"record profit, upgrade to buy"
+2019-08-13,ACC05,"beats estimates, raises guidance"
+2019-08-13,ACC06,"strong demand, expands partnership"
+2019-08-13,ACC11,"beats estimates, raises guidance"
+2019-08-13,ACC17,"beats estimates, raises guidance"
+2019-08-13,ACC18,"record profit, upgrade to buy"
+2019-08-13,ACC20,"beats estimates, raises guidance"
+2019-08-20,ACC00,"record profit, upgrade to buy"
+2019-08-20,ACC01,lawsuit and investigation weigh on shares
+2019-08-20,ACC02,"record profit, upgrade to buy"
+2019-08-20,ACC06,"record profit, upgrade to buy"
+2019-08-20,ACC07,"strong demand, expands partnership"
+2019-08-20,ACC08,downgrade after weak quarter
+2019-08-20,ACC15,lawsuit and investigation weigh on shares
+2019-08-20,ACC17,"misses estimates, cuts guidance"
+2019-08-20,ACC18,"beats estimates, raises guidance"
+2019-08-27,ACC00,"beats estimates, raises guidance"
+2019-08-27,ACC02,downgrade after weak quarter
+2019-08-27,ACC03,lawsuit and investigation weigh on shares
+2019-08-27,ACC07,downgrade after weak quarter
+2019-08-27,ACC12,"strong demand, expands partnership"
+2019-08-27,ACC14,"beats estimates, raises guidance"
+2019-08-27,ACC16,"beats estimates, raises guidance"
+2019-08-27,ACC21,"misses estimates, cuts guidance"
+2019-08-27,ACC24,downgrade after weak quarter
+2019-09-03,ACC01,"misses estimates, cuts guidance"
+2019-09-03,ACC10,downgrade after weak quarter
+2019-09-03,ACC15,downgrade after weak quarter
+2019-09-03,ACC17,"misses estimates, cuts guidance"
+2019-09-10,ACC00,"strong demand, expands partnership"
+2019-09-10,ACC03,"record profit, upgrade to buy"
+2019-09-10,ACC09,"misses estimates, cuts guidance"
+2019-09-10,ACC10,"record profit, upgrade to buy"
+2019-09-10,ACC24,downgrade after weak quarter
+2019-09-17,ACC00,lawsuit and investigation weigh on shares
+2019-09-17,ACC02,lawsuit and investigation weigh on shares
+2019-09-17,ACC04,"strong demand, expands partnership"
+2019-09-17,ACC10,downgrade after weak quarter
+2019-09-17,ACC11,"record profit, upgrade to buy"
+2019-09-17,ACC17,"strong demand, expands partnership"
+2019-09-17,ACC19,"beats estimates, raises guidance"
+2019-09-17,ACC21,"beats estimates, raises guidance"
+2019-09-17,ACC24,downgrade after weak quarter
+2019-09-24,ACC00,"misses estimates, cuts guidance"
+2019-09-24,ACC04,"strong demand, expands partnership"
+2019-09-24,ACC11,downgrade after weak quarter
+2019-09-24,ACC15,"beats estimates, raises guidance"
+2019-09-24,ACC19,"record profit, upgrade to buy"
+2019-09-24,ACC20,"strong demand, expands partnership"
+2019-09-24,ACC23,lawsuit and investigation weigh on shares
+2019-10-01,ACC00,downgrade after weak quarter
+2019-10-01,ACC05,downgrade after weak quarter
+2019-10-01,ACC07,"record profit, upgrade to buy"
+2019-10-01,ACC08,"beats estimates, raises guidance"
+2019-10-01,ACC09,"misses estimates, cuts guidance"
+2019-10-01,ACC12,"record profit, upgrade to buy"
+2019-10-08,ACC00,"misses estimates, cuts guidance"
+2019-10-08,ACC01,"beats estimates, raises guidance"
+2019-10-08,ACC05,lawsuit and investigation weigh on shares
+2019-10-08,ACC07,"strong demand, expands partnership"
+2019-10-08,ACC08,"record profit, upgrade to buy"
+2019-10-08,ACC10,"strong demand, expands partnership"
+2019-10-08,ACC17,"record profit, upgrade to buy"
+2019-10-08,ACC20,"strong demand, expands partnership"
+2019-10-08,ACC23,"strong demand, expands partnership"
+2019-10-15,ACC00,"strong demand, expands partnership"
+2019-10-15,ACC02,"beats estimates, raises guidance"
+2019-10-15,ACC04,lawsuit and investigation weigh on shares
+2019-10-15,ACC06,downgrade after weak quarter
+2019-10-15,ACC10,"beats estimates, raises guidance"
+2019-10-15,ACC15,"beats estimates, raises guidance"
+2019-10-15,ACC18,"beats estimates, raises guidance"
+2019-10-15,ACC22,downgrade after weak quarter
+2019-10-22,ACC00,downgrade after weak quarter
+2019-10-22,ACC03,"misses estimates, cuts guidance"
+2019-10-22,ACC10,"record profit, upgrade to buy"
+2019-10-22,ACC12,lawsuit and investigation weigh on shares
+2019-10-22,ACC13,lawsuit and investigation weigh on shares
+2019-10-22,ACC14,"misses estimates, cuts guidance"
+2019-10-22,ACC17,"record profit, upgrade to buy"
+2019-10-22,ACC22,lawsuit and investigation weigh on shares
+2019-10-29,ACC03,"beats estimates, raises guidance"
+2019-10-29,ACC06,lawsuit and investigation weigh on shares
+2019-10-29,ACC07,"record profit, upgrade to buy"
+2019-10-29,ACC10,"record profit, upgrade to buy"
+2019-10-29,ACC11,lawsuit and investigation weigh on shares
+2019-10-29,ACC13,lawsuit and investigation weigh on shares
+2019-10-29,ACC19,"strong demand, expands partnership"
+2019-11-05,ACC01,lawsuit and investigation weigh on shares
+2019-11-05,ACC02,lawsuit and investigation weigh on shares
+2019-11-05,ACC03,"beats estimates, raises guidance"
+2019-11-05,ACC08,"misses estimates, cuts guidance"
+2019-11-05,ACC10,downgrade after weak quarter
+2019-11-05,ACC22,lawsuit and investigation weigh on shares
+2019-11-05,ACC24,"misses estimates, cuts guidance"
+2019-11-12,ACC01,"record profit, upgrade to buy"
+2019-11-12,ACC03,"strong demand, expands partnership"
+2019-11-12,ACC04,lawsuit and investigation weigh on shares
+2019-11-12,ACC06,downgrade after weak quarter
+2019-11-12,ACC22,"beats estimates, raises guidance"
+2019-11-19,ACC01,"misses estimates, cuts guidance"
+2019-11-19,ACC04,lawsuit and investigation weigh on shares
+2019-11-19,ACC08,"misses estimates, cuts guidance"
+2019-11-19,ACC14,"record profit, upgrade to buy"
+2019-11-19,ACC16,downgrade after weak quarter
+2019-11-19,ACC18,"strong demand, expands partnership"
+2019-11-19,ACC24,"beats estimates, raises guidance"
+2019-11-26,ACC01,"misses estimates, cuts guidance"
+2019-11-26,ACC03,"strong demand, expands partnership"
+2019-11-26,ACC04,"beats estimates, raises guidance"
+2019-11-26,ACC06,lawsuit and investigation weigh on shares
+2019-11-26,ACC10,"record profit, upgrade to buy"
+2019-11-26,ACC12,"record profit, upgrade to buy"
+2019-11-26,ACC15,"beats estimates, raises guidance"
+2019-11-26,ACC16,"record profit, upgrade to buy"
+2019-11-26,ACC17,"strong demand, expands partnership"
+2019-11-26,ACC18,lawsuit and investigation weigh on shares
+2019-11-26,ACC19,"record profit, upgrade to buy"
+2019-11-26,ACC20,"strong demand, expands partnership"
+2019-11-26,ACC21,lawsuit and investigation weigh on shares
+2019-11-26,ACC24,lawsuit and investigation weigh on shares
+2019-12-03,ACC01,"misses estimates, cuts guidance"
+2019-12-03,ACC05,"strong demand, expands partnership"
+2019-12-03,ACC09,lawsuit and investigation weigh on shares
+2019-12-03,ACC15,"strong demand, expands partnership"
+2019-12-03,ACC17,"beats estimates, raises guidance"
+2019-12-03,ACC18,downgrade after weak quarter
+2019-12-03,ACC19,"record profit, upgrade to buy"
+2019-12-03,ACC22,"record profit, upgrade to buy"
+2019-12-10,ACC05,"beats estimates, raises guidance"
+2019-12-10,ACC10,"strong demand, expands partnership"
+2019-12-10,ACC17,"record profit, upgrade to buy"
+2019-12-10,ACC20,"strong demand, expands partnership"
+2019-12-10,ACC23,"misses estimates, cuts guidance"
+2019-12-17,ACC02,"strong demand, expands partnership"
+2019-12-17,ACC04,"record profit, upgrade to buy"
+2019-12-17,ACC07,downgrade after weak quarter
+2019-12-17,ACC12,"record profit, upgrade to buy"
+2019-12-17,ACC15,downgrade after weak quarter
+2019-12-17,ACC17,"record profit, upgrade to buy"
+2019-12-17,ACC18,lawsuit and investigation weigh on shares
+2019-12-17,ACC20,"record profit, upgrade to buy"
+2019-12-17,ACC24,"record profit, upgrade to buy"
+2019-12-24,ACC08,downgrade after weak quarter
+2019-12-24,ACC11,"beats estimates, raises guidance"
+2019-12-24,ACC14,"beats estimates, raises guidance"
+2019-12-24,ACC16,downgrade after weak quarter
+2019-12-24,ACC20,"strong demand, expands partnership"
+2019-12-24,ACC23,"strong demand, expands partnership"
+2019-12-31,ACC00,downgrade after weak quarter
+2019-12-31,ACC06,lawsuit and investigation weigh on shares
+2019-12-31,ACC12,downgrade after weak quarter
+2019-12-31,ACC17,downgrade after weak quarter
+2019-12-31,ACC18,"strong demand, expands partnership"
+2019-12-31,ACC19,downgrade after weak quarter
+2019-12-31,ACC21,downgrade after weak quarter
+2019-12-31,ACC24,lawsuit and investigation weigh on shares
+2020-01-07,ACC08,downgrade after weak quarter
+2020-01-07,ACC11,"record profit, upgrade to buy"
+2020-01-07,ACC14,"strong demand, expands partnership"
+2020-01-07,ACC15,"strong demand, expands partnership"
+2020-01-07,ACC20,"beats estimates, raises guidance"
+2020-01-07,ACC21,downgrade after weak quarter
+2020-01-07,ACC23,"record profit, upgrade to buy"
+2020-01-14,ACC02,"beats estimates, raises guidance"
+2020-01-14,ACC03,"beats estimates, raises guidance"
+2020-01-14,ACC05,"strong demand, expands partnership"
+2020-01-14,ACC07,"record profit, upgrade to buy"
+2020-01-14,ACC14,"strong demand, expands partnership"
+2020-01-14,ACC16,"strong demand, expands partnership"
+2020-01-14,ACC19,"misses estimates, cuts guidance"
+2020-01-14,ACC22,"misses estimates, cuts guidance"
+2020-01-21,ACC00,"beats estimates, raises guidance"
+2020-01-21,ACC02,"beats estimates, raises guidance"
+2020-01-21,ACC06,"record profit, upgrade to buy"
+2020-01-21,ACC07,"strong demand, expands partnership"
+2020-01-21,ACC09,"beats estimates, raises guidance"
+2020-01-21,ACC10,"record profit, upgrade to buy"
+2020-01-21,ACC11,"strong demand, expands partnership"
+2020-01-21,ACC12,"beats estimates, raises guidance"
+2020-01-21,ACC14,"strong demand, expands partnership"
+2020-01-21,ACC16,lawsuit and investigation weigh on shares
+2020-01-21,ACC17,"strong demand, expands partnership"
+2020-01-28,ACC04,"strong demand, expands partnership"
+2020-01-28,ACC09,"beats estimates, raises guidance"
+2020-01-28,ACC11,"strong demand, expands partnership"
+2020-01-28,ACC20,"strong demand, expands partnership"
+2020-01-28,ACC21,"strong demand, expands partnership"
+2020-01-28,ACC22,"record profit, upgrade to buy"
+2020-02-04,ACC05,"record profit, upgrade to buy"
+2020-02-04,ACC06,"strong demand, expands partnership"
+2020-02-04,ACC10,lawsuit and investigation weigh on shares
+2020-02-04,ACC11,"beats estimates, raises guidance"
+2020-02-04,ACC12,"beats estimates, raises guidance"
+2020-02-04,ACC16,downgrade after weak quarter
+2020-02-04,ACC22,"record profit, upgrade to buy"
+2020-02-11,ACC00,lawsuit and investigation weigh on shares
+2020-02-11,ACC02,"misses estimates, cuts guidance"
+2020-02-11,ACC11,"beats estimates, raises guidance"
+2020-02-11,ACC16,"strong demand, expands partnership"
+2020-02-11,ACC20,lawsuit and investigation weigh on shares
+2020-02-11,ACC22,"strong demand, expands partnership"
+2020-02-11,ACC23,"beats estimates, raises guidance"
+2020-02-18,ACC06,"misses estimates, cuts guidance"
+2020-02-18,ACC10,"beats estimates, raises guidance"
+2020-02-18,ACC13,"strong demand, expands partnership"
+2020-02-18,ACC20,"misses estimates, cuts guidance"
+2020-02-18,ACC21,downgrade after weak quarter
+2020-02-18,ACC22,"record profit, upgrade to buy"
+2020-02-18,ACC23,"beats estimates, raises guidance"
+2020-02-18,ACC24,downgrade after weak quarter
+2020-02-25,ACC05,"strong demand, expands partnership"
+2020-02-25,ACC07,"beats estimates, raises guidance"
+2020-02-25,ACC10,downgrade after weak quarter
+2020-02-25,ACC15,lawsuit and investigation weigh on shares
+2020-02-25,ACC16,"misses estimates, cuts guidance"
+2020-02-25,ACC23,downgrade after weak quarter
+2020-02-25,ACC24,downgrade after weak quarter
+2020-03-03,ACC14,"record profit, upgrade to buy"
+2020-03-03,ACC17,"beats estimates, raises guidance"
+2020-03-03,ACC18,downgrade after weak quarter
+2020-03-10,ACC00,"misses estimates, cuts guidance"
+2020-03-10,ACC06,lawsuit and investigation weigh on shares
+2020-03-10,ACC07,"record profit, upgrade to buy"
+2020-03-10,ACC08,"misses estimates, cuts guidance"
+2020-03-10,ACC10,"strong demand, expands partnership"
+2020-03-10,ACC12,lawsuit and investigation weigh on shares
+2020-03-10,ACC16,lawsuit and investigation weigh on shares
+2020-03-10,ACC19,downgrade after weak quarter
+2020-03-10,ACC21,"record profit, upgrade to buy"
+2020-03-10,ACC22,lawsuit and investigation weigh on shares
+2020-03-17,ACC00,downgrade after weak quarter
+2020-03-17,ACC01,downgrade after weak quarter
+2020-03-17,ACC04,lawsuit and investigation weigh on shares
+2020-03-17,ACC09,"misses estimates, cuts guidance"
+2020-03-17,ACC12,"misses estimates, cuts guidance"
+2020-03-17,ACC14,"beats estimates, raises guidance"
+2020-03-17,ACC15,"beats estimates, raises guidance"
+2020-03-17,ACC18,lawsuit and investigation weigh on shares
+2020-03-17,ACC20,"misses estimates, cuts guidance"
+2020-03-17,ACC23,"misses estimates, cuts guidance"
+2020-03-17,ACC24,downgrade after weak quarter
+2020-03-24,ACC02,"misses estimates, cuts guidance"
+2020-03-24,ACC06,"strong demand, expands partnership"
+2020-03-24,ACC08,"strong demand, expands partnership"
+2020-03-24,ACC13,"misses estimates, cuts guidance"
+2020-03-24,ACC14,"record profit, upgrade to buy"
+2020-03-24,ACC18,lawsuit and investigation weigh on shares
+2020-03-24,ACC20,"record profit, upgrade to buy"
+2020-03-24,ACC21,"beats estimates, raises guidance"
+2020-03-24,ACC23,"misses estimates, cuts guidance"
+2020-03-31,ACC00,lawsuit and investigation weigh on shares
+2020-03-31,ACC02,"beats estimates, raises guidance"
+2020-03-31,ACC14,"beats estimates, raises guidance"
+2020-03-31,ACC16,"misses estimates, cuts guidance"
+2020-03-31,ACC17,lawsuit and investigation weigh on shares
+2020-03-31,ACC22,"misses estimates, cuts guidance"
+2020-04-07,ACC03,"strong demand, expands partnership"
+2020-04-07,ACC08,"strong demand, expands partnership"
+2020-04-07,ACC10,"record profit, upgrade to buy"
+2020-04-07,ACC15,"record profit, upgrade to buy"
+2020-04-07,ACC21,"beats estimates, raises guidance"
+2020-04-07,ACC23,lawsuit and investigation weigh on shares
+2020-04-14,ACC00,"strong demand, expands partnership"
+2020-04-14,ACC02,"beats estimates, raises guidance"
+2020-04-14,ACC03,"record profit, upgrade to buy"
+2020-04-14,ACC07,"beats estimates, raises guidance"
+2020-04-14,ACC15,"record profit, upgrade to buy"
+2020-04-14,ACC18,"strong demand, expands partnership"
+2020-04-14,ACC21,"record profit, upgrade to buy"
+2020-04-21,ACC02,"strong demand, expands partnership"
+2020-04-21,ACC03,"record profit, upgrade to buy"
+2020-04-21,ACC05,"record profit, upgrade to buy"
+2020-04-21,ACC06,"misses estimates, cuts guidance"
+2020-04-21,ACC08,"beats estimates, raises guidance"
+2020-04-21,ACC12,"strong demand, expands partnership"
+2020-04-21,ACC14,"strong demand, expands partnership"
+2020-04-21,ACC16,"misses estimates, cuts guidance"
+2020-04-21,ACC18,"record profit, upgrade to buy"
+2020-04-21,ACC19,"misses estimates, cuts guidance"
+2020-04-28,ACC02,"strong demand, expands partnership"
+2020-04-28,ACC04,"strong demand, expands partnership"
+2020-04-28,ACC05,"beats estimates, raises guidance"
+2020-04-28,ACC08,"beats estimates, raises guidance"
+2020-04-28,ACC09,downgrade after weak quarter
+2020-04-28,ACC11,"strong demand, expands partnership"
+2020-04-28,ACC12,"beats estimates, raises guidance"
+2020-04-28,ACC17,"strong demand, expands partnership"
+2020-04-28,ACC22,"record profit, upgrade to buy"
+2020-05-05,ACC01,"record profit, upgrade to buy"
+2020-05-05,ACC02,"record profit, upgrade to buy"
+2020-05-05,ACC07,downgrade after weak quarter
+2020-05-05,ACC10,"beats estimates, raises guidance"
+2020-05-05,ACC12,"strong demand, expands partnership"
+2020-05-05,ACC16,"misses estimates, cuts guidance"
+2020-05-05,ACC24,"record profit, upgrade to buy"
+2020-05-12,ACC09,downgrade after weak quarter
+2020-05-12,ACC13,"beats estimates, raises guidance"
+2020-05-12,ACC22,downgrade after weak quarter
+2020-05-19,ACC01,downgrade after weak quarter
+2020-05-19,ACC07,"record profit, upgrade to buy"
+2020-05-19,ACC10,lawsuit and investigation weigh on shares
+2020-05-19,ACC12,"misses estimates, cuts guidance"
+2020-05-19,ACC18,"strong demand, expands partnership"
+2020-05-19,ACC23,lawsuit and investigation weigh on shares
+2020-05-26,ACC00,lawsuit and investigation weigh on shares
+2020-05-26,ACC05,"misses estimates, cuts guidance"
+2020-05-26,ACC06,"strong demand, expands partnership"
+2020-05-26,ACC15,downgrade after weak quarter
+2020-05-26,ACC16,downgrade after weak quarter
+2020-05-26,ACC17,"strong demand, expands partnership"
+2020-05-26,ACC19,"misses estimates, cuts guidance"
+2020-05-26,ACC20,"misses estimates, cuts guidance"
+2020-05-26,ACC21,"beats estimates, raises guidance"
+2020-05-26,ACC24,"beats estimates, raises guidance"
+2020-06-02,ACC04,"misses estimates, cuts guidance"
+2020-06-02,ACC06,"strong demand, expands partnership"
+2020-06-02,ACC08,lawsuit and investigation weigh on shares
+2020-06-02,ACC13,"beats estimates, raises guidance"
+2020-06-02,ACC17,"strong demand, expands partnership"
+2020-06-02,ACC19,lawsuit and investigation weigh on shares
+2020-06-02,ACC20,"record profit, upgrade to buy"
+2020-06-02,ACC21,"beats estimates, raises guidance"
+2020-06-02,ACC22,lawsuit and investigation weigh on shares
+2020-06-02,ACC23,downgrade after weak quarter
+2020-06-09,ACC01,"strong demand, expands partnership"
+2020-06-09,ACC14,"beats estimates, raises guidance"
+2020-06-09,ACC17,"misses estimates, cuts guidance"
+2020-06-09,ACC19,"misses estimates, cuts guidance"
+2020-06-09,ACC22,downgrade after weak quarter
+2020-06-09,ACC23,downgrade after weak quarter
+2020-06-16,ACC01,"strong demand, expands partnership"
+2020-06-16,ACC04,"beats estimates, raises guidance"
+2020-06-16,ACC05,"record profit, upgrade to buy"
+2020-06-16,ACC06,"beats estimates, raises guidance"
+2020-06-16,ACC07,downgrade after weak quarter
+2020-06-16,ACC10,"misses estimates, cuts guidance"
+2020-06-16,ACC12,"beats estimates, raises guidance"
+2020-06-16,ACC13,"misses estimates, cuts guidance"
+2020-06-16,ACC17,downgrade after weak quarter
+2020-06-16,ACC21,"strong demand, expands partnership"
+2020-06-23,ACC00,downgrade after weak quarter
+2020-06-23,ACC04,"strong demand, expands partnership"
+2020-06-23,ACC15,"misses estimates, cuts guidance"
+2020-06-23,ACC16,lawsuit and investigation weigh on shares
+2020-06-23,ACC19,"misses estimates, cuts guidance"
+2020-06-23,ACC23,lawsuit and investigation weigh on shares
+2020-06-30,ACC00,lawsuit and investigation weigh on shares
+2020-06-30,ACC01,"strong demand, expands partnership"
+2020-06-30,ACC09,"misses estimates, cuts guidance"
+2020-06-30,ACC13,lawsuit and investigation weigh on shares
+2020-06-30,ACC14,"record profit, upgrade to buy"
+2020-06-30,ACC16,"misses estimates, cuts guidance"
+2020-06-30,ACC21,lawsuit and investigation weigh on shares
+2020-06-30,ACC23,downgrade after weak quarter
+2020-06-30,ACC24,"strong demand, expands partnership"
+2020-07-07,ACC09,downgrade after weak quarter
+2020-07-07,ACC10,"beats estimates, raises guidance"
+2020-07-07,ACC13,downgrade after weak quarter
+2020-07-07,ACC24,"record profit, upgrade to buy"
+2020-07-14,ACC00,"record profit, upgrade to buy"
+2020-07-14,ACC01,"record profit, upgrade to buy"
+2020-07-14,ACC06,"record profit, upgrade to buy"
+2020-07-14,ACC09,downgrade after weak quarter
+2020-07-14,ACC14,"record profit, upgrade to buy"
+2020-07-14,ACC15,"misses estimates, cuts guidance"
+2020-07-14,ACC16,"record profit, upgrade to buy"
+2020-07-14,ACC23,downgrade after weak quarter
+2020-07-14,ACC24,"record profit, upgrade to buy"
+2020-07-21,ACC00,"strong demand, expands partnership"
+2020-07-21,ACC04,downgrade after weak quarter
+2020-07-21,ACC13,"strong demand, expands partnership"
+2020-07-21,ACC14,"record profit, upgrade to buy"
+2020-07-21,ACC15,lawsuit and investigation weigh on shares
+2020-07-21,ACC17,"beats estimates, raises guidance"
+2020-07-21,ACC21,"misses estimates, cuts guidance"
+2020-07-28,ACC03,"beats estimates, raises guidance"
+2020-07-28,ACC04,"record profit, upgrade to buy"
+2020-07-28,ACC05,"strong demand, expands partnership"
+2020-07-28,ACC13,"strong demand, expands partnership"
+2020-07-28,ACC15,"strong demand, expands partnership"
+2020-07-28,ACC16,"record profit, upgrade to buy"
+2020-07-28,ACC24,"misses estimates, cuts guidance"
+2020-08-04,ACC01,"beats estimates, raises guidance"
+2020-08-04,ACC05,"strong demand, expands partnership"
+2020-08-04,ACC07,"misses estimates, cuts guidance"
+2020-08-04,ACC10,"beats estimates, raises guidance"
+2020-08-04,ACC16,"beats estimates, raises guidance"
+2020-08-04,ACC19,"beats estimates, raises guidance"
+2020-08-04,ACC20,"misses estimates, cuts guidance"
+2020-08-04,ACC23,"beats estimates, raises guidance"
+2020-08-04,ACC24,"strong demand, expands partnership"
+2020-08-11,ACC00,downgrade after weak quarter
+2020-08-11,ACC03,"strong demand, expands partnership"
+2020-08-11,ACC12,"record profit, upgrade to buy"
+2020-08-11,ACC16,"strong demand, expands partnership"
+2020-08-11,ACC17,"strong demand, expands partnership"
+2020-08-11,ACC20,"beats estimates, raises guidance"
+2020-08-11,ACC21,"beats estimates, raises guidance"
+2020-08-18,ACC06,"misses estimates, cuts guidance"
+2020-08-18,ACC12,"record profit, upgrade to buy"
+2020-08-18,ACC14,downgrade after weak quarter
+2020-08-18,ACC18,"strong demand, expands partnership"
+2020-08-18,ACC19,"record profit, upgrade to buy"
+2020-08-25,ACC00,"strong demand, expands partnership"
+2020-08-25,ACC04,downgrade after weak quarter
+2020-08-25,ACC05,downgrade after weak quarter
+2020-08-25,ACC06,lawsuit and investigation weigh on shares
+2020-08-25,ACC13,"record profit, upgrade to buy"
+2020-08-25,ACC17,"beats estimates, raises guidance"
+2020-08-25,ACC21,"strong demand, expands partnership"
+2020-08-25,ACC22,"strong demand, expands partnership"
+2020-09-01,ACC03,lawsuit and investigation weigh on shares
+2020-09-01,ACC04,"misses estimates, cuts guidance"
+2020-09-01,ACC06,"misses estimates, cuts guidance"
+2020-09-01,ACC19,"strong demand, expands partnership"
+2020-09-01,ACC23,downgrade after weak quarter
+2020-09-08,ACC00,"beats estimates, raises guidance"
+2020-09-08,ACC01,lawsuit and investigation weigh on shares
+2020-09-08,ACC03,lawsuit and investigation weigh on shares
+2020-09-08,ACC04,lawsuit and investigation weigh on shares
+2020-09-08,ACC05,"misses estimates, cuts guidance"
+2020-09-08,ACC12,"beats estimates, raises guidance"
+2020-09-08,ACC13,"misses estimates, cuts guidance"
+2020-09-08,ACC19,"strong demand, expands partnership"
+2020-09-08,ACC20,"misses estimates, cuts guidance"
+2020-09-08,ACC21,"record profit, upgrade to buy"
+2020-09-08,ACC24,"beats estimates, raises guidance"
+2020-09-15,ACC06,lawsuit and investigation weigh on shares
+2020-09-15,ACC08,"record profit, upgrade to buy"
+2020-09-15,ACC15,lawsuit and investigation weigh on shares
+2020-09-15,ACC19,"record profit, upgrade to buy"
+2020-09-15,ACC20,downgrade after weak quarter
+2020-09-22,ACC01,"record profit, upgrade to buy"
+2020-09-22,ACC03,"strong demand, expands partnership"
+2020-09-22,ACC14,"record profit, upgrade to buy"
+2020-09-22,ACC17,"beats estimates, raises guidance"
+2020-09-22,ACC18,"misses estimates, cuts guidance"
+2020-09-22,ACC21,"strong demand, expands partnership"
+2020-09-22,ACC22,downgrade after weak quarter
+2020-09-22,ACC24,downgrade after weak quarter
+2020-09-29,ACC00,lawsuit and investigation weigh on shares
+2020-09-29,ACC01,"record profit, upgrade to buy"
+2020-09-29,ACC05,"beats estimates, raises guidance"
+2020-09-29,ACC12,"record profit, upgrade to buy"
+2020-09-29,ACC16,downgrade after weak quarter
+2020-09-29,ACC17,"record profit, upgrade to buy"
+2020-09-29,ACC23,lawsuit and investigation weigh on shares
+2020-10-06,ACC05,"strong demand, expands partnership"
+2020-10-06,ACC10,"record profit, upgrade to buy"
+2020-10-06,ACC11,"misses estimates, cuts guidance"
+2020-10-13,ACC02,downgrade after weak quarter
+2020-10-13,ACC03,"beats estimates, raises guidance"
+2020-10-13,ACC05,"record profit, upgrade to buy"
+2020-10-13,ACC12,"beats estimates, raises guidance"
+2020-10-13,ACC14,"strong demand, expands partnership"
+2020-10-13,ACC15,lawsuit and investigation weigh on shares
+2020-10-13,ACC17,"record profit, upgrade to buy"
+2020-10-13,ACC20,"misses estimates, cuts guidance"
+2020-10-13,ACC22,lawsuit and investigation weigh on shares
+2020-10-20,ACC05,"record profit, upgrade to buy"
+2020-10-20,ACC08,lawsuit and investigation weigh on shares
+2020-10-20,ACC12,"strong demand, expands partnership"
+2020-10-20,ACC13,"beats estimates, raises guidance"
+2020-10-27,ACC03,"beats estimates, raises guidance"
+2020-10-27,ACC08,"misses estimates, cuts guidance"
+2020-10-27,ACC13,"beats estimates, raises guidance"
+2020-10-27,ACC15,"misses estimates, cuts guidance"
+2020-10-27,ACC18,downgrade after weak quarter
+2020-10-27,ACC19,"misses estimates, cuts guidance"
+2020-10-27,ACC20,"misses estimates, cuts guidance"
+2020-10-27,ACC21,downgrade after weak quarter
+2020-10-27,ACC24,"beats estimates, raises guidance"
+2020-11-03,ACC01,lawsuit and investigation weigh on shares
+2020-11-03,ACC05,"record profit, upgrade to buy"
+2020-11-03,ACC06,downgrade after weak quarter
+2020-11-03,ACC09,"record profit, upgrade to buy"
+2020-11-03,ACC14,lawsuit and investigation weigh on shares
+2020-11-03,ACC17,"record profit, upgrade to buy"
+2020-11-03,ACC21,downgrade after weak quarter
+2020-11-03,ACC24,downgrade after weak quarter
+2020-11-10,ACC00,"misses estimates, cuts guidance"
+2020-11-10,ACC03,"strong demand, expands partnership"
+2020-11-10,ACC05,"record profit, upgrade to buy"
+2020-11-10,ACC06,downgrade after weak quarter
+2020-11-10,ACC07,"strong demand, expands partnership"
+2020-11-10,ACC14,"misses estimates, cuts guidance"
+2020-11-10,ACC16,"strong demand, expands partnership"
+2020-11-10,ACC18,"misses estimates, cuts guidance"
+2020-11-10,ACC21,"misses estimates, cuts guidance"
+2020-11-10,ACC22,"beats estimates, raises guidance"
+2020-11-17,ACC04,"strong demand, expands partnership"
+2020-11-17,ACC06,lawsuit and investigation weigh on shares
+2020-11-17,ACC11,"strong demand, expands partnership"
+2020-11-17,ACC13,"record profit, upgrade to buy"
+2020-11-17,ACC15,"misses estimates, cuts guidance"
+2020-11-17,ACC18,"misses estimates, cuts guidance"
+2020-11-24,ACC00,"misses estimates, cuts guidance"
+2020-11-24,ACC02,"record profit, upgrade to buy"
+2020-11-24,ACC03,"strong demand, expands partnership"
+2020-11-24,ACC05,"record profit, upgrade to buy"
+2020-11-24,ACC07,"beats estimates, raises guidance"
+2020-11-24,ACC08,"record profit, upgrade to buy"
+2020-11-24,ACC17,"beats estimates, raises guidance"
+2020-11-24,ACC22,downgrade after weak quarter
+2020-11-24,ACC24,"beats estimates, raises guidance"
+2020-12-01,ACC03,"record profit, upgrade to buy"
+2020-12-01,ACC04,"strong demand, expands partnership"
+2020-12-01,ACC07,downgrade after weak quarter
+2020-12-01,ACC08,"strong demand, expands partnership"
+2020-12-01,ACC09,"misses estimates, cuts guidance"
+2020-12-01,ACC10,lawsuit and investigation weigh on shares
+2020-12-01,ACC12,downgrade after weak quarter
+2020-12-01,ACC13,"record profit, upgrade to buy"
+2020-12-01,ACC15,"misses estimates, cuts guidance"
+2020-12-01,ACC17,downgrade after weak quarter
+2020-12-01,ACC18,lawsuit and investigation weigh on shares
+2020-12-01,ACC21,downgrade after weak quarter
+2020-12-01,ACC22,lawsuit and investigation weigh on shares
+2020-12-08,ACC01,lawsuit and investigation weigh on shares
+2020-12-08,ACC03,downgrade after weak quarter
+2020-12-08,ACC13,"strong demand, expands partnership"
+2020-12-08,ACC14,"record profit, upgrade to buy"
+2020-12-08,ACC17,"misses estimates, cuts guidance"
+2020-12-08,ACC20,"strong demand, expands partnership"
+2020-12-08,ACC21,"record profit, upgrade to buy"
+2020-12-08,ACC22,downgrade after weak quarter
+2020-12-15,ACC00,downgrade after weak quarter
+2020-12-15,ACC19,lawsuit and investigation weigh on shares
+2020-12-15,ACC20,downgrade after weak quarter
+2020-12-15,ACC22,"misses estimates, cuts guidance"
+2020-12-22,ACC00,downgrade after weak quarter
+2020-12-22,ACC02,"record profit, upgrade to buy"
+2020-12-22,ACC07,lawsuit and investigation weigh on shares
+2020-12-22,ACC08,lawsuit and investigation weigh on shares
+2020-12-22,ACC09,downgrade after weak quarter
+2020-12-22,ACC10,lawsuit and investigation weigh on shares
+2020-12-22,ACC16,downgrade after weak quarter
+2020-12-22,ACC17,"misses estimates, cuts guidance"
+2020-12-22,ACC20,"misses estimates, cuts guidance"
+2020-12-22,ACC22,downgrade after weak quarter
+2020-12-22,ACC23,"misses estimates, cuts guidance"
+2020-12-29,ACC06,lawsuit and investigation weigh on shares
+2020-12-29,ACC15,"record profit, upgrade to buy"
+2020-12-29,ACC17,"strong demand, expands partnership"
+2021-01-05,ACC02,"strong demand, expands partnership"
+2021-01-05,ACC05,downgrade after weak quarter
+2021-01-05,ACC13,"record profit, upgrade to buy"
+2021-01-05,ACC17,lawsuit and investigation weigh on shares
+2021-01-05,ACC18,downgrade after weak quarter
+2021-01-05,ACC19,"strong demand, expands partnership"
+2021-01-12,ACC02,lawsuit and investigation weigh on shares
+2021-01-12,ACC04,"beats estimates, raises guidance"
+2021-01-12,ACC06,lawsuit and investigation weigh on shares
+2021-01-12,ACC12,lawsuit and investigation weigh on shares
+2021-01-12,ACC13,lawsuit and investigation weigh on shares
+2021-01-12,ACC20,downgrade after weak quarter
+2021-01-12,ACC21,"strong demand, expands partnership"
+2021-01-19,ACC00,"beats estimates, raises guidance"
+2021-01-19,ACC01,downgrade after weak quarter
+2021-01-19,ACC02,downgrade after weak quarter
+2021-01-19,ACC05,downgrade after weak quarter
+2021-01-19,ACC07,"record profit, upgrade to buy"
+2021-01-19,ACC08,"beats estimates, raises guidance"
+2021-01-19,ACC14,"misses estimates, cuts guidance"
+2021-01-19,ACC16,downgrade after weak quarter
+2021-01-19,ACC19,downgrade after weak quarter
+2021-01-19,ACC23,downgrade after weak quarter
+2021-01-19,ACC24,"misses estimates, cuts guidance"
+2021-01-26,ACC00,"beats estimates, raises guidance"
+2021-01-26,ACC03,"strong demand, expands partnership"
+2021-01-26,ACC09,"strong demand, expands partnership"
+2021-01-26,ACC13,"misses estimates, cuts guidance"
+2021-01-26,ACC18,"strong demand, expands partnership"
+2021-01-26,ACC20,"strong demand, expands partnership"
+2021-02-02,ACC00,"record profit, upgrade to buy"
+2021-02-02,ACC06,downgrade after weak quarter
+2021-02-02,ACC09,"beats estimates, raises guidance"
+2021-02-02,ACC12,downgrade after weak quarter
+2021-02-02,ACC13,"misses estimates, cuts guidance"
+2021-02-02,ACC15,"beats estimates, raises guidance"
+2021-02-02,ACC19,"misses estimates, cuts guidance"
+2021-02-09,ACC03,lawsuit and investigation weigh on shares
+2021-02-09,ACC04,"record profit, upgrade to buy"
+2021-02-09,ACC07,"beats estimates, raises guidance"
+2021-02-09,ACC10,downgrade after weak quarter
+2021-02-09,ACC14,"misses estimates, cuts guidance"
+2021-02-09,ACC17,lawsuit and investigation weigh on shares
+2021-02-09,ACC20,lawsuit and investigation weigh on shares
+2021-02-16,ACC03,"strong demand, expands partnership"
+2021-02-16,ACC09,downgrade after weak quarter
+2021-02-16,ACC13,"misses estimates, cuts guidance"
+2021-02-16,ACC14,"record profit, upgrade to buy"
+2021-02-16,ACC15,"strong demand, expands partnership"
+2021-02-23,ACC01,lawsuit and investigation weigh on shares
+2021-02-23,ACC06,"beats estimates, raises guidance"
+2021-02-23,ACC07,"record profit, upgrade to buy"
+2021-02-23,ACC08,"strong demand, expands partnership"
+2021-02-23,ACC09,lawsuit and investigation weigh on shares
+2021-02-23,ACC10,"misses estimates, cuts guidance"
+2021-02-23,ACC13,downgrade after weak quarter
+2021-02-23,ACC18,"record profit, upgrade to buy"
+2021-02-23,ACC20,"misses estimates, cuts guidance"
+2021-02-23,ACC22,downgrade after weak quarter
+2021-03-02,ACC02,"strong demand, expands partnership"
+2021-03-02,ACC04,"beats estimates, raises guidance"
+2021-03-02,ACC07,"beats estimates, raises guidance"
+2021-03-02,ACC11,"beats estimates, raises guidance"
+2021-03-02,ACC12,"beats estimates, raises guidance"
+2021-03-02,ACC17,"strong demand, expands partnership"
+2021-03-02,ACC18,"strong demand, expands partnership"
+2021-03-02,ACC19,"beats estimates, raises guidance"
+2021-03-02,ACC21,"record profit, upgrade to buy"
+2021-03-02,ACC23,lawsuit and investigation weigh on shares
+2021-03-02,ACC24,"beats estimates, raises guidance"
+2021-03-09,ACC00,"strong demand, expands partnership"
+2021-03-09,ACC07,"beats estimates, raises guidance"
+2021-03-09,ACC08,"record profit, upgrade to buy"
+2021-03-09,ACC11,"strong demand, expands partnership"
+2021-03-09,ACC13,"misses estimates, cuts guidance"
+2021-03-09,ACC14,"beats estimates, raises guidance"
+2021-03-09,ACC15,"beats estimates, raises guidance"
+2021-03-09,ACC16,"beats estimates, raises guidance"
+2021-03-09,ACC17,"beats estimates, raises guidance"
+2021-03-09,ACC21,"record profit, upgrade to buy"
+2021-03-09,ACC22,"misses estimates, cuts guidance"
+2021-03-09,ACC24,"beats estimates, raises guidance"
+2021-03-16,ACC06,"strong demand, expands partnership"
+2021-03-16,ACC18,"strong demand, expands partnership"
+2021-03-16,ACC19,"strong demand, expands partnership"
+2021-03-16,ACC20,lawsuit and investigation weigh on shares
+2021-03-16,ACC22,downgrade after weak quarter
+2021-03-16,ACC23,downgrade after weak quarter
+2021-03-16,ACC24,downgrade after weak quarter
+2021-03-23,ACC02,downgrade after weak quarter
+2021-03-23,ACC03,lawsuit and investigation weigh on shares
+2021-03-23,ACC15,lawsuit and investigation weigh on shares
+2021-03-23,ACC18,"beats estimates, raises guidance"
+2021-03-23,ACC19,"strong demand, expands partnership"
+2021-03-30,ACC03,"misses estimates, cuts guidance"
+2021-03-30,ACC04,"beats estimates, raises guidance"
+2021-03-30,ACC06,"strong demand, expands partnership"
+2021-03-30,ACC07,"beats estimates, raises guidance"
+2021-03-30,ACC12,downgrade after weak quarter
+2021-03-30,ACC15,"misses estimates, cuts guidance"
+2021-03-30,ACC16,"record profit, upgrade to buy"
+2021-03-30,ACC17,"strong demand, expands partnership"
+2021-03-30,ACC19,downgrade after weak quarter
+2021-03-30,ACC23,"record profit, upgrade to buy"
+2021-04-06,ACC03,"strong demand, expands partnership"
+2021-04-06,ACC04,"record profit, upgrade to buy"
+2021-04-06,ACC05,downgrade after weak quarter
+2021-04-06,ACC06,downgrade after weak quarter
+2021-04-06,ACC09,"strong demand, expands partnership"
+2021-04-06,ACC11,lawsuit and investigation weigh on shares
+2021-04-06,ACC16,"strong demand, expands partnership"
+2021-04-06,ACC18,lawsuit and investigation weigh on shares
+2021-04-06,ACC19,"misses estimates, cuts guidance"
+2021-04-06,ACC20,"strong demand, expands partnership"
+2021-04-06,ACC22,"strong demand, expands partnership"
+2021-04-06,ACC23,"record profit, upgrade to buy"
+2021-04-13,ACC00,"beats estimates, raises guidance"
+2021-04-13,ACC02,"beats estimates, raises guidance"
+2021-04-13,ACC09,"beats estimates, raises guidance"
+2021-04-13,ACC19,"beats estimates, raises guidance"
+2021-04-13,ACC20,"record profit, upgrade to buy"
+2021-04-13,ACC21,"strong demand, expands partnership"
+2021-04-13,ACC22,"misses estimates, cuts guidance"
+2021-04-13,ACC24,"beats estimates, raises guidance"
+2021-04-20,ACC01,downgrade after weak quarter
+2021-04-20,ACC02,"record profit, upgrade to buy"
+2021-04-20,ACC05,downgrade after weak quarter
+2021-04-20,ACC07,"record profit, upgrade to buy"
+2021-04-20,ACC09,"beats estimates, raises guidance"
+2021-04-20,ACC10,"misses estimates, cuts guidance"
+2021-04-20,ACC11,"strong demand, expands partnership"
+2021-04-20,ACC13,"record profit, upgrade to buy"
+2021-04-20,ACC14,"misses estimates, cuts guidance"
+2021-04-20,ACC15,"beats estimates, raises guidance"
+2021-04-20,ACC17,"record profit, upgrade to buy"
+2021-04-20,ACC18,"strong demand, expands partnership"
+2021-04-20,ACC19,"record profit, upgrade to buy"
+2021-04-27,ACC02,"misses estimates, cuts guidance"
+2021-04-27,ACC12,lawsuit and investigation weigh on shares
+2021-04-27,ACC13,"record profit, upgrade to buy"
+2021-04-27,ACC15,downgrade after weak quarter
+2021-04-27,ACC18,"beats estimates, raises guidance"
+2021-04-27,ACC19,"strong demand, expands partnership"
+2021-04-27,ACC23,"strong demand, expands partnership"
+2021-05-04,ACC01,"record profit, upgrade to buy"
+2021-05-04,ACC02,"beats estimates, raises guidance"
+2021-05-04,ACC04,"strong demand, expands partnership"
+2021-05-04,ACC05,"strong demand, expands partnership"
+2021-05-04,ACC06,lawsuit and investigation weigh on shares
+2021-05-04,ACC08,"strong demand, expands partnership"
+2021-05-04,ACC12,"misses estimates, cuts guidance"
+2021-05-04,ACC14,downgrade after weak quarter
+2021-05-04,ACC18,"strong demand, expands partnership"
+2021-05-04,ACC21,"record profit, upgrade to buy"
+2021-05-11,ACC08,"beats estimates, raises guidance"
+2021-05-11,ACC09,"record profit, upgrade to buy"
+2021-05-11,ACC10,"beats estimates, raises guidance"
+2021-05-11,ACC20,downgrade after weak quarter
+2021-05-11,ACC21,"record profit, upgrade to buy"
+2021-05-11,ACC24,"misses estimates, cuts guidance"
+2021-05-18,ACC00,"misses estimates, cuts guidance"
+2021-05-18,ACC02,"strong demand, expands partnership"
+2021-05-18,ACC03,downgrade after weak quarter
+2021-05-18,ACC04,"strong demand, expands partnership"
+2021-05-18,ACC09,"strong demand, expands partnership"
+2021-05-18,ACC10,"misses estimates, cuts guidance"
+2021-05-18,ACC13,"record profit, upgrade to buy"
+2021-05-18,ACC14,"beats estimates, raises guidance"
+2021-05-18,ACC15,downgrade after weak quarter
+2021-05-18,ACC16,"misses estimates, cuts guidance"
+2021-05-18,ACC22,"record profit, upgrade to buy"
+2021-05-18,ACC23,"beats estimates, raises guidance"
+2021-05-25,ACC00,"strong demand, expands partnership"
+2021-05-25,ACC01,downgrade after weak quarter
+2021-05-25,ACC02,"strong demand, expands partnership"
+2021-05-25,ACC03,downgrade after weak quarter
+2021-05-25,ACC04,"beats estimates, raises guidance"
+2021-05-25,ACC11,"strong demand, expands partnership"
+2021-05-25,ACC12,downgrade after weak quarter
+2021-05-25,ACC14,"beats estimates, raises guidance"
+2021-05-25,ACC23,downgrade after weak quarter
+2021-06-01,ACC00,"beats estimates, raises guidance"
+2021-06-01,ACC01,lawsuit and investigation weigh on shares
+2021-06-01,ACC02,lawsuit and investigation weigh on shares
+2021-06-01,ACC05,downgrade after weak quarter
+2021-06-01,ACC07,downgrade after weak quarter
+2021-06-01,ACC16,downgrade after weak quarter
+2021-06-01,ACC18,"beats estimates, raises guidance"
+2021-06-01,ACC22,"misses estimates, cuts guidance"
+2021-06-01,ACC24,"misses estimates, cuts guidance"
+2021-06-08,ACC00,"record profit, upgrade to buy"
+2021-06-08,ACC03,downgrade after weak quarter
+2021-06-08,ACC06,"beats estimates, raises guidance"
+2021-06-08,ACC07,"record profit, upgrade to buy"
+2021-06-08,ACC10,downgrade after weak quarter
+2021-06-08,ACC12,"beats estimates, raises guidance"
+2021-06-08,ACC17,"record profit, upgrade to buy"
+2021-06-08,ACC18,"misses estimates, cuts guidance"
+2021-06-08,ACC20,lawsuit and investigation weigh on shares
+2021-06-08,ACC23,lawsuit and investigation weigh on shares

@@ -1,0 +1,87 @@
+{
+ "proyecto": "swarmtrader",
+ "version": "1.3.0",
+ "actualizado_utc": "2026-11-11",
+ "fase": "investigacion/diseno y backtesting; paper trading NO iniciado; trading real NO activado",
+ "componentes": {
+  "stats/infogeo.py": {
+   "estado": "probado",
+   "evidencia": "tests/test_infogeo.py (identidades cerradas)"
+  },
+  "stats/drift.py (G0)": {
+   "estado": "probado en sintetico y en datos reales de supervivientes",
+   "evidencia": "experiments/infogeo.py E1; docs/results/infogeo_2026-11-11.json",
+   "limitacion": "valor economico NO demostrado; no detecta mas episodios de estres que una linea base trivial de volatilidad (1 de 6 ambos). Exploratorio: el IC baja y se vuelve mas erratico lejos del soporte"
+  },
+  "analogy.py metric": {
+   "estado": "probado; por defecto sigue 'euclid'",
+   "evidencia": "E2: en 21 sesiones ninguna metrica de Fisher bate a la euclidea (p=0,283)"
+  },
+  "swarm_rank G1-G3": {
+   "estado": "probado en sintetico; ejecutado sobre datos reales de supervivientes",
+   "evidencia": "scripts/swarm_null_test.py; docs/results/audit_followup_2026-11-11.json (F3)"
+  },
+  "cycle.py + Alpaca": {
+   "estado": "probado con PaperBroker; sin ejecutar contra Alpaca paper real"
+  },
+  "execution/router.py": {
+   "estado": "probado; adaptadores de ordenes de eToro/IBKR no escritos"
+  },
+  "deep_rank": {
+   "estado": "codigo presente; tests omitidos en este entorno (sin PyTorch)"
+  },
+  "swarm_rank G4 (top-K vs universo)": {
+   "estado": "probado",
+   "evidencia": "tests/test_audit.py; sobre datos reales el veredicto pasa de ACCIONABLE (v1.2) a NO ACCIONABLE (exceso -0,07%, p=1,00)"
+  },
+  "data/brokers.py::sharadar_market_data": {
+   "estado": "corregido y probado con CSV sintetico; sin ejecutar con un volcado real",
+   "evidencia": "tests/test_audit.py (ya no descarta a los que quebraron; rellena el precio nominal)"
+  },
+  "MarketData.nominal (filtro de precio point-in-time)": {
+   "estado": "probado",
+   "limitacion": "los adaptadores de Alpaca y yfinance no lo rellenan"
+  }
+ },
+ "pruebas": {
+  "suite": "210 pasan, 7 omitidos (PyTorch, duckdb, arch no instalados en el entorno)",
+  "controles": "swarm_null_test: ruido -> NO ACCIONABLE (SPA p=0,882); senal -> ACCIONABLE (p=0,000, G4 p=0,000)"
+ },
+ "defectos_conocidos_sin_corregir": [
+  "data/venues.py::build_union cruza activos solo por ticker: 178 tickers existen a la vez como accion de EE. UU. y como cripto en Binance/Kraken (LTC, DASH, STX, BCH...). La ruta de eToro no filtra por tipo de instrumento.",
+  "Calendario de 252 sesiones/ano incrustado en ~20 sitios: cualquier activo que cotice 7 dias rompe ventanas y anualizacion.",
+  "data/brokers.py::alpaca_universe filtra solo status=ACTIVE.",
+  "sharadar_market_data sigue derivando el motivo de baja con una heuristica de fechas en vez de las tablas tickers+actions.",
+  "Los adaptadores de Alpaca y yfinance no proporcionan el cierre sin ajustar: con ellos el filtro de precio no es point-in-time.",
+  "La etiqueta de entrenamiento (rango relativo sobre toda la seccion cruzada) esta desalineada con una cartera que solo compra; no se puede corregir con rigor sobre datos de supervivientes."
+ ],
+ "decisiones_pendientes_del_usuario": [
+  "Que se quiere del sistema a la vista de la auditoria: filtro de exclusion, selector de compras (exige nuevas fuentes de datos) o perfil de loteria.",
+  "Modo del veto G0: 'gate' (por defecto) o 'warn'.",
+  "Enjambre o modelo unico mientras solo haya datos de precio.",
+  "max_sector_pct: 0,25 o 0,50.",
+  "Fuente point-in-time: Sharadar Prices (9 $/mes) o verificar Alpaca inactivos + corporate actions.",
+  "Si se anade cripto o mas plataformas: analisis interrumpido, sin conclusiones."
+ ],
+ "bloqueos_externos": [
+  "Sin datos point-in-time con deslistados: toda medicion real es sobre supervivientes.",
+  "Sin credenciales de Alpaca paper en el entorno de trabajo."
+ ],
+ "observaciones_a_investigar": [
+  "fisher_rank mejora a la euclidea a 5 sesiones (+0,62%, mismo signo en ambas mitades): confirmar con datos PIT antes de considerarla."
+ ],
+ "hallazgos_de_la_auditoria_real": [
+  "Rank IC del enjambre 0,075 (t=4,6) pero TODO en la mitad baja del ranking; los 5 primeros no baten al universo (exceso -0,15%, t=-0,29).",
+  "El sistema elige baja volatilidad: P(>+25%) de los 5 primeros 1,4% frente a 5,2% del universo; P(<-15%) 3,5% frente a 11,2%.",
+  "Etiqueta 'quintil superior': P(>+25%) 12,7% pero exceso medio -6,2% (t=-3,7) y P(<-15%) 37,4%, en un universo sesgado a favor.",
+  "Tres agentes llevan la senal (lowrisk, momentum, liquidity); reversal y seasonal sin evidencia en >=5 USD; momentum-lowrisk correlacion 0,58.",
+  "Ridge bate a gradient boosting (0,101 frente a 0,065). Un unico ridge con 14 factores rinde al menos como el enjambre (0,082 frente a 0,075; p=0,10).",
+  "Ninguna via geometrica nueva supera su contraste (seis familias, Holm >= 0,79)."
+ ],
+ "hipotesis_pre_registradas_para_datos_pit": [
+  "Reducir el tamano de posicion segun el percentil de la distancia de G0 mejora el crecimiento logaritmico frente a tamano constante (p<0,05).",
+  "fisher_rank bate a la euclidea a 5 sesiones en el motor de analogos.",
+  "El canal de dispersion solo es mejor filtro que dispersion+dependencia.",
+  "El exceso de los 5 primeros sobre el universo sigue siendo nulo con los deslistados incluidos."
+ ]
+}

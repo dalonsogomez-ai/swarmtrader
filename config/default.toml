@@ -1,0 +1,46 @@
+# Configuración de referencia. Los límites de riesgo NO son evolucionables.
+
+[swarm]
+population_size = 40
+generations     = 20
+warmup_days     = 300     # sesiones reservadas para que los factores tengan historia
+eval_window     = 126     # sesiones out-of-sample por generación
+window_step     = 0       # 0 = automático: eval_window + embargo (ventanas NO solapadas)
+embargo_days    = 5       # hueco entre ventanas consecutivas
+holdout_days    = 252     # tramo final que el torneo NUNCA ve; examen final N=1
+initial_capital = 50.0
+cost_bps        = 10.0    # ida y vuelta sobre turnover
+impact_coef     = 0.0     # impacto de mercado ~ sqrt(notional/dollar_vol); irrelevante con 50$
+use_meta        = true    # meta-labeling por agente
+elite_fraction  = 0.2
+mutation_rate   = 0.3
+n_jobs          = 1       # -1 = todos los núcleos (joblib/loky)
+seed            = 42
+dsr_threshold          = 0.95   # gate 1: Deflated Sharpe
+pbo_threshold          = 0.20   # gate 2: Probability of Backtest Overfitting
+holdout_psr_threshold  = 0.90   # gate 4: PSR en holdout (gate 3 = batir baseline)
+min_generations_for_champion = 3
+
+[fitness]
+turnover_penalty  = 0.15
+drawdown_penalty  = 0.80
+benchmark_sharpe  = 0.0   # súbelo para exigir batir un Sharpe mínimo
+
+[death]
+mode             = "bayesian"   # bayesian | drawdown | capital | any
+edge_threshold   = 0.15
+min_observations = 60
+max_drawdown     = 0.35
+capital_floor    = 0.25
+grace_generations = 2
+
+[risk]   # INMUTABLE - fuera del genoma a propósito
+max_position_pct       = 0.35
+max_gross_exposure     = 1.00
+max_daily_loss_pct     = 0.10
+max_total_drawdown_pct = 0.30
+min_price              = 1.00
+min_dollar_volume      = 1000000.0
+allow_short            = false
+allow_margin           = false
+max_orders_per_day     = 20

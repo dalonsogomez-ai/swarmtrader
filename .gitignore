@@ -1,0 +1,19 @@
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+*.egg-info/
+build/
+dist/
+/runs/
+/data/
+*.db
+*.jsonl
+.env
+.DS_Store
+
+# Local credentials and editor state
+.env.*
+!.env.example
+.claude/
+.handoff/

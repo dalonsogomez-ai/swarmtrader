@@ -1,0 +1,845 @@
+{
+ "F1_filtro_precio": {
+  "filas_elegibles": 1142739,
+  "fraccion_nominal_menor_1": 0.0114,
+  "fraccion_nominal_1_a_5": 0.1029,
+  "fraccion_nominal_5_o_mas": 0.8857,
+  "fraccion_ajustado_difiere_mas_10pct": 0.3412
+ },
+ "F1_ic_eq_por_tramo_nominal": {
+  "nominal<1": {
+   "n": 0,
+   "ic": null,
+   "t": null,
+   "filas": 592
+  },
+  "nominal 1-5": {
+   "n": 85,
+   "ic": 0.118,
+   "t": 6.77,
+   "filas": 5140
+  },
+  "nominal>=5": {
+   "n": 85,
+   "ic": 0.0436,
+   "t": 2.91,
+   "filas": 40847
+  },
+  "nominal>=10": {
+   "n": 85,
+   "ic": 0.0359,
+   "t": 2.44,
+   "filas": 35845
+  }
+ },
+ "F1_retorno_21_mediano_por_tramo": {
+  "nominal<1": -0.1233,
+  "nominal 1-5": -0.0283,
+  "nominal>=5": 0.0048,
+  "nominal>=10": 0.0058
+ },
+ "F2_apilado": {
+  "ic_eq": {
+   "n": 85,
+   "ic": 0.0746,
+   "t": 4.57
+  },
+  "ic_apilado_con": {
+   "n": 85,
+   "ic": 0.0763,
+   "t": 4.46
+  },
+  "ic_apilado_sin": {
+   "n": 85,
+   "ic": 0.0779,
+   "t": 4.41
+  },
+  "diferencia_sin_menos_con": 0.0015,
+  "p_quitar_no_mejora": 0.14433333333333334,
+  "p_apilado_sin_no_bate_a_eq": 0.3453333333333333,
+  "p_apilado_con_no_bate_a_eq": 0.4063333333333333
+ },
+ "F4_agente_geometrico_en_enjambre": {
+  "ic_eq_5_agentes": {
+   "n": 85,
+   "ic": 0.0746,
+   "t": 4.57
+  },
+  "ic_eq_6_con_geo": {
+   "n": 85,
+   "ic": 0.0811,
+   "t": 5.29
+  },
+  "ic_geo_solo": {
+   "n": 85,
+   "ic": 0.0603,
+   "t": 4.63
+  },
+  "diferencia": 0.0065,
+  "p_anadirlo_no_mejora": 0.076,
+  "por_tramo": {
+   "nominal>=5": 0.0056,
+   "nominal<5": 0.0132
+  }
+ },
+ "F5_enjambre_vs_modelo_unico": {
+  "ic_ridge_14_factores": {
+   "n": 85,
+   "ic": 0.0823,
+   "t": 4.48
+  },
+  "ic_enjambre_eq": {
+   "n": 85,
+   "ic": 0.0746,
+   "t": 4.57
+  },
+  "ic_enjambre_apilado": {
+   "n": 85,
+   "ic": 0.0779,
+   "t": 4.41
+  },
+  "diferencia_ridge_menos_eq": 0.0077,
+  "p_ridge_no_bate_a_eq": 0.10033333333333333,
+  "p_eq_no_bate_a_ridge": 1.0,
+  "por_tramo_ridge_menos_eq": {
+   "nominal>=5": 0.0054,
+   "nominal<5": 0.0233
+  }
+ },
+ "F3_enjambre_real_antes_de_G4_v1.2": {
+  "precio>=5": {
+   "accionable": true,
+   "razones": [
+    "G2 complejidad: el stack no bate a equiponderar (p=0.286); se reporta la linea base equiponderada"
+   ],
+   "spa_p_destreza": 0.0,
+   "spa_p_apilado_vs_eq": 0.286,
+   "pbo": 0.0,
+   "combinador": "eq",
+   "evidencia": "DEBIL",
+   "diagnostico": {
+    "evidence": "DEBIL",
+    "n_oos_dates": 85,
+    "n_oos_obs": 42359,
+    "mean_rank_ic": 0.0735,
+    "ic_tstat": 4.76,
+    "icir": 0.516,
+    "precision_at_k": 0.242,
+    "base_rate": 0.314,
+    "precision_lift": -0.072,
+    "precision_ci95": [
+     0.188,
+     0.299
+    ],
+    "ece": 0.0001,
+    "factor_ic": {
+     "liquidity": [
+      0.0538,
+      5.77
+     ],
+     "stack": [
+      0.0778,
+      4.53
+     ],
+     "lowrisk": [
+      0.0874,
+      4.39
+     ],
+     "best_prior": [
+      0.0765,
+      4.09
+     ],
+     "momentum": [
+      0.0731,
+      3.69
+     ],
+     "agreement": [
+      0.0297,
+      3.47
+     ],
+     "reversal": [
+      0.015,
+      1.34
+     ],
+     "seasonal": [
+      0.0036,
+      0.33
+     ]
+    }
+   },
+   "deriva": {
+    "evaluated": true,
+    "out_of_support": false,
+    "reason": "estado de mercado dentro del soporte de entrenamiento",
+    "p_value": 0.2459,
+    "n_ref": 731,
+    "channels": {
+     "dispersion": {
+      "distance": 0.8061,
+      "p_value": 0.123,
+      "ref_scale": 0.0923,
+      "today_scale": 0.077
+     },
+     "dependencia": {
+      "distance": 1.0397,
+      "p_value": 0.8907
+     }
+    }
+   },
+   "pesos_agentes": {
+    "lowrisk": 0.4226,
+    "momentum": 0.2999,
+    "liquidity": 0.2551,
+    "seasonal": 0.0224,
+    "reversal": 0.0
+   },
+   "elegibles": 583
+  },
+  "precio>=1": {
+   "accionable": true,
+   "razones": [
+    "G2 complejidad: el stack no bate a equiponderar (p=0.407); se reporta la linea base equiponderada"
+   ],
+   "spa_p_destreza": 0.0,
+   "spa_p_apilado_vs_eq": 0.4075,
+   "pbo": 0.014,
+   "combinador": "eq",
+   "evidencia": "DEBIL",
+   "diagnostico": {
+    "evidence": "DEBIL",
+    "n_oos_dates": 85,
+    "n_oos_obs": 46579,
+    "mean_rank_ic": 0.0746,
+    "ic_tstat": 4.57,
+    "icir": 0.496,
+    "precision_at_k": 0.245,
+    "base_rate": 0.319,
+    "precision_lift": -0.074,
+    "precision_ci95": [
+     0.193,
+     0.301
+    ],
+    "ece": 0.0001,
+    "factor_ic": {
+     "liquidity": [
+      0.0548,
+      5.8
+     ],
+     "stack": [
+      0.0763,
+      4.46
+     ],
+     "lowrisk": [
+      0.0852,
+      4.17
+     ],
+     "best_prior": [
+      0.0758,
+      3.97
+     ],
+     "momentum": [
+      0.0693,
+      3.37
+     ],
+     "agreement": [
+      0.0255,
+      3.09
+     ],
+     "reversal": [
+      0.0188,
+      1.69
+     ],
+     "seasonal": [
+      0.0102,
+      0.98
+     ]
+    }
+   },
+   "deriva": {
+    "evaluated": true,
+    "out_of_support": false,
+    "reason": "estado de mercado dentro del soporte de entrenamiento",
+    "p_value": 0.2514,
+    "n_ref": 731,
+    "channels": {
+     "dispersion": {
+      "distance": 0.7592,
+      "p_value": 0.1257,
+      "ref_scale": 0.0993,
+      "today_scale": 0.0883
+     },
+     "dependencia": {
+      "distance": 1.0544,
+      "p_value": 0.8033
+     }
+    }
+   },
+   "pesos_agentes": {
+    "lowrisk": 0.4221,
+    "liquidity": 0.263,
+    "momentum": 0.2588,
+    "seasonal": 0.0562,
+    "reversal": 0.0
+   },
+   "elegibles": 685
+  }
+ },
+ "F3_enjambre_real_con_G4_v1.3": {
+  "precio>=5": {
+   "accionable": false,
+   "razones": [
+    "G2 complejidad: el stack no bate a equiponderar (p=0.211); se reporta la linea base equiponderada",
+    "G4 cartera: los 5 primeros no baten al universo fuera de muestra (exceso medio -0.07% a 21 sesiones, p=1.000); el ranking puede distinguir a los peores sin saber elegir a los mejores"
+   ],
+   "G1_spa_p_destreza": 0.0,
+   "G2_spa_p_apilado_vs_eq": 0.211,
+   "G3_pbo": 0.0,
+   "G4_p_top_k": 1.0,
+   "G4_exceso_top_k": -0.00073,
+   "combinador": "none",
+   "evidencia": "DEBIL",
+   "diagnostico": {
+    "evidence": "DEBIL",
+    "n_oos_dates": 85,
+    "n_oos_obs": 42359,
+    "mean_rank_ic": 0.0735,
+    "ic_tstat": 4.76,
+    "icir": 0.516,
+    "precision_at_k": 0.242,
+    "base_rate": 0.314,
+    "precision_lift": -0.072,
+    "precision_ci95": [
+     0.188,
+     0.299
+    ],
+    "ece": 0.0001,
+    "factor_ic": {
+     "liquidity": [
+      0.0538,
+      5.77
+     ],
+     "stack": [
+      0.0804,
+      4.52
+     ],
+     "lowrisk": [
+      0.0874,
+      4.39
+     ],
+     "best_prior": [
+      0.0765,
+      4.09
+     ],
+     "momentum": [
+      0.0731,
+      3.69
+     ],
+     "agreement": [
+      0.0297,
+      3.47
+     ],
+     "reversal": [
+      0.015,
+      1.34
+     ],
+     "seasonal": [
+      0.0036,
+      0.33
+     ]
+    }
+   },
+   "deriva": {
+    "evaluated": true,
+    "out_of_support": false,
+    "reason": "estado de mercado dentro del soporte de entrenamiento",
+    "p_value": 0.2459,
+    "n_ref": 731,
+    "channels": {
+     "dispersion": {
+      "distance": 0.8061,
+      "p_value": 0.123,
+      "ref_scale": 0.0923,
+      "today_scale": 0.077
+     },
+     "dependencia": {
+      "distance": 1.0397,
+      "p_value": 0.8907
+     }
+    }
+   },
+   "pesos_agentes": {
+    "lowrisk": 0.4226,
+    "momentum": 0.2999,
+    "liquidity": 0.2551,
+    "seasonal": 0.0224,
+    "reversal": 0.0
+   },
+   "elegibles": 583
+  },
+  "precio>=1": {
+   "accionable": false,
+   "razones": [
+    "G2 complejidad: el stack no bate a equiponderar (p=0.341); se reporta la linea base equiponderada",
+    "G4 cartera: los 5 primeros no baten al universo fuera de muestra (exceso medio -0.15% a 21 sesiones, p=1.000); el ranking puede distinguir a los peores sin saber elegir a los mejores"
+   ],
+   "G1_spa_p_destreza": 0.0,
+   "G2_spa_p_apilado_vs_eq": 0.3405,
+   "G3_pbo": 0.014,
+   "G4_p_top_k": 1.0,
+   "G4_exceso_top_k": -0.00153,
+   "combinador": "none",
+   "evidencia": "DEBIL",
+   "diagnostico": {
+    "evidence": "DEBIL",
+    "n_oos_dates": 85,
+    "n_oos_obs": 46579,
+    "mean_rank_ic": 0.0746,
+    "ic_tstat": 4.57,
+    "icir": 0.496,
+    "precision_at_k": 0.245,
+    "base_rate": 0.319,
+    "precision_lift": -0.074,
+    "precision_ci95": [
+     0.193,
+     0.301
+    ],
+    "ece": 0.0001,
+    "factor_ic": {
+     "liquidity": [
+      0.0548,
+      5.8
+     ],
+     "stack": [
+      0.0779,
+      4.41
+     ],
+     "lowrisk": [
+      0.0852,
+      4.17
+     ],
+     "best_prior": [
+      0.0758,
+      3.97
+     ],
+     "momentum": [
+      0.0693,
+      3.37
+     ],
+     "agreement": [
+      0.0255,
+      3.09
+     ],
+     "reversal": [
+      0.0188,
+      1.69
+     ],
+     "seasonal": [
+      0.0102,
+      0.98
+     ]
+    }
+   },
+   "deriva": {
+    "evaluated": true,
+    "out_of_support": false,
+    "reason": "estado de mercado dentro del soporte de entrenamiento",
+    "p_value": 0.2514,
+    "n_ref": 731,
+    "channels": {
+     "dispersion": {
+      "distance": 0.7592,
+      "p_value": 0.1257,
+      "ref_scale": 0.0993,
+      "today_scale": 0.0883
+     },
+     "dependencia": {
+      "distance": 1.0544,
+      "p_value": 0.8033
+     }
+    }
+   },
+   "pesos_agentes": {
+    "lowrisk": 0.4221,
+    "liquidity": 0.263,
+    "momentum": 0.2588,
+    "seasonal": 0.0562,
+    "reversal": 0.0
+   },
+   "elegibles": 685
+  }
+ },
+ "F6_distancia_vs_ic": {
+  "fechas": 85,
+  "eq": {
+   "dispersion": {
+    "spearman": -0.19,
+    "p_bilateral": 0.0812
+   },
+   "dependencia": {
+    "spearman": -0.156,
+    "p_bilateral": 0.1538
+   },
+   "ic_quinto_mas_alejado": 0.0672,
+   "ic_resto": 0.0787,
+   "sd_ic_quinto_mas_alejado": 0.1857,
+   "sd_ic_resto": 0.129
+  },
+  "momentum": {
+   "dispersion": {
+    "spearman": -0.265,
+    "p_bilateral": 0.0142
+   },
+   "dependencia": {
+    "spearman": -0.18,
+    "p_bilateral": 0.0991
+   }
+  },
+  "reversal": {
+   "dispersion": {
+    "spearman": -0.314,
+    "p_bilateral": 0.0034
+   },
+   "dependencia": {
+    "spearman": -0.119,
+    "p_bilateral": 0.279
+   }
+  },
+  "lowrisk": {
+   "dispersion": {
+    "spearman": -0.161,
+    "p_bilateral": 0.1415
+   },
+   "dependencia": {
+    "spearman": -0.242,
+    "p_bilateral": 0.0258
+   }
+  },
+  "liquidity": {
+   "dispersion": {
+    "spearman": -0.097,
+    "p_bilateral": 0.3768
+   },
+   "dependencia": {
+    "spearman": -0.236,
+    "p_bilateral": 0.0297
+   }
+  },
+  "seasonal": {
+   "dispersion": {
+    "spearman": 0.079,
+    "p_bilateral": 0.4718
+   },
+   "dependencia": {
+    "spearman": 0.171,
+    "p_bilateral": 0.1178
+   }
+  }
+ },
+ "F7_origen_del_ic": {
+  "precio>=1": {
+   "fechas": 85,
+   "retorno_medio_21": {
+    "universo": 0.0086,
+    "top5": 0.007,
+    "ultimos5": -0.0792
+   },
+   "retorno_mediano_21": {
+    "universo": 0.0026,
+    "top5": 0.0039
+   },
+   "exceso_top5": {
+    "media": -0.0015,
+    "t": -0.29
+   },
+   "exceso_ultimos5": {
+    "media": -0.0877,
+    "t": -4.59
+   },
+   "prob_mas_5pct": {
+    "universo": 0.323,
+    "top5": 0.242
+   },
+   "prob_mas_25pct": {
+    "universo": 0.0522,
+    "top5": 0.0141
+   },
+   "prob_menos_15pct": {
+    "universo": 0.112,
+    "top5": 0.035,
+    "ultimos5": 0.421
+   },
+   "dispersion_retornos": {
+    "universo": 0.184,
+    "top5": 0.065
+   },
+   "ic_dentro_de_cada_mitad": {
+    "alta": -0.0028,
+    "baja": 0.0801
+   },
+   "por_decil": {
+    "1": {
+     "media": -0.0052,
+     "mediana": -0.0362,
+     "prob_mas_5pct": 0.329
+    },
+    "2": {
+     "media": 0.0083,
+     "mediana": -0.008,
+     "prob_mas_5pct": 0.343
+    },
+    "3": {
+     "media": 0.0083,
+     "mediana": -0.0009,
+     "prob_mas_5pct": 0.357
+    },
+    "4": {
+     "media": 0.0091,
+     "mediana": 0.0021,
+     "prob_mas_5pct": 0.338
+    },
+    "5": {
+     "media": 0.0099,
+     "mediana": 0.002,
+     "prob_mas_5pct": 0.331
+    },
+    "6": {
+     "media": 0.0131,
+     "mediana": 0.009,
+     "prob_mas_5pct": 0.336
+    },
+    "7": {
+     "media": 0.014,
+     "mediana": 0.0103,
+     "prob_mas_5pct": 0.318
+    },
+    "8": {
+     "media": 0.0104,
+     "mediana": 0.0062,
+     "prob_mas_5pct": 0.306
+    },
+    "9": {
+     "media": 0.0102,
+     "mediana": 0.0095,
+     "prob_mas_5pct": 0.299
+    },
+    "10": {
+     "media": 0.0077,
+     "mediana": 0.0047,
+     "prob_mas_5pct": 0.276
+    }
+   }
+  },
+  "precio>=5": {
+   "fechas": 85,
+   "retorno_medio_21": {
+    "universo": 0.0066,
+    "top5": 0.0059,
+    "ultimos5": -0.0935
+   },
+   "retorno_mediano_21": {
+    "universo": 0.0032,
+    "top5": 0.0034
+   },
+   "exceso_top5": {
+    "media": -0.0007,
+    "t": -0.15
+   },
+   "exceso_ultimos5": {
+    "media": -0.1001,
+    "t": -4.93
+   },
+   "prob_mas_5pct": {
+    "universo": 0.319,
+    "top5": 0.242
+   },
+   "prob_mas_25pct": {
+    "universo": 0.046,
+    "top5": 0.0118
+   },
+   "prob_menos_15pct": {
+    "universo": 0.104,
+    "top5": 0.04,
+    "ultimos5": 0.456
+   },
+   "dispersion_retornos": {
+    "universo": 0.171,
+    "top5": 0.067
+   },
+   "ic_dentro_de_cada_mitad": {
+    "alta": -0.0071,
+    "baja": 0.0804
+   },
+   "por_decil": {
+    "1": {
+     "media": -0.0143,
+     "mediana": -0.0331,
+     "prob_mas_5pct": 0.321
+    },
+    "2": {
+     "media": 0.0058,
+     "mediana": -0.0052,
+     "prob_mas_5pct": 0.346
+    },
+    "3": {
+     "media": 0.0052,
+     "mediana": -0.0024,
+     "prob_mas_5pct": 0.339
+    },
+    "4": {
+     "media": 0.0077,
+     "mediana": 0.0034,
+     "prob_mas_5pct": 0.337
+    },
+    "5": {
+     "media": 0.0087,
+     "mediana": 0.0026,
+     "prob_mas_5pct": 0.32
+    },
+    "6": {
+     "media": 0.0127,
+     "mediana": 0.0081,
+     "prob_mas_5pct": 0.33
+    },
+    "7": {
+     "media": 0.0119,
+     "mediana": 0.0086,
+     "prob_mas_5pct": 0.309
+    },
+    "8": {
+     "media": 0.0101,
+     "mediana": 0.0087,
+     "prob_mas_5pct": 0.314
+    },
+    "9": {
+     "media": 0.0109,
+     "mediana": 0.0103,
+     "prob_mas_5pct": 0.299
+    },
+    "10": {
+     "media": 0.0074,
+     "mediana": 0.0054,
+     "prob_mas_5pct": 0.275
+    }
+   }
+  }
+ },
+ "F8_etiquetas": {
+  "precio>=5": {
+   "rango relativo (actual)": {
+    "ic": 0.0845,
+    "exceso_top5_21": 0.006,
+    "t_exceso": 0.88,
+    "sd_exceso": 0.063,
+    "top5_prob_mas_5pct": 0.301,
+    "top5_prob_mas_25pct": 0.0424,
+    "top5_prob_menos_15pct": 0.068,
+    "universo": {
+     "mas_5pct": 0.319,
+     "mas_25pct": 0.046,
+     "menos_15pct": 0.104
+    }
+   },
+   "quintil superior": {
+    "ic": -0.0727,
+    "exceso_top5_21": -0.062,
+    "t_exceso": -3.72,
+    "sd_exceso": 0.1536,
+    "top5_prob_mas_5pct": 0.299,
+    "top5_prob_mas_25pct": 0.1271,
+    "top5_prob_menos_15pct": 0.374,
+    "universo": {
+     "mas_5pct": 0.319,
+     "mas_25pct": 0.046,
+     "menos_15pct": 0.104
+    }
+   },
+   "supera +5%": {
+    "ic": -0.0187,
+    "exceso_top5_21": -0.0171,
+    "t_exceso": -1.04,
+    "sd_exceso": 0.1521,
+    "top5_prob_mas_5pct": 0.339,
+    "top5_prob_mas_25pct": 0.1365,
+    "top5_prob_menos_15pct": 0.296,
+    "universo": {
+     "mas_5pct": 0.319,
+     "mas_25pct": 0.046,
+     "menos_15pct": 0.104
+    }
+   },
+   "retorno recortado": {
+    "ic": 0.0708,
+    "exceso_top5_21": 0.0055,
+    "t_exceso": 0.64,
+    "sd_exceso": 0.0797,
+    "top5_prob_mas_5pct": 0.322,
+    "top5_prob_mas_25pct": 0.0729,
+    "top5_prob_menos_15pct": 0.118,
+    "universo": {
+     "mas_5pct": 0.319,
+     "mas_25pct": 0.046,
+     "menos_15pct": 0.104
+    }
+   }
+  },
+  "precio>=1": {
+   "rango relativo (actual)": {
+    "ic": 0.0823,
+    "exceso_top5_21": 0.0084,
+    "t_exceso": 0.98,
+    "sd_exceso": 0.0785,
+    "top5_prob_mas_5pct": 0.294,
+    "top5_prob_mas_25pct": 0.0541,
+    "top5_prob_menos_15pct": 0.068,
+    "universo": {
+     "mas_5pct": 0.323,
+     "mas_25pct": 0.0522,
+     "menos_15pct": 0.112
+    }
+   },
+   "quintil superior": {
+    "ic": -0.0782,
+    "exceso_top5_21": -0.0478,
+    "t_exceso": -2.15,
+    "sd_exceso": 0.2054,
+    "top5_prob_mas_5pct": 0.304,
+    "top5_prob_mas_25pct": 0.1341,
+    "top5_prob_menos_15pct": 0.393,
+    "universo": {
+     "mas_5pct": 0.323,
+     "mas_25pct": 0.0522,
+     "menos_15pct": 0.112
+    }
+   },
+   "supera +5%": {
+    "ic": -0.032,
+    "exceso_top5_21": -0.0095,
+    "t_exceso": -0.52,
+    "sd_exceso": 0.168,
+    "top5_prob_mas_5pct": 0.346,
+    "top5_prob_mas_25pct": 0.1553,
+    "top5_prob_menos_15pct": 0.332,
+    "universo": {
+     "mas_5pct": 0.323,
+     "mas_25pct": 0.0522,
+     "menos_15pct": 0.112
+    }
+   },
+   "retorno recortado": {
+    "ic": 0.0634,
+    "exceso_top5_21": 0.0071,
+    "t_exceso": 0.6,
+    "sd_exceso": 0.1096,
+    "top5_prob_mas_5pct": 0.332,
+    "top5_prob_mas_25pct": 0.0753,
+    "top5_prob_menos_15pct": 0.144,
+    "universo": {
+     "mas_5pct": 0.323,
+     "mas_25pct": 0.0522,
+     "menos_15pct": 0.112
+    }
+   }
+  }
+ },
+ "aviso": "EXPLORATORIO: escrito despues de ver el bloque A de geometry_audit.py. Universo de supervivientes, sin costes."
+}

@@ -1,0 +1,663 @@
+{
+ "panel": {
+  "tickers": 1000,
+  "sesiones": 2198,
+  "desde": "2018-01-02",
+  "hasta": "2026-09-30",
+  "aviso": "universo de supervivientes"
+ },
+ "A_D": {
+  "agentes": [
+   "momentum",
+   "reversal",
+   "lowrisk",
+   "liquidity",
+   "seasonal"
+  ],
+  "fechas": 85,
+  "nombres_por_fecha": 544,
+  "A1_ic": {
+   "momentum": {
+    "todos|sin_retraso": {
+     "n": 85,
+     "ic": 0.0693,
+     "t": 3.37
+    },
+    "todos|retraso_1": {
+     "n": 84,
+     "ic": 0.0706,
+     "t": 3.27
+    },
+    ">=5|sin_retraso": {
+     "n": 85,
+     "ic": 0.0388,
+     "t": 2.02
+    },
+    ">=5|retraso_1": {
+     "n": 84,
+     "ic": 0.0422,
+     "t": 2.1
+    },
+    "1-5|sin_retraso": {
+     "n": 85,
+     "ic": 0.1183,
+     "t": 5.64
+    },
+    "1-5|retraso_1": {
+     "n": 84,
+     "ic": 0.1161,
+     "t": 5.56
+    }
+   },
+   "reversal": {
+    "todos|sin_retraso": {
+     "n": 85,
+     "ic": 0.0188,
+     "t": 1.69
+    },
+    "todos|retraso_1": {
+     "n": 84,
+     "ic": 0.0188,
+     "t": 1.67
+    },
+    ">=5|sin_retraso": {
+     "n": 85,
+     "ic": 0.0053,
+     "t": 0.52
+    },
+    ">=5|retraso_1": {
+     "n": 84,
+     "ic": 0.0076,
+     "t": 0.74
+    },
+    "1-5|sin_retraso": {
+     "n": 85,
+     "ic": 0.0794,
+     "t": 5.06
+    },
+    "1-5|retraso_1": {
+     "n": 84,
+     "ic": 0.0735,
+     "t": 4.32
+    }
+   },
+   "lowrisk": {
+    "todos|sin_retraso": {
+     "n": 85,
+     "ic": 0.0852,
+     "t": 4.17
+    },
+    "todos|retraso_1": {
+     "n": 84,
+     "ic": 0.0848,
+     "t": 3.88
+    },
+    ">=5|sin_retraso": {
+     "n": 85,
+     "ic": 0.0514,
+     "t": 2.65
+    },
+    ">=5|retraso_1": {
+     "n": 84,
+     "ic": 0.0526,
+     "t": 2.55
+    },
+    "1-5|sin_retraso": {
+     "n": 85,
+     "ic": 0.1647,
+     "t": 8.08
+    },
+    "1-5|retraso_1": {
+     "n": 84,
+     "ic": 0.163,
+     "t": 7.64
+    }
+   },
+   "liquidity": {
+    "todos|sin_retraso": {
+     "n": 85,
+     "ic": 0.0548,
+     "t": 5.8
+    },
+    "todos|retraso_1": {
+     "n": 84,
+     "ic": 0.0557,
+     "t": 5.7
+    },
+    ">=5|sin_retraso": {
+     "n": 85,
+     "ic": 0.0308,
+     "t": 3.49
+    },
+    ">=5|retraso_1": {
+     "n": 84,
+     "ic": 0.031,
+     "t": 3.48
+    },
+    "1-5|sin_retraso": {
+     "n": 85,
+     "ic": 0.134,
+     "t": 7.85
+    },
+    "1-5|retraso_1": {
+     "n": 84,
+     "ic": 0.1344,
+     "t": 7.55
+    }
+   },
+   "seasonal": {
+    "todos|sin_retraso": {
+     "n": 85,
+     "ic": 0.0102,
+     "t": 0.98
+    },
+    "todos|retraso_1": {
+     "n": 84,
+     "ic": 0.0104,
+     "t": 0.92
+    },
+    ">=5|sin_retraso": {
+     "n": 85,
+     "ic": 0.0053,
+     "t": 0.48
+    },
+    ">=5|retraso_1": {
+     "n": 84,
+     "ic": 0.0063,
+     "t": 0.51
+    },
+    "1-5|sin_retraso": {
+     "n": 85,
+     "ic": 0.017,
+     "t": 1.19
+    },
+    "1-5|retraso_1": {
+     "n": 84,
+     "ic": 0.0094,
+     "t": 0.62
+    }
+   },
+   "eq": {
+    "todos|sin_retraso": {
+     "n": 85,
+     "ic": 0.0746,
+     "t": 4.57
+    },
+    "todos|retraso_1": {
+     "n": 84,
+     "ic": 0.0749,
+     "t": 4.35
+    },
+    ">=5|sin_retraso": {
+     "n": 85,
+     "ic": 0.0436,
+     "t": 2.91
+    },
+    ">=5|retraso_1": {
+     "n": 84,
+     "ic": 0.0458,
+     "t": 2.92
+    },
+    "1-5|sin_retraso": {
+     "n": 85,
+     "ic": 0.1387,
+     "t": 7.97
+    },
+    "1-5|retraso_1": {
+     "n": 84,
+     "ic": 0.1329,
+     "t": 7.08
+    }
+   }
+  },
+  "A1_caida_eq_por_retraso": {
+   "todos": -0.004,
+   ">=5": -0.05,
+   "1-5": 0.042
+  },
+  "A1_fraccion_filas_1_5": 0.123,
+  "A2_correlacion_media": {
+   "momentum": {
+    "momentum": 1.0,
+    "reversal": 0.09,
+    "lowrisk": 0.577,
+    "liquidity": 0.118,
+    "seasonal": 0.009
+   },
+   "reversal": {
+    "momentum": 0.09,
+    "reversal": 1.0,
+    "lowrisk": 0.229,
+    "liquidity": 0.227,
+    "seasonal": 0.02
+   },
+   "lowrisk": {
+    "momentum": 0.577,
+    "reversal": 0.229,
+    "lowrisk": 1.0,
+    "liquidity": 0.296,
+    "seasonal": 0.013
+   },
+   "liquidity": {
+    "momentum": 0.118,
+    "reversal": 0.227,
+    "lowrisk": 0.296,
+    "liquidity": 1.0,
+    "seasonal": -0.001
+   },
+   "seasonal": {
+    "momentum": 0.009,
+    "reversal": 0.02,
+    "lowrisk": 0.013,
+    "liquidity": -0.001,
+    "seasonal": 1.0
+   }
+  },
+  "D1_acuerdo": {
+   "sin_retraso": {
+    "ic_eq": {
+     "n": 85,
+     "ic": 0.0746,
+     "t": 4.57
+    },
+    "ic_eq_x_acuerdo": {
+     "n": 85,
+     "ic": 0.0728,
+     "t": 4.52
+    },
+    "diferencia": -0.0018,
+    "p_no_mejora": 1.0,
+    "p_no_empeora": 0.02666666666666667
+   },
+   "retraso_1": {
+    "ic_eq": {
+     "n": 84,
+     "ic": 0.0749,
+     "t": 4.35
+    },
+    "ic_eq_x_acuerdo": {
+     "n": 84,
+     "ic": 0.0729,
+     "t": 4.32
+    },
+    "diferencia": -0.002,
+    "p_no_mejora": 1.0,
+    "p_no_empeora": 0.017333333333333333
+   },
+   "quintil_superior_bajo_menos_alto_desacuerdo": {
+    "sin_retraso": {
+     "media": 0.0009,
+     "p_bajo_no_es_mejor": 0.3636666666666667
+    },
+    "retraso_1": {
+     "media": 0.0007,
+     "p_bajo_no_es_mejor": 0.399
+    }
+   }
+  },
+  "D2_agregadores": {
+   "sin_retraso": {
+    "ic_media": {
+     "n": 85,
+     "ic": 0.0746,
+     "t": 4.57
+    },
+    "ic_mediana": {
+     "n": 85,
+     "ic": 0.0768,
+     "t": 4.79
+    },
+    "ic_logit": {
+     "n": 85,
+     "ic": 0.0715,
+     "t": 4.55
+    },
+    "p_ninguna_bate_a_la_media": 0.14366666666666666
+   },
+   "retraso_1": {
+    "ic_media": {
+     "n": 84,
+     "ic": 0.0749,
+     "t": 4.35
+    },
+    "ic_mediana": {
+     "n": 84,
+     "ic": 0.0775,
+     "t": 4.54
+    },
+    "ic_logit": {
+     "n": 84,
+     "ic": 0.072,
+     "t": 4.33
+    },
+    "p_ninguna_bate_a_la_media": 0.11466666666666667
+   }
+  },
+  "D3_coherencia": {
+   "sin_retraso": {
+    "n": 85,
+    "spearman": 0.123,
+    "p_unilateral_positiva": 0.1313
+   },
+   "retraso_1": {
+    "n": 84,
+    "spearman": 0.071,
+    "p_unilateral_positiva": 0.2596
+   }
+  }
+ },
+ "A4_modelo": {
+  "sin_retraso": {
+   "ic_ridge": {
+    "n": 48,
+    "ic": 0.1011,
+    "t": 4.34
+   },
+   "ic_gbdt": {
+    "n": 48,
+    "ic": 0.0648,
+    "t": 3.41
+   },
+   "ic_media": {
+    "n": 48,
+    "ic": 0.0862,
+    "t": 4.08
+   },
+   "p_ninguno_bate_a_ridge": 1.0
+  },
+  "retraso_1": {
+   "ic_ridge": {
+    "n": 47,
+    "ic": 0.1,
+    "t": 4.28
+   },
+   "ic_gbdt": {
+    "n": 47,
+    "ic": 0.064,
+    "t": 3.45
+   },
+   "ic_media": {
+    "n": 47,
+    "ic": 0.0846,
+    "t": 4.02
+   },
+   "p_ninguno_bate_a_ridge": 1.0
+  }
+ },
+ "B_agente_geo": {
+  "ic": {
+   "base_14": {
+    "sin_retraso": {
+     "n": 85,
+     "ic": 0.0823,
+     "t": 4.48
+    },
+    "retraso_1": {
+     "n": 84,
+     "ic": 0.0837,
+     "t": 4.26
+    }
+   },
+   "14+fisher_rao": {
+    "sin_retraso": {
+     "n": 85,
+     "ic": 0.0819,
+     "t": 4.54
+    },
+    "retraso_1": {
+     "n": 84,
+     "ic": 0.0837,
+     "t": 4.35
+    }
+   },
+   "14+periferia": {
+    "sin_retraso": {
+     "n": 85,
+     "ic": 0.0803,
+     "t": 4.67
+    },
+    "retraso_1": {
+     "n": 84,
+     "ic": 0.0813,
+     "t": 4.42
+    }
+   },
+   "14+las_tres": {
+    "sin_retraso": {
+     "n": 85,
+     "ic": 0.0813,
+     "t": 4.81
+    },
+    "retraso_1": {
+     "n": 84,
+     "ic": 0.0828,
+     "t": 4.59
+    }
+   },
+   "solo_geo": {
+    "sin_retraso": {
+     "n": 85,
+     "ic": 0.0603,
+     "t": 4.63
+    },
+    "retraso_1": {
+     "n": 84,
+     "ic": 0.06,
+     "t": 4.43
+    }
+   }
+  },
+  "mejora_vs_base": {
+   "14+fisher_rao": {
+    "sin_retraso": -0.0004,
+    "retraso_1": 0.0
+   },
+   "14+periferia": {
+    "sin_retraso": -0.002,
+    "retraso_1": -0.0024
+   },
+   "14+las_tres": {
+    "sin_retraso": -0.001,
+    "retraso_1": -0.0009
+   }
+  },
+  "p_ninguna_variante_mejora": {
+   "sin_retraso": 1.0,
+   "retraso_1": 0.7136666666666667
+  },
+  "ic_univariante": {
+   "geo_fr_shift": {
+    "n": 85,
+    "ic": -0.0304,
+    "t": -4.02
+   },
+   "geo_fr_signed": {
+    "n": 85,
+    "ic": 0.0,
+    "t": 0.0
+   },
+   "geo_periphery": {
+    "n": 85,
+    "ic": -0.0682,
+    "t": -4.61
+   }
+  },
+  "correlacion_agente_geo_con": {
+   "momentum": 0.161,
+   "reversal": 0.1,
+   "lowrisk": 0.258,
+   "liquidity": 0.133,
+   "seasonal": 0.008
+  }
+ },
+ "C1_monitores": {
+  "fechas": 1793,
+  "desde": "2019-08-13",
+  "resultado": {
+   "M0 volatilidad (linea base)": {
+    "episodios_detectados": 1,
+    "retraso_sesiones": {
+     "COVID 2020": 10,
+     "meme squeeze 2021": -1,
+     "tipos 2022": -1,
+     "bancos regionales 2023": -1,
+     "carry yen 2024": -1,
+     "aranceles 2025": -1
+    },
+    "tasa_total": 0.0329,
+    "dias_marcados_fuera_de_episodios": 0.0154,
+    "dias_marcados_dentro": 0.1483
+   },
+   "M1 dispersion": {
+    "episodios_detectados": 1,
+    "retraso_sesiones": {
+     "COVID 2020": 12,
+     "meme squeeze 2021": -1,
+     "tipos 2022": -1,
+     "bancos regionales 2023": -1,
+     "carry yen 2024": -1,
+     "aranceles 2025": -1
+    },
+    "tasa_total": 0.0167,
+    "dias_marcados_fuera_de_episodios": 0.0,
+    "dias_marcados_dentro": 0.1271
+   },
+   "M2 dispersion+dependencia (G0)": {
+    "episodios_detectados": 1,
+    "retraso_sesiones": {
+     "COVID 2020": 13,
+     "meme squeeze 2021": -1,
+     "tipos 2022": -1,
+     "bancos regionales 2023": -1,
+     "carry yen 2024": -1,
+     "aranceles 2025": -1
+    },
+    "tasa_total": 0.0323,
+    "dias_marcados_fuera_de_episodios": 0.0218,
+    "dias_marcados_dentro": 0.1017
+   },
+   "M3 M2+forma": {
+    "episodios_detectados": 1,
+    "retraso_sesiones": {
+     "COVID 2020": 13,
+     "meme squeeze 2021": -1,
+     "tipos 2022": -1,
+     "bancos regionales 2023": -1,
+     "carry yen 2024": -1,
+     "aranceles 2025": -1
+    },
+    "tasa_total": 0.0591,
+    "dias_marcados_fuera_de_episodios": 0.0533,
+    "dias_marcados_dentro": 0.0975
+   },
+   "solo forma": {
+    "episodios_detectados": 1,
+    "retraso_sesiones": {
+     "COVID 2020": -1,
+     "meme squeeze 2021": 5,
+     "tipos 2022": -1,
+     "bancos regionales 2023": -1,
+     "carry yen 2024": -1,
+     "aranceles 2025": -1
+    },
+    "tasa_total": 0.0368,
+    "dias_marcados_fuera_de_episodios": 0.0392,
+    "dias_marcados_dentro": 0.0212
+   },
+   "solo dependencia": {
+    "episodios_detectados": 2,
+    "retraso_sesiones": {
+     "COVID 2020": 17,
+     "meme squeeze 2021": -1,
+     "tipos 2022": 54,
+     "bancos regionales 2023": -1,
+     "carry yen 2024": -1,
+     "aranceles 2025": -1
+    },
+    "tasa_total": 0.0284,
+    "dias_marcados_fuera_de_episodios": 0.025,
+    "dias_marcados_dentro": 0.0508
+   }
+  },
+  "potencia_forma_sintetica": {
+   "0% de nombres con +80%": {
+    "M2": 0.0,
+    "M3": 0.0
+   },
+   "1% de nombres con +80%": {
+    "M2": 0.0,
+    "M3": 0.1
+   },
+   "3% de nombres con +80%": {
+    "M2": 0.0,
+    "M3": 1.0
+   },
+   "5% de nombres con +80%": {
+    "M2": 0.0,
+    "M3": 1.0
+   }
+  }
+ },
+ "C2_tda": {
+  "indices": [
+   "%5EDJI",
+   "%5EGSPC",
+   "%5EIXIC",
+   "%5ERUT"
+  ],
+  "desde": "1992-01-03",
+  "hasta": "2026-09-29",
+  "ventanas": 8697,
+  "spearman_L1_vs_varianza": 0.483,
+  "spearman_L1_normalizada_vs_varianza": -0.305,
+  "prediccion_varianza_21": {
+   "observaciones": 414,
+   "R2_solo_varianza_pasada": 0.4754,
+   "R2_con_L1": 0.4774,
+   "t_L1_controlando_varianza": 1.43,
+   "t_L1_normalizada_controlando_varianza": 1.43,
+   "R2_solo_L1": 0.0893,
+   "t_L1_sola": 5.44,
+   "t_L1_sobre_retorno_futuro": -1.41
+  },
+  "veinte_sesiones_antes_del_maximo": {
+   "2000-03-10": {
+    "percentil_L1": 0.991,
+    "percentil_varianza": 0.894
+   },
+   "2008-09-12": {
+    "percentil_L1": 0.996,
+    "percentil_varianza": 0.893
+   },
+   "2020-02-19": {
+    "percentil_L1": 0.233,
+    "percentil_varianza": 0.45
+   }
+  }
+ },
+ "C3_ricci": {
+  "acciones": 100,
+  "ventanas": 436,
+  "spearman_orc_vs_correlacion_media": 0.606,
+  "spearman_orc_vs_numero_de_aristas": 0.782,
+  "spearman_orc_vs_volatilidad": 0.584,
+  "spearman_correlacion_media_vs_volatilidad": 0.896
+ },
+ "familias_p": {
+  "D1 acuerdo mejora": 1.0,
+  "D2 agregador": 0.1437,
+  "D3 coherencia": 0.1313,
+  "A4 modelo": 1.0,
+  "B agente geometrico": 1.0,
+  "C2 TDA": 0.1527
+ },
+ "familias_p_holm": {
+  "D3 coherencia": 0.7878,
+  "D2 agregador": 0.7878,
+  "C2 TDA": 0.7878,
+  "D1 acuerdo mejora": 1.0,
+  "A4 modelo": 1.0,
+  "B agente geometrico": 1.0
+ },
+ "segundos": 292.4
+}
