@@ -33,9 +33,12 @@ Consulta el [estado y las limitaciones](docs/ESTADO.json), la
 [auditoría](docs/AUDITORIA_GEOMETRIA.md) y la
 [arquitectura](docs/ARCHITECTURE.md).
 
-Verificación local para esta publicación: **212 tests pasan, 6 se omiten**
+Verificación local para esta publicación: **216 tests pasan, 6 se omiten**
 en Python 3.13.13; hay 6 avisos de compatibilidad futura de pandas.
 El workflow de CI comprueba Python 3.11 y 3.12 en Linux y macOS.
+Las [notas de publicación](docs/PUBLICATION_NOTES.md) documentan correcciones de
+la CLI y de la contabilidad del simulador. Los resultados históricos que
+dependan del simulador deben recalcularse antes de reutilizarlos.
 
 > **For English-speaking readers.** Swarmtrader is an MIT-licensed Python research
 > toolkit for evaluating equity-ranking models and multi-agent ensembles. It

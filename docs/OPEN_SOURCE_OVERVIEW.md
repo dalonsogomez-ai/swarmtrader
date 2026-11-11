@@ -50,7 +50,7 @@ licensing and credential requirements.
 
 ## Evidence and current limits
 
-The local publication check on 11 November 2026 passed **212 tests**, with
+The local publication check on 11 November 2026 passed **216 tests**, with
 **6 skipped** and **6 pandas compatibility warnings**, on Python 3.13.13.
 The [CI matrix](../.github/workflows/ci.yml) runs on Linux and macOS with Python
 3.11 and 3.12. Optional backends are not all exercised by that matrix.
@@ -62,6 +62,9 @@ an advantage over the Euclidean baseline at the main horizon.
 
 Those saved experiments are prior project evidence; the underlying real-data
 panel is not bundled, and the full real-data audit was not rerun for publication.
+The publication fixes include a correction to drifting portfolio weights;
+historical outputs that depend on the simulator need to be recalculated. See
+[publication notes](PUBLICATION_NOTES.md) for scope and verification.
 No profitable live performance, external adoption, download volume or downstream
 dependents are claimed. External broker paper trading remains unvalidated.
 

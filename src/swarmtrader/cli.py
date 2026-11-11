@@ -449,6 +449,7 @@ def cmd_tournament(args) -> int:
 def cmd_validate(args) -> int:
     """Controles que deben pasar antes de creerse cualquier resultado."""
     from .data.baselines import run_baselines
+    from .rank import RankConfig, rank_universe
     ok = True
     print("[1/2] mercado NULO: el gate no debe certificar nada")
     md = load_synthetic(n_symbols=args.n_symbols, n_days=args.n_days, signal_strength=0.0, seed=args.seed)
@@ -466,17 +467,27 @@ def cmd_validate(args) -> int:
     else:
         print("      OK")
 
-    print("[2/2] baselines con senal: momentum debe ganar a buy&hold cuando hay momentum inyectado")
-    md = load_synthetic(n_symbols=args.n_symbols, n_days=args.n_days, signal_strength=0.10, seed=args.seed + 1)
+    print("[2/2] control positivo: el ranking debe detectar momentum conocido fuera de muestra")
+    # El baseline usa momentum observable; signal_strength solo inyecta un
+    # factor latente y no garantiza una relacion con el momentum de precios.
+    md = load_synthetic(n_symbols=args.n_symbols, n_days=args.n_days,
+                        signal_strength=0.0, momentum_strength=0.10, seed=args.seed + 1)
     panel = FeaturePanel(compute_features(md.prices, md.volumes), md.prices,
                          dollar_volume(md.prices, md.volumes), compute_regime(md.prices))
+    diag = rank_universe(md, RankConfig()).diagnostics
+    print(f"      rank IC OOS={diag.mean_rank_ic:+.3f}  t={diag.ic_tstat:.2f}  "
+          f"evidencia={diag.evidence}")
+    if diag.mean_rank_ic <= 0 or diag.evidence != "FUERTE":
+        print("      FALLO: no detecta la senal observable inyectada"); ok = False
+    else:
+        print("      OK")
+    # Detectar una relacion predictiva no implica que una regla de rebalanceo
+    # bata a buy-and-hold en cada trayectoria. Se informa de ambos baselines,
+    # sin usar su orden como prueba de correccion del detector de senal.
+    print("      baselines netos (diagnostico; no implican rentabilidad real):")
     b = run_baselines(panel, cfg.warmup_days, len(panel.dates), cfg.cost_bps)
     for k, r in b.items():
         print(f"      {k:<18} sharpe={r.sharpe:+.2f} ret={r.total_return:+.3f} dd={r.max_dd:.3f} coste={r.cost_drag:.4f}")
-    if b["BASE_mom_top20"].sharpe <= b["BASE_ew_bh"].sharpe:
-        print("      AVISO: momentum no bate a buy&hold con senal inyectada; revisa features/simulador"); ok = False
-    else:
-        print("      OK")
     print("\nVALIDACION", "OK" if ok else "FALLIDA")
     return 0 if ok else 1
 

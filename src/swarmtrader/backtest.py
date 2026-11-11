@@ -164,7 +164,10 @@ def simulate(
         if w.sum() <= 1e-9:
             days_in_cash += 1
         else:
-            w = w * (1.0 + panel.returns[t])
+            # Los pesos se expresan sobre el NAV actual, no sobre el inicial.
+            # Sin normalizar, buy-and-hold acumula exposicion ficticia y el
+            # retorno termina contando dos veces el crecimiento de posiciones.
+            w = w * (1.0 + panel.returns[t]) / (1.0 + r)
 
         held = w > 1e-9
         if held.any():
