@@ -631,6 +631,9 @@ def main(argv: list[str] | None = None) -> int:
     r.add_argument("--oos-months", type=int, default=18)
     r.add_argument("--min-dollar-volume", type=float, default=0.0)
     r.add_argument("--min-price", type=float, default=1.0)
+    r.add_argument("--congress", default=None,
+                   help="CSV de declaraciones STOCK Act con columna disclosure_date")
+    r.add_argument("--congress-window", type=int, default=63)
     r.add_argument("--json", action="store_true")
     r.add_argument("--out", default=None, help="guardar resultado JSON")
     _add_signal_flags(r)

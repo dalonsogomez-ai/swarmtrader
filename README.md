@@ -1,4 +1,21 @@
-# swarmtrader
+<div align="center">
+
+# Swarmtrader
+
+### Multi-agent research. Measurable evidence. Explicit abstention.
+
+[![CI](https://github.com/dalonsogomez-ai/swarmtrader/actions/workflows/ci.yml/badge.svg)](https://github.com/dalonsogomez-ai/swarmtrader/actions/workflows/ci.yml)
+[![Python](https://img.shields.io/badge/Python-3.11%2B-3776AB?logo=python&logoColor=white)](pyproject.toml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-22A699.svg)](LICENSE)
+[![Stage: Research](https://img.shields.io/badge/Stage-Research-F0AD4E.svg)](docs/ESTADO.json)
+
+**Walk-forward evaluation · Probability calibration · Backtest overfitting controls**
+
+[English overview](docs/OPEN_SOURCE_OVERVIEW.md) · [Quick start](#instalación) · [Architecture](docs/ARCHITECTURE.md) · [Model audit](docs/AUDITORIA_GEOMETRIA.md) · [Contributing](CONTRIBUTING.md)
+
+</div>
+
+---
 
 **Herramienta de investigación para comparar modelos y agentes de selección de
 acciones a un mes, con probabilidades estimadas, calibración fuera de muestra y
@@ -16,18 +33,58 @@ Consulta el [estado y las limitaciones](docs/ESTADO.json), la
 [auditoría](docs/AUDITORIA_GEOMETRIA.md) y la
 [arquitectura](docs/ARCHITECTURE.md).
 
-Verificación local para esta publicación: **211 tests pasan, 6 se omiten**
+Verificación local para esta publicación: **212 tests pasan, 6 se omiten**
 en Python 3.13.13; hay 6 avisos de compatibilidad futura de pandas.
 El workflow de CI comprueba Python 3.11 y 3.12 en Linux y macOS.
 
-> *Short English summary:* rank a stock universe for the next ~21 sessions with
-> calibrated success probabilities, walk-forward out-of-sample diagnostics and
-> an explicit evidence tier; plus an evolutionary research harness with Deflated
-> Sharpe, PBO and holdout gates. Spanish docs below.
+> **For English-speaking readers.** Swarmtrader is an MIT-licensed Python research
+> toolkit for evaluating equity-ranking models and multi-agent ensembles. It
+> combines walk-forward out-of-sample evaluation, calibrated probability
+> estimates, multiple-testing controls and explicit abstention. Its published
+> audit includes negative results: the selected top stocks did not outperform
+> their universe, and the real-data sample has survivorship bias. The repository
+> is newly public; established adoption and profitable trading are not claimed.
+
+## De los datos a la evidencia
+
+```mermaid
+flowchart LR
+    A["CSV local o adaptador de datos"] --> B["Features y disponibilidad temporal"]
+    B --> C["Modelo único: rank"]
+    B --> D["Especialistas: swarm"]
+    C --> E["Predicciones fuera de muestra y calibración"]
+    D --> F["G0–G4: deriva, destreza, complejidad, PBO y top-K"]
+    E --> G["Informe reproducible"]
+    F --> G
+    G --> H["Ranking y evidencia, o abstención"]
+```
+
+| Capacidad | Qué permite comprobar | Evidencia en el repositorio |
+|---|---|---|
+| Evaluación temporal | Separación de entrenamiento y evaluación; lags de disponibilidad | [Datos PIT](src/swarmtrader/data/pit.py), [tests](tests/test_pit_and_data.py) |
+| Comparación de agentes | Si la complejidad aporta frente a alternativas más sencillas | [SPA](src/swarmtrader/stats/spa.py), [auditoría](docs/AUDITORIA_GEOMETRIA.md) |
+| Abstención explícita | Si los valores elegidos realmente baten al universo | [Gates del enjambre](src/swarmtrader/swarm_rank.py), [regresiones G4](tests/test_audit.py) |
+| Investigación reproducible | Controles con ruido y señal conocida; resultados también negativos | [Control sintético](scripts/swarm_null_test.py), [resultados publicados](docs/results/) |
+| Geometría de la información | Contraste de métricas de Fisher frente a una referencia euclídea | [Experimento](experiments/infogeo.py), [tests](tests/test_infogeo.py) |
+
+## Probarlo sin claves API
+
+Después de instalar, estos ejemplos usan solo los CSV y datos sintéticos del
+repositorio. No requieren una cuenta de broker.
+
+```bash
+python -m swarmtrader.cli rank examples/history_long_example.csv --top 3
+python -m pytest -q
+python scripts/swarm_null_test.py
+```
+
+Los ejemplos sintéticos comprueban el funcionamiento del pipeline; sus métricas
+no representan resultados de inversión. El comando de control puede tardar más
+que el ejemplo de ranking.
 
 ---
 
-## Instalación (2 minutos)
+## Instalación
 
 ```bash
 git clone https://github.com/dalonsogomez-ai/swarmtrader && cd swarmtrader
