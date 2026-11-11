@@ -9,13 +9,16 @@ contributions.
 ```bash
 python3 -m venv .venv
 source .venv/bin/activate
-python -m pip install -e ".[dev]"
+python -m pip install -e ".[dev,store]"
 python -m pytest -q
 ```
 
 Use the existing `src/` layout and pytest conventions. Keep optional ML and
 broker integrations optional. Explain any new dependency and the concrete need
 it addresses.
+
+The development command enables the existing storage extra because the storage
+round-trip tests require a Parquet engine. It is not needed for CSV-only ranking.
 
 ## Reporting a bug or proposing a change
 

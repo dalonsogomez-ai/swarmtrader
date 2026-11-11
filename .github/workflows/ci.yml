@@ -2,9 +2,13 @@ name: ci
 on:
   push:
   pull_request:
+permissions:
+  contents: read
 jobs:
   test:
+    timeout-minutes: 15
     strategy:
+      fail-fast: false
       matrix:
         os: [ubuntu-latest, macos-latest]   # macos-latest = Apple Silicon (ARM64)
         python: ["3.11", "3.12"]
@@ -14,7 +18,7 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python }}
-      - run: pip install -e ".[dev]"
+      - run: pip install -e ".[dev,store]"
       - run: pytest -q
       - run: python -m swarmtrader.cli rank examples/history_long_example.csv --top 3
       - run: python -m swarmtrader.cli rank examples/history_long_example.csv --top 3 --news examples/news_example.csv --earnings examples/earnings_example.csv --groups examples/groups_example.csv --neutralize

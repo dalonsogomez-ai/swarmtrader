@@ -10,6 +10,9 @@ reports, with the following corrections and documentation improvements.
 - Register `--congress` and `--congress-window` for `rank`. Previously, the
   normal offline ranking command accessed an absent argparse attribute.
 - Add an integration test of the bundled offline CSV command.
+- Install the existing storage extra in CI and development instructions: the
+  Parquet round-trip tests require pyarrow. Restrict CI permissions to reading
+  repository contents and retain all four platform/version checks on failures.
 
 ## Portfolio accounting
 

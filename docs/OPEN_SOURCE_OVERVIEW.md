@@ -38,14 +38,15 @@ git clone https://github.com/dalonsogomez-ai/swarmtrader
 cd swarmtrader
 python3 -m venv .venv
 source .venv/bin/activate
-python -m pip install -e ".[dev]"
+python -m pip install -e ".[dev,store]"
 python -m swarmtrader.cli rank examples/history_long_example.csv --top 3
 python -m pytest -q
 python scripts/swarm_null_test.py
 ```
 
 The bundled price examples and synthetic controls run without API keys, broker
-accounts or external data downloads. Optional adapters have separate data,
+accounts or external data downloads. The install command enables the existing
+storage extra for the storage tests. Optional adapters have separate data,
 licensing and credential requirements.
 
 ## Evidence and current limits
