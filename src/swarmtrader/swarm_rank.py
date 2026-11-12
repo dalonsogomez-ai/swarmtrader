@@ -47,6 +47,16 @@ una cartera vacia. Eso no es un fallo del sistema: es el sistema funcionando.
   fecha con el de la ventana de entrenamiento mediante distancias de
   Fisher-Rao. No es un contraste de destreza ni entra en la comparacion
   multiple: solo puede vetar.
+
+Dos modos de decision
+---------------------
+  ``gated`` (por defecto): lo de arriba. Sin veredicto accionable no se asigna.
+  ``conviction``: el veredicto se calcula y se informa IGUAL, pero no veta. Se
+  asigna la cartera de crecimiento optimo sobre todo el universo elegible
+  (`portfolio/conviction.py`), sin topes por nombre ni por sector: puede ser una
+  sola accion o varias, segun lo que justifiquen los escenarios. Responde a "si
+  hay que elegir de todos modos, ¿que es lo mejor con lo que se sabe?", que es
+  una pregunta distinta de "¿hay ventaja demostrada?". El informe lo deja claro.
 """
 
 from __future__ import annotations
@@ -60,6 +70,7 @@ from .agents.specialists import DEFAULT_ROSTER, Specialist, agent_diagnostics, r
 from .data.features import compute_regime
 from .data.loaders import MarketData
 from .ensemble.stacking import StackConfig, per_date_ic, stack_agents
+from .portfolio.conviction import ConvictionConfig, ConvictionResult, allocate
 from .portfolio.sizing import SizingConfig, size_positions
 from .rank import RankConfig, _make_model, _prepare, diagnose
 from .stats.calibration import IsotonicCalibrator
@@ -70,6 +81,7 @@ from .stats.spa import spa_test
 __all__ = ["topk_excess_by_date", "SwarmRankConfig", "SwarmVerdict", "SwarmRankResult", "swarm_rank", "format_swarm_report"]
 
 EVIDENCE_QUALITY = {"FUERTE": 1.0, "DEBIL": 0.35, "NINGUNA": 0.0}
+DECISION_MODES = ("gated", "conviction")
 
 
 @dataclass
@@ -85,6 +97,8 @@ class SwarmRankConfig:
     pbo_max: float = 0.50
     drift: DriftConfig = field(default_factory=DriftConfig)
     seed: int = 0
+    decision: str = "gated"             # gated | conviction (ver docstring del modulo)
+    conviction: ConvictionConfig = field(default_factory=ConvictionConfig)
 
 
 @dataclass
@@ -125,10 +139,14 @@ class SwarmRankResult:
     n_universe: int
     n_eligible: int
     drift: DriftReport | None = None
+    decision: str = "gated"
+    conviction: ConvictionResult | None = None
 
     def to_dict(self) -> dict:
         return {
             "as_of": self.as_of, "horizon_sessions": self.horizon,
+            "decision": self.decision,
+            "conviction": None if self.conviction is None else self.conviction.to_dict(),
             "verdict": self.verdict.to_dict(),
             "diagnostics": self.diagnostics.summary(),
             "agents": self.agents.round(4).to_dict(orient="records"),
@@ -218,7 +236,12 @@ def _final_scores(df: pd.DataFrame, cfg: RankConfig, roster: list[Specialist],
 def swarm_rank(md: MarketData, cfg: SwarmRankConfig = SwarmRankConfig(),
                extra: pd.DataFrame | None = None, groups: pd.Series | None = None,
                previous: pd.Series | None = None, verbose: bool = False,
-               listings: pd.DataFrame | None = None) -> SwarmRankResult:
+               listings: pd.DataFrame | None = None, held: dict | None = None,
+               exclude=()) -> SwarmRankResult:
+    """`held` y `exclude` solo se usan en modo `conviction`: posiciones que se
+    mantienen (fracciones del patrimonio) y simbolos que no pueden comprarse."""
+    if cfg.decision not in DECISION_MODES:
+        raise ValueError(f"decision debe ser uno de {DECISION_MODES}, no {cfg.decision!r}")
     rc = cfg.rank
     df = _prepare(md, rc, extra=extra, groups=groups, listings=listings)
     panel = run_swarm(df, rc, roster=cfg.roster, verbose=verbose, md=md, groups=groups,
@@ -334,6 +357,20 @@ def swarm_rank(md: MarketData, cfg: SwarmRankConfig = SwarmRankConfig(),
     )
     port = sizing.to_frame().reset_index().rename(columns={"index": "symbol"})
 
+    # ---------------- asignacion por conviccion (solo si se pide) ----------------
+    # Usa el MISMO combinador que el veredicto ("stack" o "eq", existe aunque no
+    # sea accionable) y solo predicciones fuera de muestra con ventana ya cerrada.
+    conv = None
+    if cfg.decision == "conviction":
+        oos = sc[["date", combiner, "fwd"]].rename(columns={combiner: "score"})
+        try:
+            conv = allocate(oos, picks.set_index("symbol")["score"], md.prices, rc.horizon,
+                            cfg.conviction, held=held, exclude=exclude, top_k=rc.top_k,
+                            success_threshold=rc.success_threshold)
+        except ValueError as exc:
+            conv = ConvictionResult(pd.Series(dtype=float), 1.0, pd.DataFrame(), 0.0,
+                                    float("inf"), notes=[f"no se pudo asignar: {exc}"])
+
     verdict = SwarmVerdict(actionable, combiner if actionable else "none", reasons,
                            p_skill, p_stack, pbo, diag.evidence, p_topk, topk_excess)
     return SwarmRankResult(
@@ -341,6 +378,7 @@ def swarm_rank(md: MarketData, cfg: SwarmRankConfig = SwarmRankConfig(),
         picks=picks, portfolio=port, verdict=verdict, diagnostics=diag,
         agents=agents_diag, weights=stacked.final_weights(), skipped=panel.skipped,
         regime=reg, n_universe=n_univ, n_eligible=n_elig, drift=drift,
+        decision=cfg.decision, conviction=conv,
     )
 
 
@@ -391,8 +429,13 @@ def format_swarm_report(res: SwarmRankResult, cfg: SwarmRankConfig) -> str:
     if not v.actionable:
         L += ["VEREDICTO: NO ACCIONABLE"]
         L += [f"   - {r}" for r in v.reasons]
-        L += ["", "   No se asigna capital. El ranking se muestra abajo solo por transparencia;",
-              "   sus probabilidades son la tasa base del universo, no una prediccion.", ""]
+        if res.conviction is None:
+            L += ["", "   No se asigna capital. El ranking se muestra abajo solo por transparencia;",
+                  "   sus probabilidades son la tasa base del universo, no una prediccion.", ""]
+        else:
+            L += ["", "   En modo 'gated' no se asignaria capital. En modo 'conviction' se asigna",
+                  "   igualmente (ver ASIGNACION POR CONVICCION). Las probabilidades del TOP",
+                  "   son la tasa base del universo, no una prediccion.", ""]
     else:
         L += ["VEREDICTO: ACCIONABLE"] + [f"   - {r}" for r in v.reasons] + [""]
         if v.combiner == "stack" and not res.weights.empty:
@@ -415,5 +458,36 @@ def format_swarm_report(res: SwarmRankResult, cfg: SwarmRankConfig) -> str:
         for _, r in res.portfolio.iterrows():
             if r["weight"] > 0:
                 L.append(f"  {r['symbol']:<10} {r['weight']:6.1%}   ventaja esperada {r['edge']:+.2%}")
+    if res.conviction is not None:
+        L += [""] + _format_conviction(res, cfg)
     L += ["", "  Esto no es asesoramiento de inversion. Ver README para las limitaciones."]
     return "\n".join(L)
+
+
+def _format_conviction(res: SwarmRankResult, cfg: SwarmRankConfig) -> list[str]:
+    c, v, i = res.conviction, res.verdict, res.conviction.info
+    L = ["ASIGNACION POR CONVICCION" + ("" if v.actionable else " — ventaja NO demostrada")]
+    if not v.actionable:
+        L += ["   Es la mejor eleccion con la informacion disponible, no una prediccion",
+              "   validada: el veredicto de arriba sigue siendo NO ACCIONABLE."]
+    if i:
+        lam = i.get("map_lambda_mean")
+        L += [f"   aversion al riesgo {i.get('risk_aversion', 0):g}   escenarios "
+              f"{i.get('n_scenarios', 0)}   candidatos {i.get('n_candidates', 0)}   "
+              f"posiciones efectivas {i.get('effective_positions', 0):.2f}",
+              f"   mapa puntuacion->retorno: {i.get('map_bins', 0)} tramos, "
+              f"{i.get('map_dates', 0)} fechas fuera de muestra, encogimiento "
+              f"lambda={(lam if lam is not None else 0.0):.2f} (0 = ruido, 1 = senal)"]
+    thr = cfg.rank.success_threshold
+    for _, r in c.table.iterrows():
+        L.append(f"  {r['symbol']:<10} {r['weight']:6.1%}   retorno esperado {r['mu']:+.2%}"
+                 f"   desviacion {r['sd']:.1%}   P(>{thr:+.0%}) {r['p_success']:.0%}")
+    if c.cash > 0:
+        L.append(f"  {'efectivo':<10} {c.cash:6.1%}")
+    if not c.weights.empty:
+        L.append(f"   equivalente cierto a {res.horizon} sesiones: {c.certainty_equivalent:+.2%}"
+                 f"   (cota de optimalidad {c.gap:.1e})")
+        L.append("   alternativas con los mismos escenarios (equivalente cierto):")
+        L += [f"     {k:<44} {val:+.2%}" for k, val in c.alternatives.items()]
+    L += [f"   nota: {n}" for n in c.notes]
+    return L

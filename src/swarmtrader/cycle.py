@@ -29,13 +29,24 @@ ademas, para dinero real, la variable de entorno que ya exige
 
 Programacion: una ejecucion al dia tras el cierre de EE. UU. (22:15 hora
 peninsular), con cron o launchd. No es un demonio: un proceso vivo 45 dias
-acumula estado en memoria y si cae a mitad no sabes que se envio.
+acumula estado en memoria y si cae a mitad no sabes que se envio. Con el
+mercado cerrado las ventas quedan en cola y no liberan poder de compra hasta
+ejecutarse, asi que una rotacion completa tarda dos ciclos: el segundo ve el
+efectivo real y compra lo que falta.
+
+**5. Modo `conviction`.** Con `decision="conviction"` se compra aunque el
+veredicto sea NO ACCIONABLE: la cartera de crecimiento optimo de
+`portfolio/conviction.py`, sin `max_positions` ni tope por nombre o sector, que
+puede ser una sola accion. Se mantienen la parada por drawdown del mandato, el
+veto de recompra tras stop, la triple barrera, la exposicion maxima de 1,0 (sin
+margen) y la simulacion por defecto. Las posiciones abiertas no se tocan: el
+optimizador reparte solo el presupuesto libre teniendo en cuenta lo que ya hay.
 """
 
 from __future__ import annotations
 
 import json
-from dataclasses import asdict, dataclass, field
+from dataclasses import asdict, dataclass, field, replace
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -65,6 +76,7 @@ class CycleConfig:
     max_position_pct: float = 0.25        # tope por nombre DESPUES de renormalizar
     allow_roll: bool = True               # renovar en vez de vender y recomprar
     stop_cooldown_cycles: int = 1         # ciclos de veto tras salir por stop
+    decision: str = "gated"               # gated | conviction (ver docstring, punto 5)
 
 
 @dataclass
@@ -300,7 +312,10 @@ class DailyCycle:
                 rolled.add(sym)
 
         # --- 4. entradas (solo si el mandato lo permite) ---
-        if can_enter and len(keep) < self.cfg.max_positions:
+        conviction = self.cfg.decision == "conviction"
+        if can_enter and conviction:
+            self._enter_by_conviction(rep, keep, banned, session, equity)
+        elif can_enter and len(keep) < self.cfg.max_positions:
             res = swarm_rank(self.md, self.swarm_cfg, extra=self.extra, groups=self.groups,
                              listings=self.listings)
             rep.entries.append({"verdict": res.verdict.to_dict(),
@@ -367,7 +382,7 @@ class DailyCycle:
             rep.notes.append("DRY RUN: no se ha enviado ninguna orden")
         else:
             from .execution.guards import RiskLimits, RiskManager
-            risk = RiskManager(RiskLimits(), equity)
+            risk = RiskManager(self._risk_limits(), equity)
             risk.start_of_day(equity)
             dv = (self.md.prices.loc[session] * self.md.volumes.loc[session]).to_dict()
             orders = self.broker.rebalance_to(keep, risk, dv)
@@ -389,6 +404,61 @@ class DailyCycle:
         rep.status = "completed"
         self._write(rep)
         return rep
+
+    # ------------------------------------------------------------- conviccion
+    def _risk_limits(self):
+        """Guardas de la ejecucion. En modo conviccion caen los topes de
+        DIVERSIFICACION (por nombre, por sector, numero de ordenes); se mantienen
+        sin margen, precio y liquidez minimos, perdida diaria y drawdown."""
+        from .execution.guards import RiskLimits
+        if self.cfg.decision == "conviction":
+            return RiskLimits(max_position_pct=1.0, max_sector_pct=1.0, max_orders_per_day=100)
+        return RiskLimits()
+
+    def _enter_by_conviction(self, rep: CycleReport, keep: dict[str, float],
+                             banned: set[str], session: pd.Timestamp, equity: float) -> None:
+        budget = max(0.0, 1.0 - sum(keep.values()))
+        # Minimo de orden de Alpaca: 1 USD. Con 100 USD eso es el 1 % del capital.
+        min_w = max(self.swarm_cfg.conviction.min_weight, 1.05 / equity if equity > 0 else 1.0)
+        if budget < min_w:
+            rep.notes.append("modo conviccion: sin presupuesto libre para nuevas entradas")
+            return
+        # Lo que las guardas o el broker rechazarian no debe recibir capital: una
+        # orden rechazada deja ese dinero sin invertir.
+        lim = self._risk_limits()
+        px = self.md.prices.loc[session]
+        dv = (px * self.md.volumes.loc[session]).reindex(px.index)
+        exclude = set(banned)
+        exclude |= set(px.index[(px < lim.min_price) | ~(dv >= lim.min_dollar_volume)])
+        exclude |= set(self.broker.untradable(list(px.index)))
+        scfg = replace(self.swarm_cfg, decision="conviction",
+                       conviction=replace(self.swarm_cfg.conviction, min_weight=min_w))
+        res = swarm_rank(self.md, scfg, extra=self.extra, groups=self.groups,
+                         listings=self.listings, held=dict(keep), exclude=exclude)
+        rep.entries.append({"verdict": res.verdict.to_dict(),
+                            "evidence": res.diagnostics.evidence, "decision": "conviction"})
+        c = res.conviction
+        if c is None or c.weights.empty:
+            why = "; ".join(c.notes) if c is not None else "; ".join(res.verdict.reasons)
+            rep.notes.append(f"modo conviccion: no hay asignacion ({why})")
+            return
+        tbl = c.table.set_index("symbol") if not c.table.empty else pd.DataFrame()
+        for sym, w in c.weights.items():
+            keep[sym] = float(w)
+            row = tbl.loc[sym] if sym in tbl.index else None
+            rep.entries.append({"symbol": sym, "weight": round(float(w), 4),
+                                "edge": round(float(row["mu"]), 4) if row is not None else 0.0,
+                                "p_success": round(float(row["p_success"]), 4)
+                                if row is not None else None})
+        i = c.info
+        rep.notes.append(
+            "MODO CONVICCION: " + ("ventaja NO demostrada (veredicto NO ACCIONABLE); "
+                                   if not res.verdict.actionable else "")
+            + f"{i.get('n_positions', 0)} posiciones, efectivas "
+            f"{i.get('effective_positions', 0):.2f}, equivalente cierto "
+            f"{c.certainty_equivalent:+.2%} a {res.horizon} sesiones, alternativas "
+            + ", ".join(f"{k} {v:+.2%}" for k, v in c.alternatives.items()))
+        rep.notes += [f"modo conviccion: {n}" for n in c.notes]
 
     def _write(self, rep: CycleReport) -> None:
         self.journal.parent.mkdir(parents=True, exist_ok=True)
