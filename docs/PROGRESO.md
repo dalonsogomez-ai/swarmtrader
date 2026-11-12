@@ -3,6 +3,30 @@
 Registro en texto libre de que se hizo y que sigue. El estado estructurado esta
 en `ESTADO.json`. Antes de continuar trabajo previo, leer ambos.
 
+## 2026-11-12 — fuentes de datos y horizonte de 0 a 45 dias (solo documento)
+
+Hecho:
+- `docs/FUENTES_Y_HORIZONTE_45D.md`: respuesta a si anadir plataformas o fuentes
+  encuentra mas subidas fuertes dentro de 45 dias. Investigacion con busqueda web;
+  cada afirmacion lleva su grado (fuente, memoria, inferencia, no medido).
+
+Conclusiones (ninguna medida en este sistema):
+- Suman las fuentes de eventos de empresa, no mas brokers ni mas precio: Form 4
+  de EDGAR, fechas de resultados y noticias de Alpaca agregadas por semana.
+  Alimentan agentes que ya tienen codigo y no datos (`flow`, `earnings`, `news`).
+- El interes corto solo debe vetar: predice retornos peores.
+- El tiempo de computo no importa con un ciclo diario; el intradia queda fuera.
+- Tocar +10% en 32 sesiones con volatilidad diaria del 3% ocurre el 57% de las
+  veces sin ventaja alguna: la etiqueta util es el exceso sobre eso.
+
+No hecho:
+- Ninguna ingesta implementada. `earnings_features` aun exige sorpresa o BPA.
+- Precios de varios proveedores tomados de agregadores, sin confirmar.
+
+Sigue:
+1. Historico con deslistadas (fase 0 del plan del documento).
+2. Ingesta de Form 4 a CSV y contraste pre-registrado del agente `flow`.
+
 ## 2026-11-12 — v1.4.0: modo de decision por conviccion
 
 Hecho:
