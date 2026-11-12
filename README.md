@@ -24,16 +24,19 @@ controles estadísticos que permiten abstenerse cuando no hay evidencia.**
 Funciona en macOS (Apple Silicon), Linux y Windows. Python 3.11+. Sin claves ni
 cuentas para el modo CSV. Licencia MIT.
 
-**Estado de v1.3.0 (11 de noviembre de 2026):** investigación y backtesting.
+**Estado de v1.4.0 (12 de noviembre de 2026):** investigación y backtesting.
 La auditoría disponible no demuestra que los primeros valores del ranking
 batan al universo; con el filtro G4, el resultado medido es **NO ACCIONABLE**.
+Desde la v1.4 existe un modo opcional, `--decision conviction`, que compra
+igualmente la mejor cartera que el sistema sabe construir, avisando de que la
+ventaja no está demostrada ([detalles](#modo-convicción-v14-elegir-aunque-la-ventaja-no-esté-demostrada)).
 Los datos reales auditados tienen sesgo de supervivencia. El paper trading
 contra un broker externo no se ha validado y el trading real no está activado.
 Consulta el [estado y las limitaciones](docs/ESTADO.json), la
 [auditoría](docs/AUDITORIA_GEOMETRIA.md) y la
 [arquitectura](docs/ARCHITECTURE.md).
 
-Verificación local para esta publicación: **216 tests pasan, 6 se omiten**
+Verificación local para esta publicación: **277 tests pasan, 6 se omiten**
 en Python 3.13.13; hay 6 avisos de compatibilidad futura de pandas.
 El workflow de CI comprueba Python 3.11 y 3.12 en Linux y macOS.
 Las [notas de publicación](docs/PUBLICATION_NOTES.md) documentan correcciones de
@@ -396,6 +399,61 @@ swarmtrader swarm --store ~/swarmdata --top 3
 # cuantifica el sesgo sobre TUS metricas, no sobre las de un paper
 python3 experiments/survivorship.py --momentum 0.02 --delist-rate 0.12 --drift-days 0
 ```
+
+### Modo convicción (v1.4): elegir aunque la ventaja no esté demostrada
+
+Por defecto (`--decision gated`) el sistema no compra nada si el veredicto es
+NO ACCIONABLE. Con `--decision conviction` el veredicto se sigue calculando e
+imprimiendo igual, pero ya no bloquea: el sistema compra la cartera de
+**crecimiento óptimo** (criterio de Kelly) sobre todo el universo elegible.
+Puede ser una sola acción o varias. Concentra todo en una cuando los
+escenarios lo justifican y reparte cuando repartir hace crecer más el capital.
+No hay tope por nombre ni por sector ni número mínimo de posiciones.
+
+```bash
+swarmtrader swarm universe.csv --decision conviction                      # informe
+swarmtrader swarm universe.csv --decision conviction --risk-aversion 0.5  # concentra más
+swarmtrader cycle --alpaca --broker alpaca --decision conviction          # plan simulado
+swarmtrader cycle --alpaca --broker alpaca --decision conviction --execute  # cuenta PAPER
+```
+
+`--risk-aversion` es el mando entre «todo a una» y repartir. 1 es Kelly (el
+defecto); 0 pone siempre el 100 % en la acción de mayor retorno esperado sin
+mirar el riesgo; por encima de 1 reparte más. `--allow-cash` permite dejar
+parte en efectivo (por defecto todo queda invertido).
+
+Cómo decide, en una frase: estima a partir de las predicciones fuera de muestra
+del propio enjambre cuánto rinde cada tramo de puntuación, **encoge** esa
+estimación hacia cero según lo ruidosa que sea, simula 3.000 escenarios
+conjuntos con la volatilidad y las correlaciones reales de cada acción y
+resuelve la cartera que maximiza el crecimiento esperado, con una cota que
+certifica que es el óptimo. El informe muestra, con los mismos escenarios, qué
+habría dado «todo a la mejor» y «equiponderar las 5 primeras».
+
+Se mantienen la parada por drawdown del mandato, el veto de recompra tras un
+stop, la triple barrera, la ausencia de margen, la simulación por defecto
+(`--execute` para enviar) y la doble llave para dinero real. La CLI solo
+conecta con la cuenta **paper** de Alpaca.
+
+Lo medido (datos **sintéticos**, sin costes, 60 casos por escenario;
+`experiments/conviction_measure.py`, `docs/results/conviction_measure.json`):
+
+| Escenario | Convicción | Universo equiponderado | 5 primeras equiponderadas |
+|---|---|---|---|
+| Sin señal | +0,67 % | +1,10 % | +1,11 % |
+| Con señal de momentum | +27,3 % | +4,1 % | +32,4 % |
+
+Crecimiento logarítmico medio a 21 sesiones. Sin señal no bate al universo (no
+hay fuga de información). Con señal sí lo bate, y con claridad, pero queda por
+debajo de las 5 primeras equiponderadas: el mapa de puntuación no distingue
+dentro de su tramo superior. De las cuatro hipótesis fijadas antes de medir se
+cumplen tres; la primera exigía además que, sin señal, el encogimiento medio
+dejara el mapa por debajo de 0,2 y falla por poco: 0,2015.
+
+**Esto no convierte el sistema en uno con ventaja.** Sobre datos reales el
+veredicto sigue siendo NO ACCIONABLE. Este modo responde a otra pregunta: si
+hay que elegir de todos modos, qué es lo mejor con la información disponible.
+Detalles: `docs/ARCHITECTURE.md`, sección 16.
 
 ### Auditoria sobre datos reales (v1.3)
 

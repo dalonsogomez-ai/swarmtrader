@@ -1,7 +1,7 @@
 {
  "proyecto": "swarmtrader",
- "version": "1.3.0",
- "actualizado_utc": "2026-11-11",
+ "version": "1.4.0",
+ "actualizado_utc": "2026-11-12",
  "fase": "investigacion/diseno y backtesting; paper trading NO iniciado; trading real NO activado",
  "componentes": {
   "stats/infogeo.py": {
@@ -22,7 +22,8 @@
    "evidencia": "scripts/swarm_null_test.py; docs/results/audit_followup_2026-11-11.json (F3)"
   },
   "cycle.py + Alpaca": {
-   "estado": "probado con PaperBroker; sin ejecutar contra Alpaca paper real"
+   "estado": "probado con PaperBroker y con un cliente de Alpaca falso; sin ejecutar contra Alpaca paper real",
+   "cambio_v1_4": "rebalance_to vende, espera y compra con el poder de compra real; reducciones sin guardas de entrada; compras sin financiar quedan deferred"
   },
   "execution/router.py": {
    "estado": "probado; adaptadores de ordenes de eToro/IBKR no escritos"
@@ -41,10 +42,16 @@
   "MarketData.nominal (filtro de precio point-in-time)": {
    "estado": "probado",
    "limitacion": "los adaptadores de Alpaca y yfinance no lo rellenan"
+  },
+  "portfolio/conviction.py (modo --decision conviction)": {
+   "estado": "probado en sintetico; integrado en swarm, cycle y ejecucion",
+   "evidencia": "tests/test_conviction.py, tests/test_conviction_integration.py, tests/test_alpaca_adapter.py; experiments/conviction_measure.py; docs/results/conviction_measure.json",
+   "medicion": "H1 NO cumple (lambda medio sin senal 0.2015 >= 0,2; crecimiento -0.43% frente al universo, p=0.83); H2 cumple (posiciones efectivas 3.6 frente a 8.4; +23.2% frente al universo); H3 cumple (8.4 frente a 4.0 posiciones efectivas; sin encoger +0.31%, p=0.27); H4 cumple (5.6 / 6.0 / 6.5 / 7.2)",
+   "limitacion": "datos sinteticos y sin costes; con senal, equiponderar las 5 primeras (+32.4%) supera a la conviccion (+27.3%) porque el mapa no distingue dentro de su tramo superior; no demuestra ventaja sobre datos reales, donde el veredicto sigue siendo NO ACCIONABLE"
   }
  },
  "pruebas": {
-  "suite": "210 pasan, 7 omitidos (PyTorch, duckdb, arch no instalados en el entorno)",
+  "suite": "277 pasan, 6 omitidos en la rama publicada (272 en la copia local sin los tests de publicacion); PyTorch no instalado",
   "controles": "swarm_null_test: ruido -> NO ACCIONABLE (SPA p=0,882); senal -> ACCIONABLE (p=0,000, G4 p=0,000)"
  },
  "defectos_conocidos_sin_corregir": [
@@ -53,7 +60,8 @@
   "data/brokers.py::alpaca_universe filtra solo status=ACTIVE.",
   "sharadar_market_data sigue derivando el motivo de baja con una heuristica de fechas en vez de las tablas tickers+actions.",
   "Los adaptadores de Alpaca y yfinance no proporcionan el cierre sin ajustar: con ellos el filtro de precio no es point-in-time.",
-  "La etiqueta de entrenamiento (rango relativo sobre toda la seccion cruzada) esta desalineada con una cartera que solo compra; no se puede corregir con rigor sobre datos de supervivientes."
+  "La etiqueta de entrenamiento (rango relativo sobre toda la seccion cruzada) esta desalineada con una cartera que solo compra; no se puede corregir con rigor sobre datos de supervivientes.",
+  "cli.py, comando `paper`: usa `args.venues` (el subcomando no lo define) y una variable `md` inexistente; falla al ejecutarse. Detectado en la v1.4, no corregido."
  ],
  "decisiones_pendientes_del_usuario": [
   "Que se quiere del sistema a la vista de la auditoria: filtro de exclusion, selector de compras (exige nuevas fuentes de datos) o perfil de loteria.",
@@ -61,11 +69,16 @@
   "Enjambre o modelo unico mientras solo haya datos de precio.",
   "max_sector_pct: 0,25 o 0,50.",
   "Fuente point-in-time: Sharadar Prices (9 $/mes) o verificar Alpaca inactivos + corporate actions.",
-  "Si se anade cripto o mas plataformas: analisis interrumpido, sin conclusiones."
+  "Si se anade cripto o mas plataformas: analisis interrumpido, sin conclusiones.",
+  "Modo conviccion: aversion al riesgo por defecto (1 = Kelly; <1 concentra mas; 0 = todo a la de mayor retorno esperado).",
+  "Modo conviccion: permitir efectivo como opcion del optimizador (por defecto, no).",
+  "Modo conviccion: mantener la triple barrera (por defecto, si) y dejar fijas las posiciones abiertas (por defecto, si).",
+  "Hora del ciclo: con el mercado cerrado una rotacion completa tarda dos ciclos."
  ],
  "bloqueos_externos": [
   "Sin datos point-in-time con deslistados: toda medicion real es sobre supervivientes.",
-  "Sin credenciales de Alpaca paper en el entorno de trabajo."
+  "Sin credenciales de Alpaca paper en el entorno de trabajo.",
+  "Sin verificar en la documentacion de Alpaca: liquidacion T+1 y violaciones de buena fe en cuentas pequenas; aceptacion de ordenes por nocional con el mercado cerrado."
  ],
  "observaciones_a_investigar": [
   "fisher_rank mejora a la euclidea a 5 sesiones (+0,62%, mismo signo en ambas mitades): confirmar con datos PIT antes de considerarla."
