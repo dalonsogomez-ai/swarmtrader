@@ -876,6 +876,98 @@ Sobre G0: detecta el mismo episodio (COVID) que una linea base trivial de
 volatilidad, tres sesiones mas tarde. El canal de dispersion solo lo hace sin
 marcar ningun dia fuera de episodios. No se cambia el valor por defecto.
 
+## 16. v1.4 — modo de decision por conviccion
+
+Peticion: que el sistema, aunque no pueda demostrar ventaja, compre «las mas
+probables o las mejores de todas las analizadas», una, dos o la mejor
+combinacion, sin barreras de diversificacion, pudiendo poner todo el capital en
+una sola accion. Es opcional (`--decision conviction`); el modo por defecto
+(`gated`) no cambia.
+
+### 16.1 Dos preguntas distintas
+
+El veredicto G0-G4 responde «¿hay evidencia de que el ranking elija bien?». El
+modo conviccion responde «si hay que elegir de todos modos, ¿que es lo mejor con
+lo que se sabe?». La segunda no invalida la primera: el veredicto se calcula y
+se imprime igual, y el informe dice «ventaja NO demostrada» cuando toca.
+
+### 16.2 Criterio: crecimiento optimo en el simplex
+
+`portfolio/conviction.py` maximiza E[u(b . X)] con b >= 0 y sum(b) = 1, con u
+CRRA (gamma = 1 es Kelly). No hay tope por nombre: el optimo es una esquina (todo
+a una accion j) exactamente cuando E[X_i / X_j] <= 1 para todas las demas
+(Kuhn-Tucker; Cover y Thomas, teorema 16.2.1). Con dos acciones de volatilidad
+sigma y correlacion rho, la mejor se lo lleva todo si su ventaja supera a
+sigma^2 (1 - rho), alrededor de un 1 % mensual con sigma = 12 % y rho = 0,3.
+Con la evidencia real (exceso aproximadamente nulo) lo esperable es repartir
+entre pocos nombres de baja volatilidad, no «todo a una».
+
+Solver: actualizacion multiplicativa de Cover (1984) con paso adaptativo,
+aceptado solo si sube el objetivo, mas pasos de Frank-Wolfe con busqueda lineal
+cuando el multiplicativo se atasca o cuando la accion que mas mejoraria tiene un
+peso colapsado al suelo numerico. Devuelve una cota certificada de la distancia
+al optimo (ln max_i g_i en el caso logaritmico; brecha de Frank-Wolfe en
+general). El universo entero se trata por generacion de columnas: la condicion
+de Kuhn-Tucker se comprueba en TODAS las acciones, no en un «top N».
+
+### 16.3 Distribucion predictiva
+
+| Pieza | Decision y motivo |
+|---|---|
+| Media por puntuacion | Predicciones walk-forward fuera de muestra del propio enjambre; tramos por percentil DENTRO de cada fecha (la escala de `stack` cambia entre fechas); sin forzar monotonia, porque sobre datos reales la parte alta no era mejor |
+| Encogimiento empirico-bayesiano | lambda_k = tau^2 / (tau^2 + se_k^2), tau^2 por momentos. Con ~18 fechas y 10 tramos el tramo con mejor suerte aparenta varias decimas al mes de exceso aunque sea ruido; sin encoger, Kelly apuesta justo por ese tramo. El bootstrap bayesiano por si solo no lo evita: bajo utilidad logaritmica la incertidumbre de la media solo penaliza del orden de 0,006 % |
+| Incertidumbre | Bootstrap bayesiano (Rubin, 1981) sobre las fechas, con la posterior normal-normal de cada tramo |
+| Dependencia | Bootstrap estacionario de secciones cruzadas diarias compuesto al horizonte: correlaciones y colas reales |
+| Media exacta | El residuo se reescala para que la media de cada accion sea exactamente su media predictiva: no cuenta dos veces la deriva historica y quita el ruido de Monte Carlo que el optimizador perseguiria entre acciones casi iguales |
+| Empates | Con gamma = 0 y medias iguales (mapa plano), el capital se reparte entre los empatados en vez de dejar que decida el redondeo |
+
+### 16.4 Integracion
+
+| Pieza | Cambio |
+|---|---|
+| `swarm_rank` | `decision`, `conviction`, `held`, `exclude`; usa el mismo combinador que el veredicto; bloque de informe propio |
+| `cycle` | Entradas sin `max_positions` ni tope por nombre o sector; las posiciones abiertas quedan fijas y se reparte solo el presupuesto libre; se excluyen antes los valores que las guardas o el broker rechazarian (precio, liquidez, no fraccionables), porque una orden rechazada deja capital sin invertir |
+| Se mantiene | Parada por drawdown del mandato, veto de recompra tras stop, triple barrera, exposicion bruta 1,0 (sin margen), simulacion por defecto, doble llave para dinero real |
+| `rebalance_to` (ambos modos) | Liquidar, reducir, esperar ejecucion y despues comprar con el poder de compra real y un colchon del 0,5 %; las reducciones no pasan por las guardas de entrada; lo que no se puede financiar queda `deferred` |
+| `AlpacaBroker` | Poder de compra del campo mas conservador; nocional truncado a centimos con minimo local de 1 USD; `settle` espera a las ventas solo con el mercado abierto; `untradable` excluye no fraccionables e inactivos; clientes inyectables para tests |
+| CLI | `--decision`, `--risk-aversion`, `--allow-cash`, `--scenarios` en `swarm` y `cycle`; el codigo de salida de `swarm` sigue ligado al veredicto |
+
+Con el mercado cerrado (el ciclo corre a las 22:15) las ventas quedan en cola y
+no liberan poder de compra hasta ejecutarse: una rotacion completa tarda dos
+ciclos.
+
+### 16.5 Medicion pre-registrada
+
+`experiments/conviction_measure.py`; resultados en
+`docs/results/conviction_measure.json`. Datos sinteticos (`load_synthetic`), 10
+semillas, 60 acciones, 6 fechas mensuales no solapadas por semilla, retorno
+realizado a 21 sesiones, sin costes. Criterios fijados antes de ejecutar.
+
+| Hipotesis | Resultado | Cumple |
+|---|---|---|
+| H1 sin senal: lambda medio < 0,2 y no bate al universo | lambda 0,2015; crecimiento -0,43 % frente al universo (p = 0,83) | No (por el criterio de lambda) |
+| H2 con senal: concentra mas y bate al universo | 3,6 frente a 8,4 posiciones efectivas; +23,2 puntos (p = 1,8e-25) | Si |
+| H3 encogimiento: menos concentracion y no peor | 8,4 frente a 4,0 posiciones efectivas; sin encoger +0,31 % (p = 0,27) | Si |
+| H4 mas aversion al riesgo, mas reparto | 5,6 / 6,0 / 6,5 / 7,2 posiciones efectivas con gamma 0,5 / 1 / 2 / 4 | Si |
+
+Observacion no pre-registrada: con senal, equiponderar las 5 primeras por
+puntuacion (+32,4 %) supera a la cartera de conviccion (+27,3 %). Con 60
+acciones el mapa tiene 7 tramos y no distingue dentro del superior. Tramos mas
+finos en la parte alta podrian ayudar cuando hay senal, pero con datos reales la
+parte alta no era mejor; no se cambia nada sin medirlo sobre datos
+point-in-time. Sin senal la conviccion queda por debajo del universo (-0,43 %,
+no significativo): con medias iguales elige la cartera de menor riesgo, que en
+este sintetico es la de beta baja.
+
+### 16.6 Limites
+
+Nada de esto demuestra ventaja: sobre datos reales el veredicto sigue siendo NO
+ACCIONABLE y la medicion de este modo es sintetica. No se ha ejecutado contra la
+cuenta paper de Alpaca. Quedan sin verificar en la documentacion de Alpaca la
+liquidacion T+1 y las violaciones de buena fe al rotar en cuentas pequenas, y si
+una orden por nocional se acepta con el mercado cerrado; el diseno no depende de
+ello (lo que se rechace, el ciclo siguiente lo reconcilia).
+
 ## 5. Flujo completo
 
 ```

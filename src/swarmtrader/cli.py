@@ -51,6 +51,33 @@ def _add_drift_flags(sp):
                          "warn = solo se informa")
 
 
+def _nonneg_float(text: str) -> float:
+    v = float(text)
+    if not v >= 0.0:
+        raise argparse.ArgumentTypeError("debe ser un numero >= 0")
+    return v
+
+
+def _add_conviction_flags(sp):
+    sp.add_argument("--decision", choices=["gated", "conviction"], default="gated",
+                    help="gated = sin veredicto accionable no se asigna capital; conviction = "
+                         "se asigna la cartera de crecimiento optimo AUNQUE la ventaja no este "
+                         "demostrada, sin topes por nombre (puede ser una sola accion)")
+    sp.add_argument("--risk-aversion", type=_nonneg_float, default=1.0,
+                    help="modo conviction: 1 = Kelly (defecto); <1 concentra mas; 0 = todo a la "
+                         "de mayor retorno esperado sin mirar el riesgo; >1 reparte mas")
+    sp.add_argument("--allow-cash", action="store_true",
+                    help="modo conviction: permitir dejar parte en efectivo (defecto: todo invertido)")
+    sp.add_argument("--scenarios", type=int, default=3000,
+                    help="modo conviction: escenarios de la distribucion predictiva")
+
+
+def _conviction_config(args):
+    from .portfolio.conviction import ConvictionConfig
+    return ConvictionConfig(risk_aversion=args.risk_aversion, allow_cash=args.allow_cash,
+                            n_scenarios=args.scenarios)
+
+
 def _add_signal_flags(sp):
     sp.add_argument("--news", default=None, help="CSV date,symbol,headline|score")
     sp.add_argument("--analyst", default=None, help="CSV date,symbol,consensus[,target]")
@@ -232,6 +259,7 @@ def cmd_swarm(args) -> int:
         deep=deep_cfg, allow_deep=use_deep,
         sizing=SizingConfig(kelly_fraction=args.kelly, max_weight=args.max_weight,
                             target_vol=args.target_vol),
+        decision=args.decision, conviction=_conviction_config(args),
     )
     try:
         extra, groups = _signals(args, md)
@@ -352,8 +380,10 @@ def cmd_cycle(args) -> int:
         print("mandato iniciado (timestamp UTC inmutable)")
 
     scfg = SwarmRankConfig(allow_deep=not args.no_deep, spa_boot=args.spa_boot,
-                           drift=DriftConfig(alpha=args.drift_alpha, mode=args.drift_mode))
+                           drift=DriftConfig(alpha=args.drift_alpha, mode=args.drift_mode),
+                           decision=args.decision, conviction=_conviction_config(args))
     ccfg = CycleConfig(
+        decision=args.decision,
         dry_run=not args.execute, max_positions=args.max_positions,
         max_position_pct=args.max_position_pct, force=args.force, as_of=args.as_of,
         state_dir=args.state_dir,
@@ -668,6 +698,7 @@ def main(argv: list[str] | None = None) -> int:
     sw.add_argument("--alpha", type=float, default=0.05, help="nivel de los filtros SPA")
     sw.add_argument("--pbo-max", type=float, default=0.50, help="PBO maximo tolerado")
     _add_drift_flags(sw)
+    _add_conviction_flags(sw)
     sw.add_argument("--kelly", type=float, default=0.25, help="fraccion de Kelly")
     sw.add_argument("--max-weight", type=float, default=0.25, help="tope por nombre")
     sw.add_argument("--target-vol", type=float, default=0.15, help="volatilidad anual objetivo")
@@ -729,6 +760,7 @@ def main(argv: list[str] | None = None) -> int:
     cy.add_argument("--no-deep", action="store_true")
     cy.add_argument("--spa-boot", type=int, default=2000)
     _add_drift_flags(cy)
+    _add_conviction_flags(cy)
     cy.add_argument("--json", action="store_true")
     cy.set_defaults(func=cmd_cycle)
 

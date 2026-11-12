@@ -3,6 +3,33 @@
 Registro en texto libre de que se hizo y que sigue. El estado estructurado esta
 en `ESTADO.json`. Antes de continuar trabajo previo, leer ambos.
 
+## 2026-11-12 — v1.4.0: modo de decision por conviccion
+
+Hecho:
+- `portfolio/conviction.py`: cartera de crecimiento optimo (CRRA, Kelly por
+  defecto) sobre todo el universo, con cota certificada, generacion de columnas,
+  escenarios predictivos (bootstrap estacionario, mapa por percentil con
+  encogimiento empirico-bayesiano) y posiciones abiertas fijas.
+- `--decision conviction` en `swarm` y `cycle`: compra aunque el veredicto sea
+  NO ACCIONABLE, sin topes por nombre ni sector; el veredicto se informa igual.
+- `rebalance_to` vende, espera y compra con el poder de compra real (ambos modos).
+- `AlpacaBroker`: poder de compra conservador, nocional a centimos con minimo de
+  1 USD, espera de ventas segun horario, exclusion de no fraccionables.
+- 61 tests nuevos; suite de la rama publicada: 277 pasan, 6 omitidos.
+- Medicion pre-registrada en sintetico (`experiments/conviction_measure.py`).
+
+Conclusiones medidas (sintetico, sin costes):
+- Sin senal no bate al universo (-0,43 %, p = 0,83): no hay fuga. H1 incumple
+  por el criterio del encogimiento (0,2015 frente a 0,2).
+- Con senal concentra mas y bate al universo (+23,2 puntos), pero queda por
+  debajo de equiponderar las 5 primeras (+27,3 % frente a +32,4 %).
+- El encogimiento reduce la concentracion a la mitad sin coste significativo.
+
+Sigue:
+1. Validar el ciclo contra la cuenta paper de Alpaca (claves en el entorno).
+2. Datos point-in-time y repetir la medicion sobre mercado real.
+3. Decisiones del usuario anotadas en `ESTADO.json`.
+
 ## 2026-11-11 — v1.3.0: auditoria de modelos, agentes y vias geometricas
 
 Hecho:
