@@ -78,10 +78,12 @@
  "bloqueos_externos": [
   "Sin datos point-in-time con deslistados: toda medicion real es sobre supervivientes.",
   "Sin credenciales de Alpaca paper en el entorno de trabajo.",
-  "Sin verificar en la documentacion de Alpaca: liquidacion T+1 y violaciones de buena fe en cuentas pequenas; aceptacion de ordenes por nocional con el mercado cerrado."
+  "Sin verificar en la documentacion de Alpaca: liquidacion T+1 y violaciones de buena fe en cuentas pequenas; aceptacion de ordenes por nocional con el mercado cerrado.",
+  "Sin confirmar en pagina oficial: precios de Sharadar, Massive, FMP, Finnhub, Tiingo, Quiver y Unusual Whales; si las noticias de Alpaca siguen siendo gratuitas; resultado de SR-FINRA-2026-012 (interes corto semanal)."
  ],
  "observaciones_a_investigar": [
-  "fisher_rank mejora a la euclidea a 5 sesiones (+0,62%, mismo signo en ambas mitades): confirmar con datos PIT antes de considerarla."
+  "fisher_rank mejora a la euclidea a 5 sesiones (+0,62%, mismo signo en ambas mitades): confirmar con datos PIT antes de considerarla.",
+  "Fuentes y horizonte 0-45 dias: analisis en docs/FUENTES_Y_HORIZONTE_45D.md (2026-11-12). Recomendadas sin medir: Form 4 de EDGAR, fechas de resultados, noticias de Alpaca agregadas por semana; interes corto de FINRA solo como veto. Criterios de entrada fijados en la seccion 5 del documento."
  ],
  "hallazgos_de_la_auditoria_real": [
   "Rank IC del enjambre 0,075 (t=4,6) pero TODO en la mitad baja del ranking; los 5 primeros no baten al universo (exceso -0,15%, t=-0,29).",
