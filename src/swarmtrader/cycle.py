@@ -87,6 +87,13 @@ class LedgerEntry:
     peak_price: float
     target_weight: float = 0.0
     note: str = ""
+    # Plan de salida propio de la posicion (lo escribe `swarmtrader execute` a
+    # partir de `decision.py`). None = se usan las barreras globales de
+    # CycleConfig. Porcentajes como fraccion.
+    horizon: int | None = None
+    target_pct: float | None = None
+    stop_pct: float | None = None
+    trail_pct: float | None = None
 
 
 class PositionLedger:
@@ -214,17 +221,28 @@ class DailyCycle:
         held = int(np.busday_count(pd.Timestamp(entry.entry_date).date(), session.date()))
         dd_peak = last_px / entry.peak_price - 1.0 if entry.peak_price > 0 else 0.0
 
+        # El plan propio de la posicion manda sobre las barreras globales. Un
+        # valor None en el plan significa "sin esa barrera" (el optimizador de
+        # salidas puede decidir que no conviene stop), no "usar la global".
+        own = entry.horizon is not None
+        tgt = (entry.target_pct if entry.target_pct is not None else float("inf")) if own \
+            else b.profit_target
+        stp = (entry.stop_pct if entry.stop_pct is not None else -float("inf")) if own \
+            else b.stop_loss
+        trl = (-entry.trail_pct if entry.trail_pct is not None else None) if own else b.trail_stop
+        hor = int(entry.horizon) if own else b.horizon
+
         decision, reason = "hold", ""
-        if ret >= b.profit_target:
-            decision, reason = "sell", f"objetivo alcanzado ({ret:+.1%} >= {b.profit_target:+.0%})"
-        elif ret <= b.stop_loss:
-            decision, reason = "sell", f"stop fijo ({ret:+.1%} <= {b.stop_loss:+.0%})"
-        elif (b.trail_stop is not None and entry.peak_price > entry.entry_price
-              and dd_peak <= b.trail_stop):
+        if ret >= tgt:
+            decision, reason = "sell", f"objetivo alcanzado ({ret:+.1%} >= {tgt:+.1%})"
+        elif ret <= stp:
+            decision, reason = "sell", f"stop fijo ({ret:+.1%} <= {stp:+.1%})"
+        elif (trl is not None and entry.peak_price > entry.entry_price
+              and dd_peak <= trl):
             decision, reason = "sell", (f"stop movil: {dd_peak:+.1%} desde el maximo "
                                         f"{entry.peak_price:.2f}")
-        elif held >= b.horizon:
-            decision, reason = "sell", f"barrera vertical ({held} >= {b.horizon} sesiones)"
+        elif held >= hor:
+            decision, reason = "sell", f"barrera vertical ({held} >= {hor} sesiones)"
 
         out = {"symbol": sym, "held_sessions": held, "return": round(ret, 4),
                "drawdown_from_peak": round(dd_peak, 4), "decision": decision,
@@ -245,7 +263,7 @@ class DailyCycle:
                     "p_continue": round(res.p_continue, 3),
                     "median_max_gain": round(res.median_max_gain, 4),
                     "best_horizon": res.best_horizon})
-                if res.p_continue >= 0.60 and res.median_max_gain > b.profit_target:
+                if res.p_continue >= 0.60 and res.median_max_gain > tgt:
                     out["decision"] = "hold"
                     out["reason"] = (f"objetivo alcanzado pero {res.n_analogues} casos "
                                      f"comparables continuaron al alza en el "
