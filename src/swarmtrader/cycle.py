@@ -321,9 +321,16 @@ class DailyCycle:
         self.ledger.sync(positions, last_prices, rep.session)
 
         # --- 2. mandato: se evalua ANTES de cualquier decision ---
-        st = self.mandate.mark(nav=equity, cash=cash, note=f"ciclo {rep.session}")
+        if self.cfg.dry_run and self.mandate.state.started_utc is None:
+            # Simulacion sobre un mandato sin iniciar: se consulta sin arrancarlo ni
+            # marcarlo. El reloj empieza con el primer ciclo que envia ordenes.
+            st = self.mandate.evaluate()
+            can_enter = True
+            rep.notes.append("mandato sin iniciar: la simulacion no lo arranca")
+        else:
+            st = self.mandate.mark(nav=equity, cash=cash, note=f"ciclo {rep.session}")
+            can_enter = st["status"] == STATUS_RUNNING
         rep.mandate = st
-        can_enter = st["status"] == STATUS_RUNNING
         if not can_enter:
             rep.notes.append(f"mandato en estado {st['status']}: no se abren posiciones. "
                              f"{st['recommended_action']}")

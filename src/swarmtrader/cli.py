@@ -136,6 +136,33 @@ def _load_champion(path: str) -> tuple[Genome, MetaLabeler | None]:
     return g, meta
 
 
+def _account_key(args, live: bool = False) -> str:
+    """Cuenta a la que pertenece el estado persistido (mandato, libro, diario)."""
+    name = args.broker
+    if name == "paper":
+        return "paper-local"
+    if name == "manual":
+        venue = getattr(args, "manual_venue", "lightyear")
+        return f"manual-{venue}"
+    suffix = "live" if live else "paper"
+    return f"{name}-{suffix}"
+
+
+def _state_paths(args, live: bool = False) -> tuple[Path, Path]:
+    """Directorio de estado y fichero de mandato de la cuenta de `args.broker`.
+
+    El simulador local y cada cuenta de broker llevan su propio estado
+    (`runs/paper-local/`, `runs/alpaca-paper/`, `runs/alpaca-live/`...): una
+    ejecucion simulada no debe arrancar ni marcar el mandato de otra cuenta. Las
+    rutas explicitas (`--state-dir`, `--mandate-file`) mandan; con solo
+    `--state-dir`, el mandato va dentro de ese directorio.
+    """
+    state_dir = (Path(args.state_dir) if args.state_dir
+                 else Path("runs") / _account_key(args, live))
+    mandate_file = Path(args.mandate_file) if args.mandate_file else state_dir / "mandate.json"
+    return state_dir, mandate_file
+
+
 # ----------------------------------------------------------------- comandos
 def cmd_rank(args) -> int:
     """Modo manual: CSV/API de entrada -> top-k con probabilidades calibradas."""
@@ -375,8 +402,11 @@ def cmd_cycle(args) -> int:
         broker = PaperBroker(initial_cash=args.capital)
         broker.set_prices({s: float(md.prices[s].iloc[-1]) for s in md.prices.columns})
 
-    mandate = Mandate(args.mandate_file, MandateConfig())
-    if mandate.state.started_utc is None:
+    # Cada cuenta lleva su estado. Una simulacion no arranca el reloj del mandato:
+    # empieza con el primer ciclo que envia ordenes.
+    state_dir, mandate_file = _state_paths(args)
+    mandate = Mandate(mandate_file, MandateConfig())
+    if mandate.state.started_utc is None and args.execute:
         mandate.start(nav=float(broker.equity), cash=float(broker.cash))
         print("mandato iniciado (timestamp UTC inmutable)")
 
@@ -387,7 +417,7 @@ def cmd_cycle(args) -> int:
         decision=args.decision,
         dry_run=not args.execute, max_positions=args.max_positions,
         max_position_pct=args.max_position_pct, force=args.force, as_of=args.as_of,
-        state_dir=args.state_dir,
+        state_dir=str(state_dir),
         barriers=TripleBarrierConfig(horizon=args.horizon, profit_target=args.profit_target,
                                      stop_loss=args.stop_loss, trail_stop=args.trail_stop),
     )
@@ -625,6 +655,7 @@ def cmd_execute(args) -> int:
     except (FileNotFoundError, ValueError) as exc:
         print(f"plan invalido: {exc}")
         return 2
+    paper_notes: list[str] = []
     if args.broker != "paper":
         try:
             broker = _open_broker(args, live=args.live)
@@ -632,20 +663,35 @@ def cmd_execute(args) -> int:
             print(f"no se pudo abrir la cuenta de {args.broker}: {exc}")
             return 2
     else:
+        # El broker local no tiene cotizaciones: sin precio rechaza la compra. Los
+        # de `--prices` mandan; para el resto vale el cierre de referencia del plan.
         from .execution.paper import PaperBroker
         broker = PaperBroker(initial_cash=args.capital)
-        if args.prices:
-            broker.set_prices(json.loads(Path(args.prices).read_text()))
+        explicit = json.loads(Path(args.prices).read_text()) if args.prices else {}
+        from_plan = {s: p for s, p in plan.reference_prices().items() if s not in explicit}
+        broker.set_prices({**from_plan, **explicit})
+        unpriced = sorted(s for s in plan.targets if s not in from_plan and s not in explicit)
+        if from_plan:
+            paper_notes.append(
+                f"broker simulado: sin --prices para {', '.join(sorted(from_plan))}; se usa el "
+                f"cierre de referencia del plan (analisis del {plan.as_of}), no el precio de hoy")
+        if unpriced:
+            paper_notes.append(
+                f"broker simulado: sin precio para {', '.join(unpriced)}; "
+                "pasalo con --prices <json {simbolo: precio}>")
+    state_dir, mandate_file = _state_paths(args, live=args.live)
     mode = "REAL" if args.live else "paper"
     print(f"plan {plan.plan_id}  ({plan.as_of}, entrada {plan.entry_session})  cuenta {mode}"
           f"  {'ENVIO DE ORDENES' if args.execute else 'SIMULACION'}")
     try:
         rep = execute_plan(broker, plan, dry_run=not args.execute, confirm=args.confirm,
-                           ledger_path=Path(args.state_dir) / "positions.json",
-                           mandate=Mandate(args.mandate_file, MandateConfig()))
+                           ledger_path=state_dir / "positions.json",
+                           mandate=Mandate(mandate_file, MandateConfig()))
     except LiveConfirmationRequired as exc:
         print(str(exc))
         return 4
+    if args.execute:                       # la simulacion no consulta precios
+        rep.notes.extend(paper_notes)
     print(rep.to_json())
     bad = [o for o in rep.orders if o["status"] == "rejected"]
     return 0 if not bad else 3
@@ -689,7 +735,7 @@ def cmd_mandate(args) -> int:
 
     cfg = MandateConfig(target_return=args.target, deadline_days=args.days,
                         max_drawdown=args.max_drawdown, cash_yield_annual=args.cash_yield)
-    m = Mandate(args.file, cfg)
+    m = Mandate(args.file or Path("runs") / args.account / "mandate.json", cfg)
     if args.action == "start":
         if args.nav is None:
             print("se requiere --nav para iniciar la evaluacion")
@@ -702,6 +748,7 @@ def cmd_mandate(args) -> int:
             return 2
         m.mark(nav=args.nav, cash=args.cash, external_flow=args.flow)
     print(m.report())
+    print(f"  fichero: {m.path}")
     return 0
 
 
@@ -1012,8 +1059,11 @@ def main(argv: list[str] | None = None) -> int:
     cy.add_argument("--profit-target", type=float, default=0.10)
     cy.add_argument("--stop-loss", type=float, default=-0.08)
     cy.add_argument("--trail-stop", type=float, default=-0.05)
-    cy.add_argument("--mandate-file", default="runs/mandate.json")
-    cy.add_argument("--state-dir", default="runs")
+    cy.add_argument("--mandate-file", default=None,
+                    help="mandato persistido (defecto: <state-dir>/mandate.json)")
+    cy.add_argument("--state-dir", default=None,
+                    help="estado de la cuenta (defecto: runs/<cuenta>, p. ej. "
+                         "runs/paper-local o runs/alpaca-paper)")
     cy.add_argument("--no-deep", action="store_true")
     cy.add_argument("--spa-boot", type=int, default=2000)
     _add_drift_flags(cy)
@@ -1083,10 +1133,13 @@ def main(argv: list[str] | None = None) -> int:
     ex.add_argument("--live", action="store_true",
                     help="cuenta REAL (exige SWARMTRADER_ALLOW_LIVE=1 y --confirm <plan_id>)")
     ex.add_argument("--confirm", default=None, help="identificador del plan que se confirma")
-    ex.add_argument("--state-dir", default="runs")
-    ex.add_argument("--mandate-file", default="runs/mandate.json",
-                    help="mandato persistido (el mismo que usa `cycle`); si esta parado "
-                         "por drawdown solo se permiten ventas")
+    ex.add_argument("--state-dir", default=None,
+                    help="estado de la cuenta (defecto: runs/<cuenta>, p. ej. "
+                         "runs/paper-local o runs/alpaca-paper)")
+    ex.add_argument("--mandate-file", default=None,
+                    help="mandato persistido (defecto: <state-dir>/mandate.json, el mismo "
+                         "que usa `cycle` con esa cuenta); si esta parado por drawdown "
+                         "solo se permiten ventas")
     ex.add_argument("--capital", type=float, default=100.0, help="solo broker=paper")
     ex.add_argument("--prices", default=None, help="JSON {simbolo: precio} para broker=paper/manual")
     _add_broker_flags(ex)
@@ -1129,7 +1182,11 @@ def main(argv: list[str] | None = None) -> int:
 
     mn = sub.add_parser("mandate", help="estado del mandato de evaluacion (meta y plazo)")
     mn.add_argument("action", choices=["start", "mark", "status"])
-    mn.add_argument("--file", default="runs/mandate.json")
+    mn.add_argument("--file", default=None,
+                    help="fichero del mandato (defecto: runs/<account>/mandate.json)")
+    mn.add_argument("--account", default="alpaca-paper",
+                    help="cuenta cuyo mandato se consulta: paper-local, alpaca-paper, "
+                         "alpaca-live, manual-lightyear...")
     mn.add_argument("--nav", type=float, default=None)
     mn.add_argument("--cash", type=float, default=0.0)
     mn.add_argument("--flow", type=float, default=0.0, help="ingreso (+) o retirada (-)")

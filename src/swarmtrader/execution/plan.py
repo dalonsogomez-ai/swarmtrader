@@ -30,7 +30,7 @@ alguno llega hasta aqui se descarta con una nota y su parte queda en efectivo.
 
 Mandato
 -------
-Si se pasa el mandato persistido (`runs/mandate.json`, el mismo del ciclo), se
+Si se pasa el mandato persistido (`runs/<cuenta>/mandate.json`, el mismo del ciclo), se
 evalua ANTES de enviar nada, igual que en `DailyCycle.run`: si esta parado
 (drawdown maximo, meta cumplida o plazo vencido) solo se permiten ventas y
 reducciones; ninguna compra. La parada por drawdown no se puede saltar
@@ -96,6 +96,19 @@ class OrderPlan:
         core = {k: v for k, v in asdict(self).items() if k not in ("plan_id", "created_utc")}
         raw = json.dumps(core, sort_keys=True, default=str, ensure_ascii=False)
         return hashlib.sha256(raw.encode()).hexdigest()[:12]
+
+    def reference_prices(self) -> dict[str, float]:
+        """Cierre de referencia del analisis de cada objetivo que lo tenga.
+
+        Solo sirve al broker SIMULADO local, que no tiene cotizaciones propias.
+        Un broker real ejecuta siempre a su precio de mercado.
+        """
+        out = {}
+        for s in self.targets:
+            px = (self.exit_plans.get(s) or {}).get("entry_ref_price")
+            if isinstance(px, (int, float)) and math.isfinite(px) and px > 0:
+                out[s] = float(px)
+        return out
 
     def to_json(self) -> str:
         return json.dumps(asdict(self), indent=2, ensure_ascii=False, default=str)
@@ -225,9 +238,11 @@ def execute_plan(broker: BrokerAdapter, plan: OrderPlan, *, dry_run: bool = True
                  mandate=None) -> ExecutionReport:
     """Ejecuta un plan: lleva la cartera a sus pesos con `rebalance_to`.
 
-    mandate  `Mandate` persistido. En ejecucion real se arranca si no lo estaba y
-             se marca con el patrimonio actual; si no queda en RUNNING, solo se
-             reduce. En simulacion se consulta sin escribir.
+    mandate  `Mandate` persistido. Al enviar ordenes (`dry_run=False`, tambien con
+             el broker simulado local) se arranca si no lo estaba y se marca con
+             el patrimonio actual; si no queda en RUNNING, solo se reduce. En
+             simulacion se consulta sin escribir. Por eso la CLI guarda el estado
+             de cada cuenta en su propio directorio (`cli._state_paths`).
     """
     live = getattr(broker, "paper", True) is False
     if live and not dry_run and confirm != plan.plan_id:

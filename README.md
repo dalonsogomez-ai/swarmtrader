@@ -476,7 +476,12 @@ swarmtrader decide --panel panel.parquet --plan runs/plan.json            # aná
 swarmtrader decide --alpaca --broker alpaca --plan runs/plan.json         # universo y cuenta PAPER de Alpaca
 swarmtrader execute runs/plan.json --broker alpaca                        # simula contra la cuenta
 swarmtrader execute runs/plan.json --broker alpaca --execute              # envía a la cuenta PAPER
+swarmtrader execute runs/plan.json --broker paper --capital 1000 --execute  # bróker simulado local: sin red ni claves
 ```
+
+Con `--broker paper` no hay cotizaciones: cada compra se llena al precio de
+`--prices` (JSON `{símbolo: precio}`) y, si no se da, al cierre de referencia que
+viaja en el plan (el informe lo avisa: es el precio del análisis, no el de hoy).
 
 El informe incluye el top 10 del universo con valoración de 0 a 1 y los
 agentes que actúan como catalizador, la tabla de plazos, la cartera, el plan de

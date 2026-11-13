@@ -3,6 +3,34 @@
 Registro en texto libre de que se hizo y que sigue. El estado estructurado esta
 en `ESTADO.json`. Antes de continuar trabajo previo, leer ambos.
 
+## 2026-11-13 — verificacion de la decision por conviccion y broker local
+
+Peticion: comprobar contra la conversacion original que el sistema elige y
+compra las mejores aunque el veredicto sea NO ACCIONABLE, sin topes de
+diversificacion. Ya estaba implementado (v1.4 `cycle --decision conviction`,
+v1.5 `decide` + `execute`); no se anade ningun modelo ni cambia ningun valor por
+defecto.
+
+Hecho:
+- Defecto corregido: `execute --broker paper --execute` sin `--prices` rechazaba
+  todas las compras ("sin precio") aunque la simulacion las diera por buenas.
+  Ahora usa el cierre de referencia del plan (`OrderPlan.reference_prices`), lo
+  avisa en las notas y `--prices` sigue mandando simbolo a simbolo. El plan no
+  cambia de formato ni de identificador.
+- `experiments/cycle_replay.py`: repeticion historica del ciclo, 24 sesiones
+  consecutivas, criterios C1-C6 fijados antes de ejecutar. Resultado en
+  `docs/results/cycle_replay_2026-11-13.json`: CUMPLE. Conviccion en ruido 95
+  ordenes y 99,2-100 % invertido; `gated` en ruido 0 ordenes; ninguna rechazada,
+  ningun ciclo duplicado.
+- 4 tests nuevos. Suite: 336 pasan, 7 omitidos (macOS, Python 3.13.13).
+
+Limites: datos sinteticos y broker simulado; comprueba la tuberia de ordenes,
+no la rentabilidad. Sin ejecutar contra Alpaca paper (sin credenciales).
+
+Sigue:
+1. Fusionar las PR #3 y #4 (decision del usuario) y esta correccion encima.
+2. Validar `decide`/`execute` contra la cuenta paper de Alpaca.
+
 ## 2026-11-13 — v1.6.0: mas acciones (tres vias)
 
 Peticion: ampliar dentro de Alpaca (ventana 756, quitar el prefiltro), elegir y
