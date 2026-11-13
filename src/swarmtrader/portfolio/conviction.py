@@ -72,19 +72,36 @@ propios escenarios:
      cambia entre fechas. No se asume que sea creciente: sobre datos reales no
      lo era (subia hasta el septimo decil y luego bajaba), asi que una
      calibracion isotonica lo habria falseado.
-  2. **Encogimiento empirico-bayesiano.** Con ~18 fechas y 10 tramos, el tramo
+  2. **Encogimiento jerarquico.** Con ~18 fechas y 10 tramos, el tramo
      con mejor suerte aparenta un exceso de varias decimas al mes aunque todo
      sea ruido, y un optimizador de crecimiento apuesta exactamente por ese
      tramo. El exceso de cada tramo sobre la media del dia, e_k, se encoge hacia
      cero con lambda_k = tau^2 / (tau^2 + se_k^2), donde se_k^2 es su error
-     estandar al cuadrado y tau^2 la dispersion REAL entre tramos, estimada por
-     momentos: max(0, media(e_k^2) - media(se_k^2)). Si la dispersion entre
-     tramos no supera al ruido, tau^2 = 0 y el mapa queda plano. No hay ningun
-     factor elegido a mano.
+     estandar al cuadrado y tau la dispersion REAL entre tramos. Dos formas de
+     tratar tau (`ConvictionConfig.tau`):
+       * "point" (empirico-bayesiano): tau^2 por momentos,
+         max(0, media(e_k^2) - media(se_k^2)). Si la dispersion entre tramos no
+         supera al ruido, tau^2 = 0 y el mapa queda plano.
+       * "integrated" (bayesiano completo): cada escenario sortea tau de su
+         posterior (a priori uniforme en tau, Gelman 2006) y encoge con ese
+         sorteo; la incertidumbre sobre tau entra en los escenarios en vez de
+         fijarse en un punto.
+     No hay ningun factor elegido a mano en ninguna de las dos.
   3. **Incertidumbre de esa media.** Bootstrap bayesiano (Rubin, 1981) sobre las
      fechas: cada escenario pondera las fechas con pesos Dirichlet(1,...,1) y
      usa la posterior normal-normal del tramo, media lambda e_k y desviacion
      sqrt(lambda) veces la del bootstrap.
+  3b. **Nivel de mercado** (`market_level`). Por defecto ("oos") el retorno
+     comun sale de las fechas fuera de muestra, con su bootstrap bayesiano: es
+     lo adecuado para un solo plazo, y deja que un mercado esperado negativo
+     lleve al efectivo cuando `allow_cash`. Al COMPARAR plazos (decision.py) eso
+     no vale: con ~18 fechas el nivel es casi todo ruido y distinto en cada
+     plazo, y elegir plazo seria elegir el ruido mas favorable. Con "history"
+     sale de la media diaria de la seccion cruzada en toda la ventana de
+     `lookback`, compuesta a `horizon`, con numeros aleatorios comunes: por
+     sesion es identico en todos los plazos y no decide el plazo.
+  3c. **Costes.** El coste de ida y vuelta de cada accion (`costs`) se descuenta
+     del retorno bruto de cada escenario: el optimizador ve el retorno NETO.
   4. **Dependencia conjunta.** Bootstrap estacionario (Politis y Romano, 1994)
      de secciones cruzadas DIARIAS de log-retornos, compuestas a `horizon`
      sesiones: conserva correlaciones, colas y asimetrias reales entre las
@@ -125,7 +142,7 @@ import numpy as np
 import pandas as pd
 
 __all__ = ["CASH", "ConvictionConfig", "ConvictionResult", "SimplexSolution",
-           "certainty_equivalent", "solve_simplex", "allocate"]
+           "certainty_equivalent", "solve_simplex", "allocate", "build_bank"]
 
 CASH = "__EFECTIVO__"
 _FLOOR = 1e-30          # peso minimo interno de la actualizacion multiplicativa
@@ -144,7 +161,12 @@ class ConvictionConfig:
     block: float = 5.0              # longitud media de bloque del bootstrap, en sesiones
     map_bins: int = 10              # tramos de percentil de la media condicionada
     min_map_dates: int = 6          # fechas fuera de muestra minimas para estimarla
-    shrink: bool = True             # encogimiento empirico-bayesiano del mapa
+    shrink: bool = True             # encogimiento jerarquico del mapa
+    tau: str = "point"              # "point" (empirico-bayesiano) | "integrated"
+    # Nivel de mercado comun: "oos" = media de las fechas fuera de muestra (sirve
+    # para UN plazo); "history" = media diaria de toda la ventana compuesta al
+    # plazo, con numeros aleatorios comunes (necesario al COMPARAR plazos).
+    market_level: str = "oos"
     # Minimo OPERATIVO, no de riesgo: por debajo, la orden no llega al minimo
     # del broker (1 USD en Alpaca). Fraccion del patrimonio.
     min_weight: float = 0.01
@@ -358,14 +380,21 @@ class _ScenarioBank:
     """
 
     def __init__(self, oos: pd.DataFrame, pct_today: pd.Series, prices: pd.DataFrame,
-                 horizon: int, cfg: ConvictionConfig, rng: np.random.Generator):
+                 horizon: int, cfg: ConvictionConfig, rng: np.random.Generator,
+                 costs: pd.Series | None = None):
         self.notes: list[str] = []
         self.info: dict = {}
+        self.cfg = cfg
+        self.horizon = int(horizon)
         S = int(cfg.n_scenarios)
         if S < 10:
             raise ValueError("n_scenarios debe ser >= 10")
         if int(horizon) < 1:
             raise ValueError("horizon debe ser >= 1")
+        if cfg.tau not in ("point", "integrated"):
+            raise ValueError(f"tau debe ser 'point' o 'integrated', no {cfg.tau!r}")
+        if cfg.market_level not in ("oos", "history"):
+            raise ValueError(f"market_level debe ser 'oos' o 'history', no {cfg.market_level!r}")
 
         # --- dependencia conjunta: retornos diarios con historia completa ---
         syms = [s for s in pct_today.index if s in prices.columns]
@@ -397,6 +426,11 @@ class _ScenarioBank:
         if dropped:
             self.notes.append(f"{dropped} simbolos sin historia completa en {L} sesiones: "
                               "no asignables")
+        # Coste de ida y vuelta por simbolo (fraccion), descontado de cada escenario.
+        c = (pd.Series(costs, dtype=float).reindex(self.symbols) if costs is not None
+             else pd.Series(0.0, index=self.symbols)).fillna(0.0).clip(0.0, 0.5)
+        self._keep = 1.0 - c.to_numpy(dtype=float)
+        lvl_hist = self._level(S) if cfg.market_level == "history" else None
 
         # --- media condicionada E[r | percentil] y su posterior ---
         o = oos.loc[:, ["date", "score", "fwd"]].dropna()
@@ -423,9 +457,24 @@ class _ScenarioBank:
             e_bar = E.mean(axis=0)
             se2 = E.var(axis=0, ddof=1) / D
             omega = rng.dirichlet(np.ones(D), size=S)
-            lvl_s = omega @ level                        # S
+            lvl_s = omega @ level if lvl_hist is None else lvl_hist      # S
             e_s = omega @ E                              # S x K
-            if cfg.shrink:
+            if cfg.shrink and cfg.tau == "integrated":
+                # tau sorteado de su posterior en cada escenario: e_k ~ N(0, tau^2
+                # + se_k^2) con a priori uniforme en tau. Con ruido la posterior
+                # se pega a 0; con senal clara, tau >> se y apenas se encoge.
+                s2 = np.maximum(se2, 1e-300)
+                hi = 4.0 * max(float(np.abs(e_bar).max()), float(np.sqrt(s2.mean())), 1e-9)
+                taus = np.linspace(0.0, hi, 400)
+                v = taus[:, None] ** 2 + s2[None, :]
+                ll = -0.5 * (np.log(v) + e_bar[None, :] ** 2 / v).sum(axis=1)
+                post = np.exp(ll - ll.max())
+                post /= post.sum()
+                tau_s = rng.choice(taus, size=S, p=post)
+                B = tau_s[:, None] ** 2 / (tau_s[:, None] ** 2 + s2[None, :])   # S x K
+                self._maps = lvl_s[:, None] + B * e_bar + np.sqrt(B) * (e_s - e_bar)
+                tau2, lam = float(np.mean(tau_s ** 2)), B.mean(axis=0)
+            elif cfg.shrink:
                 tau2 = max(0.0, float(np.mean(e_bar ** 2) - np.mean(se2)))
                 lam = np.where(se2 > 0.0, tau2 / np.maximum(tau2 + se2, 1e-300),
                                1.0 if tau2 > 0.0 else 0.0)
@@ -436,8 +485,9 @@ class _ScenarioBank:
             centers = (np.arange(K) + 0.5) / K
             self._j = np.clip(np.floor(pct * K - 0.5).astype(int), 0, K - 2)
             self._w = np.clip((pct - centers[self._j]) * K, 0.0, 1.0)
+            self.shrink = np.asarray(lam, dtype=float)
             self.info.update({
-                "map_bins": K, "map_dates": D, "map_level": float(level.mean()),
+                "map_bins": K, "map_dates": D, "map_level": float(lvl_s.mean()),
                 "map_tau": float(np.sqrt(tau2)) if np.isfinite(tau2) else None,
                 "map_lambda_mean": float(lam.mean()),
                 "map_spread_raw": float(e_bar.max() - e_bar.min()),
@@ -447,11 +497,13 @@ class _ScenarioBank:
         else:
             # Sin historia fuera de muestra suficiente no se distingue a nadie por
             # puntuacion: misma media para todos, con su incertidumbre.
-            day = o.groupby("date")["fwd"].mean().to_numpy(dtype=float)
-            if len(day):
-                lvl_s = rng.dirichlet(np.ones(len(day)), size=S) @ day
+            if lvl_hist is not None:
+                lvl_s = lvl_hist
             else:
-                lvl_s = np.zeros(S)
+                day = o.groupby("date")["fwd"].mean().to_numpy(dtype=float)
+                lvl_s = (rng.dirichlet(np.ones(len(day)), size=S) @ day if len(day)
+                         else np.zeros(S))
+            self.shrink = np.zeros(2)
             self._maps = np.column_stack([lvl_s, lvl_s])
             self._j = np.zeros(len(self.symbols), dtype=int)
             self._w = np.zeros(len(self.symbols))
@@ -459,9 +511,27 @@ class _ScenarioBank:
                               f"muestra (minimo {cfg.min_map_dates}) o universo demasiado "
                               "pequeno para formar tramos")
             self.info.update({"map_bins": 0, "map_dates": self.n_map_dates,
-                              "map_level": float(day.mean()) if len(day) else 0.0,
+                              "map_level": float(lvl_s.mean()),
                               "map_tau": 0.0, "map_lambda_mean": 0.0,
                               "map_spread_raw": 0.0, "map_spread_shrunk": 0.0})
+        self.n_bins = int(self.info["map_bins"])
+
+    def _level(self, S: int) -> np.ndarray:
+        """Retorno esperado del universo a `horizon` sesiones, con su incertidumbre.
+
+        Media de la seccion cruzada de retornos diarios en toda la ventana de
+        historia (no solo en las fechas fuera de muestra), compuesta a
+        `horizon`: la misma tasa diaria para todos los plazos, asi que por sesion
+        no decide el plazo. Incertidumbre: bootstrap bayesiano sobre los dias,
+        con una semilla FIJA (numeros aleatorios comunes): la comparacion entre
+        plazos no depende del sorteo.
+        """
+        daily = np.expm1(self._lr.astype(np.float64)).mean(axis=1)
+        daily = daily[np.isfinite(daily)]
+        if len(daily) < 20:
+            return np.zeros(S)
+        w = np.random.default_rng(self.cfg.seed + 7919).dirichlet(np.ones(len(daily)), size=S)
+        return (1.0 + w @ daily) ** self.horizon - 1.0
 
     def gross(self, cols) -> np.ndarray:
         """Retornos brutos predictivos (S x len(cols)) de las columnas pedidas."""
@@ -478,7 +548,30 @@ class _ScenarioBank:
         # historica (no se cuenta dos veces) y el ruido de Monte Carlo en las
         # medias, que el optimizador perseguiria entre acciones casi iguales.
         G *= m.mean(axis=0, keepdims=True) / (m * G).mean(axis=0, keepdims=True)
-        return np.maximum(m * G, 1e-6)
+        return np.maximum(m * G * self._keep[cols], 1e-6)
+
+    def standalone(self, cols, threshold: float = 0.05, chunk: int = 512) -> pd.DataFrame:
+        """Distribucion predictiva NETA de cada columna por separado (100 % en ella).
+
+        mean_log  E[ln X]: crecimiento por horizonte si se apuesta todo a ella
+        ce        equivalente cierto logaritmico, exp(E ln X) - 1
+        mu        E[X] - 1;  p_up  P(X - 1 > threshold);  p_loss  P(X < 1)
+        """
+        cols = np.asarray(list(cols), dtype=int)
+        rows = []
+        for a in range(0, len(cols), chunk):
+            G = self.gross(cols[a:a + chunk])
+            rows.append(pd.DataFrame({
+                "mean_log": np.log(G).mean(axis=0), "mu": G.mean(axis=0) - 1.0,
+                "p_up": (G - 1.0 > threshold).mean(axis=0), "p_loss": (G < 1.0).mean(axis=0),
+                "q10": np.quantile(G, 0.10, axis=0) - 1.0,
+                "q50": np.quantile(G, 0.50, axis=0) - 1.0,
+                "q90": np.quantile(G, 0.90, axis=0) - 1.0,
+            }, index=[self.symbols[c] for c in cols[a:a + chunk]]))
+        out = pd.concat(rows) if rows else pd.DataFrame(
+            columns=["mean_log", "mu", "p_up", "p_loss", "q10", "q50", "q90"])
+        out["ce"] = np.expm1(out["mean_log"].astype(float))
+        return out
 
     def scan(self, cols, weights_by_scenario: np.ndarray, chunk: int = 512) -> np.ndarray:
         """E[X_i * v] para cada columna, sin materializar toda la matriz."""
@@ -544,9 +637,34 @@ def _empty(budget: float, notes: list[str]) -> ConvictionResult:
                             0.0, 0.0, notes=list(notes))
 
 
+def _percentiles(scores: pd.Series, held=()) -> pd.Series:
+    """Percentil de puntuacion de hoy en (0, 1); las mantenidas sin puntuacion, NaN."""
+    pct = (scores.rank(method="average") - 0.5) / len(scores)
+    universe = list(scores.index) + [s for s in held if s not in scores.index]
+    return pct.reindex(universe)
+
+
+def build_bank(oos: pd.DataFrame, scores: pd.Series, prices: pd.DataFrame, horizon: int,
+               cfg: ConvictionConfig | None = None, costs: pd.Series | None = None,
+               seed_offset: int = 0, held=()) -> _ScenarioBank:
+    """Banco de escenarios predictivos para `horizon`, reutilizable entre llamadas.
+
+    `held`: simbolos mantenidos que necesitan escenarios aunque hoy no puntuen.
+    """
+    cfg = cfg or ConvictionConfig()
+    scores = pd.Series(scores, dtype=float).dropna()
+    if scores.empty:
+        raise ValueError("sin puntuaciones para hoy")
+    rng = np.random.default_rng(cfg.seed + int(seed_offset))
+    return _ScenarioBank(oos, _percentiles(scores, held), prices, horizon, cfg, rng,
+                         costs=costs)
+
+
 def allocate(oos: pd.DataFrame, scores: pd.Series, prices: pd.DataFrame, horizon: int,
              cfg: ConvictionConfig | None = None, *, held: dict | None = None,
-             exclude=(), top_k: int = 5, success_threshold: float = 0.05) -> ConvictionResult:
+             exclude=(), top_k: int = 5, success_threshold: float = 0.05,
+             costs: pd.Series | None = None,
+             bank: _ScenarioBank | None = None) -> ConvictionResult:
     """Cartera optima sobre el simplex completo para la fecha mas reciente.
 
     oos      predicciones walk-forward fuera de muestra: date, score, fwd. Solo
@@ -558,6 +676,9 @@ def allocate(oos: pd.DataFrame, scores: pd.Series, prices: pd.DataFrame, horizon
              dependencia con ellas.
     exclude  simbolos que no pueden comprarse en esta decision (no operables,
              vetados por stop, etc.).
+    costs    coste de ida y vuelta por simbolo (fraccion), descontado de cada escenario.
+    bank     banco ya construido con `build_bank` para este horizonte (se reutiliza;
+             entonces `oos`, `prices` y `costs` no se vuelven a leer).
     """
     cfg = cfg or ConvictionConfig()
     rng = np.random.default_rng(cfg.seed)
@@ -571,9 +692,9 @@ def allocate(oos: pd.DataFrame, scores: pd.Series, prices: pd.DataFrame, horizon
     if scores.empty:
         return _empty(budget, ["sin puntuaciones para hoy"])
 
-    pct = (scores.rank(method="average") - 0.5) / len(scores)
-    universe = list(scores.index) + [s for s in held if s not in scores.index]
-    bank = _ScenarioBank(oos, pct.reindex(universe), prices, horizon, cfg, rng)
+    if bank is None:
+        bank = _ScenarioBank(oos, _percentiles(scores, held), prices, horizon, cfg, rng,
+                             costs=costs)
     notes = list(bank.notes)
     S = bank.n_scenarios
 
@@ -667,6 +788,12 @@ def allocate(oos: pd.DataFrame, scores: pd.Series, prices: pd.DataFrame, horizon
         "n_positions": int(len(ws)), "effective_positions": round(eff_n, 3),
         "top_weight": round(float(ws.iloc[0]) if len(ws) else 0.0, 6),
         "gap_before_min_order": gap_free, "converged": bool(sol.converged),
+        "n_map_dates": int(bank.n_map_dates), "n_map_bins": int(bank.n_bins),
+        "tau": cfg.tau if cfg.shrink else "none",
+        # fraccion del efecto de cada tramo que sobrevive al encogimiento
+        "shrinkage": [round(float(x), 4) for x in np.atleast_1d(bank.shrink)],
+        # error de Monte Carlo del crecimiento: sd(ln riqueza) / sqrt(escenarios)
+        "log_wealth_se": float(np.log(np.maximum(wealth, 1e-12)).std() / np.sqrt(S)),
     })
     if not sol.converged:
         notes.append(f"el optimizador no alcanzo la tolerancia (cota {gap_free:.2e})")

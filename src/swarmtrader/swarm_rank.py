@@ -141,6 +141,11 @@ class SwarmRankResult:
     drift: DriftReport | None = None
     decision: str = "gated"
     conviction: ConvictionResult | None = None
+    # Predicciones walk-forward FUERA DE MUESTRA del combinador del veredicto
+    # ("stack" o "eq"; existe aunque no sea accionable): date, symbol, score, fwd.
+    # Solo ventanas de retorno ya cerradas. Las usan la asignacion por conviccion
+    # y `decision.py` para estimar E[r | puntuacion] sin mirar el futuro.
+    oos: pd.DataFrame | None = None
 
     def to_dict(self) -> dict:
         return {
@@ -360,9 +365,10 @@ def swarm_rank(md: MarketData, cfg: SwarmRankConfig = SwarmRankConfig(),
     # ---------------- asignacion por conviccion (solo si se pide) ----------------
     # Usa el MISMO combinador que el veredicto ("stack" o "eq", existe aunque no
     # sea accionable) y solo predicciones fuera de muestra con ventana ya cerrada.
+    oos = (sc[["date", "symbol", combiner, "fwd"]].rename(columns={combiner: "score"})
+           .dropna(subset=["score"]).reset_index(drop=True))
     conv = None
     if cfg.decision == "conviction":
-        oos = sc[["date", combiner, "fwd"]].rename(columns={combiner: "score"})
         try:
             conv = allocate(oos, picks.set_index("symbol")["score"], md.prices, rc.horizon,
                             cfg.conviction, held=held, exclude=exclude, top_k=rc.top_k,
@@ -378,7 +384,7 @@ def swarm_rank(md: MarketData, cfg: SwarmRankConfig = SwarmRankConfig(),
         picks=picks, portfolio=port, verdict=verdict, diagnostics=diag,
         agents=agents_diag, weights=stacked.final_weights(), skipped=panel.skipped,
         regime=reg, n_universe=n_univ, n_eligible=n_elig, drift=drift,
-        decision=cfg.decision, conviction=conv,
+        decision=cfg.decision, conviction=conv, oos=oos,
     )
 
 
