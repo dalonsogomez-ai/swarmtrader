@@ -30,7 +30,7 @@ alguno llega hasta aqui se descarta con una nota y su parte queda en efectivo.
 
 Mandato
 -------
-Si se pasa el mandato persistido (`runs/mandate.json`, el mismo del ciclo), se
+Si se pasa el mandato persistido (`runs/<cuenta>/mandate.json`, el mismo del ciclo), se
 evalua ANTES de enviar nada, igual que en `DailyCycle.run`: si esta parado
 (drawdown maximo, meta cumplida o plazo vencido) solo se permiten ventas y
 reducciones; ninguna compra. La parada por drawdown no se puede saltar
@@ -238,9 +238,11 @@ def execute_plan(broker: BrokerAdapter, plan: OrderPlan, *, dry_run: bool = True
                  mandate=None) -> ExecutionReport:
     """Ejecuta un plan: lleva la cartera a sus pesos con `rebalance_to`.
 
-    mandate  `Mandate` persistido. En ejecucion real se arranca si no lo estaba y
-             se marca con el patrimonio actual; si no queda en RUNNING, solo se
-             reduce. En simulacion se consulta sin escribir.
+    mandate  `Mandate` persistido. Al enviar ordenes (`dry_run=False`, tambien con
+             el broker simulado local) se arranca si no lo estaba y se marca con
+             el patrimonio actual; si no queda en RUNNING, solo se reduce. En
+             simulacion se consulta sin escribir. Por eso la CLI guarda el estado
+             de cada cuenta en su propio directorio (`cli._state_paths`).
     """
     live = getattr(broker, "paper", True) is False
     if live and not dry_run and confirm != plan.plan_id:

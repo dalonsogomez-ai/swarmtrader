@@ -275,3 +275,32 @@ def test_guard_position_cap_is_looser_than_sizing_cap():
     from swarmtrader.portfolio.sizing import SizingConfig
 
     assert RiskLimits().max_position_pct >= SizingConfig().max_weight
+
+
+def _unstarted_cycle(md, tmp_path, dry_run):
+    broker = PaperBroker(initial_cash=100.0)
+    broker.set_prices({s: float(md.prices[s].iloc[-1]) for s in md.prices.columns})
+    man = Mandate(tmp_path / "m.json", MandateConfig())
+    scfg = SwarmRankConfig(allow_deep=False)
+    scfg.spa_boot = 200
+    cfg = CycleConfig(state_dir=str(tmp_path), max_positions=3, dry_run=dry_run,
+                      as_of=str(md.prices.index[-1].date()))
+    return DailyCycle(md, broker, man, scfg, cfg), man
+
+
+def test_dry_run_does_not_start_or_mark_an_unstarted_mandate(tmp_path):
+    """Una simulacion no arranca el reloj del mandato: lo consulta y sigue."""
+    cyc, man = _unstarted_cycle(_market(), tmp_path, dry_run=True)
+    rep = cyc.run()
+    assert rep.status == "completed"
+    assert rep.mandate["status"] == "NOT_STARTED"
+    assert man.state.started_utc is None and man.state.marks == []
+    assert not (tmp_path / "m.json").exists()
+    assert not any("no se abren posiciones" in n for n in rep.notes)
+
+
+def test_real_cycle_still_requires_a_started_mandate(tmp_path):
+    """Con envio de ordenes, un mandato sin iniciar sigue siendo un error."""
+    cyc, _ = _unstarted_cycle(_market(), tmp_path, dry_run=False)
+    with pytest.raises(RuntimeError, match="no ha sido iniciada"):
+        cyc.run()

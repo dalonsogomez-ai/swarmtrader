@@ -508,3 +508,30 @@ def test_paper_execute_says_how_to_supply_a_missing_price(tmp_path, capsys):
     rc, rep = _run_paper_execute(path, tmp_path, capsys)
     assert rc == 3 and rep["orders"][0]["status"] == "rejected"
     assert any("--prices" in n and "AAA" in n for n in rep["notes"])
+
+
+# ---------------------------------------------------------- estado por cuenta
+def test_paper_execute_keeps_its_state_apart_from_broker_accounts(tmp_path, capsys):
+    """Sin rutas explicitas, el broker simulado escribe en `runs/paper-local/` y
+    nunca en el mandato o el libro de una cuenta de broker."""
+    from swarmtrader.cli import main
+    path = _saved_plan(tmp_path, {"AAA": 0.6, "BBB": 0.4}, {"AAA": 10.0, "BBB": 20.0})
+    capsys.readouterr()
+    rc = main(["execute", str(path), "--broker", "paper", "--capital", "1000", "--execute"])
+    assert rc == 0
+    own = Path("runs") / "paper-local"
+    assert (own / "mandate.json").exists() and (own / "positions.json").exists()
+    assert sorted(p.name for p in Path("runs").iterdir()) == ["paper-local"]
+
+
+def test_explicit_state_dir_carries_the_mandate_with_it(tmp_path, capsys):
+    """`--state-dir` sin `--mandate-file`: el mandato va dentro de ese directorio."""
+    from swarmtrader.cli import main
+    path = _saved_plan(tmp_path, {"AAA": 1.0}, {"AAA": 10.0})
+    capsys.readouterr()
+    state = tmp_path / "estado"
+    rc = main(["execute", str(path), "--broker", "paper", "--capital", "1000",
+               "--state-dir", str(state), "--execute"])
+    assert rc == 0
+    assert (state / "mandate.json").exists()
+    assert not Path("runs").exists()
