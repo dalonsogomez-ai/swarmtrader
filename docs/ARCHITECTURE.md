@@ -968,6 +968,100 @@ liquidacion T+1 y las violaciones de buena fe al rotar en cuentas pequenas, y si
 una orden por nocional se acepta con el mercado cerrado; el diseno no depende de
 ello (lo que se rechace, el ciclo siguiente lo reconcilia).
 
+## 17. v1.5 — decision con plazo variable, salidas por accion y plan de ordenes
+
+La v1.4 de este repositorio (seccion 16) y una rama paralela desarrollada fuera
+de el (13-nov-2026) resolvieron la misma peticion por separado. La v1.5 parte de
+este repositorio e incorpora de la rama paralela lo que aqui no existia. Nada de
+la seccion 16 se ha retirado ni ha cambiado de valor por defecto.
+
+### 17.1 Que pregunta responde
+
+`swarmtrader decide` responde, para la ultima sesion: que comprar (cartera de
+crecimiento optimo, seccion 16, siempre invertida salvo `--allow-cash`), a que
+plazo (3, 5, 10, 15, 21 o 31 sesiones; 31 ~ 45 dias naturales), cuando entrar
+(apertura de la sesion siguiente) y cuando salir de cada accion (objetivo, stop,
+stop movil y plazo maximo propios). Escribe un plan de ordenes JSON que ejecuta
+`swarmtrader execute` (o un agente que lea el JSON) tras la apertura.
+
+### 17.2 Lo que se ha incorporado
+
+| Pieza | Que hace |
+|---|---|
+| `decision.py` | Ejecuta el enjambre (en modo `gated`: la asignacion la hace el), construye un banco de escenarios por plazo y asigna en cada uno; elige el plazo de mayor crecimiento por sesion, ln(1 + CE) / h, y entre los que quedan dentro del error de Monte Carlo del mejor, el MAS LARGO (rota menos; el coste es la parte con mas incertidumbre). Tabla del universo con valoracion 0-1 (percentil del crecimiento por sesion en su mejor plazo) y catalizadores (agentes con rango >= 0,6) |
+| `exits.py` | Plan de salida por accion: trayectorias de los casos fuera de muestra del mismo tramo de puntuacion, en unidades de volatilidad diaria; rejilla de 360 planes (objetivo x stop x movil x plazo, en sigma raiz(T)); criterio de renovacion-recompensa E[ln R neto] / E[sesiones]; validacion cruzada en dos mitades temporales y adopcion de la rejilla completa solo si bate a «solo plazo» con probabilidad >= 95 % en bootstrap bayesiano por fechas |
+| `market_calendar.py` | Calendario NYSE (festivos y cierres) y hora de apertura en Madrid con el desfase de cambio de hora |
+| `execution/plan.py` | Plan JSON con `plan_id` (huella SHA-256 del contenido); `execute_plan` delega en `rebalance_to` (vender, reducir, esperar, comprar con el poder de compra real); libro de posiciones con el plan de salida de cada una; dinero real solo con `confirm == plan_id` ademas de la doble llave |
+| `cycle.py` | `LedgerEntry` admite plan de salida propio (`horizon`, `target_pct`, `stop_pct`, `trail_pct`); `_evaluate_exit` lo usa cuando existe y, si no, las barreras globales. None en el plan = sin esa barrera |
+| `conviction.py` | Costes por escenario (`costs`), `standalone` (distribucion de cada accion por separado), `build_bank` reutilizable, `market_level` y `tau` (17.3) |
+| `data/loaders.py` | `load_long_panel` (Parquet largo con cierre sin ajustar opcional y pre-filtro de memoria) y `_sanitize_prices` (precios no positivos, picos aislados, saltos de mas de x20) |
+| `swarm_rank` | `oos` en el resultado siempre: predicciones fuera de muestra del combinador del veredicto, con `symbol` |
+| CLI | `decide` y `execute`; `decide` excluye antes de optimizar lo que las guardas o el broker rechazarian, igual que el ciclo |
+
+### 17.3 Decisiones al fusionar
+
+| Conflicto | Decision | Motivo |
+|---|---|---|
+| Optimizador | El de este repositorio (Cover + Frank-Wolfe con cota certificada) | Garantia mas fuerte y ya probada |
+| Media por puntuacion | Tramos por percentil DENTRO de cada fecha y reescalado a la media exacta (este repositorio) | La rama paralela usaba cuantiles globales del valor de la puntuacion, cuya escala cambia entre fechas |
+| Nivel de mercado | `market_level`: "oos" por defecto (seccion 16); `decide` usa "history" | Para un solo plazo, las fechas fuera de muestra dejan que un mercado esperado negativo lleve al efectivo (lo prueba `test_cash_is_used_only_when_allowed`). Al comparar plazos ese nivel es casi todo ruido y distinto en cada plazo: elegir plazo seria elegir el ruido mas favorable. "history" usa la media diaria de toda la ventana, compuesta al plazo, con numeros aleatorios comunes |
+| Tau del encogimiento | `tau`: "point" (este repositorio) por defecto; "integrated" disponible | Criterio fijado ANTES de medir: adoptar "integrated" solo si pasaba H1-H4, "point" fallaba alguna, y sin ruido no era peor en mas de 2 errores estandar. Resultado (`docs/results/conviction_measure_tau_integrated.json`): "integrated" tambien falla H1 (lambda 0,35; nunca encoge exactamente a 0), asi que se queda "point". En ruido su crecimiento fue +0,46 % mejor (EE 0,27 %), no significativo |
+| Ejecucion | `rebalance_to` de este repositorio; el plan JSON se conserva encima | Un solo camino de ordenes para el ciclo y para `execute`; recorta posiciones que pesan de mas (la rama paralela solo compraba o completaba) y aplaza lo no financiable |
+| Adaptador Alpaca | El de este repositorio, sin cambios | Truncado a centimos, minimo local de 1 USD, `settle` segun horario, `untradable`, tests con clientes inyectados. Los metodos equivalentes de la rama paralela (`wait_closed`, `submit_qty` para acciones enteras) se descartan: los no fraccionables se excluyen en el analisis |
+| `cycle --decision conviction` | Sin cambios (plazo fijo del enjambre) | Cubierto por seis tests de integracion. El plazo variable y las salidas propias estan en `decide` + `execute`; el ciclo diario respeta despues el plan de salida de cada posicion |
+
+Regresion verificada: con los valores por defecto, `conviction_measure.py`
+produce en esta maquina las mismas cifras, fila a fila, con el modulo original
+que con el fusionado. Las diferencias de orden 1e-7 frente al JSON publicado
+vienen de la aritmetica de coma flotante del equipo en que se genero.
+
+### 17.4 Hora de entrada
+
+Apertura de la sesion siguiente al analisis, orden de mercado por nocional. (1)
+La senal usa el cierre: no se puede actuar antes. (2) Fuera de horario, Alpaca
+exige orden limitada para fraccionarias, con poca liquidez y spreads amplios.
+(3) Con datos reales, retrasar la entrada una sesion entera no cambio la
+capacidad predictiva (rank IC 0,0746 frente a 0,0749; `docs/AUDITORIA_GEOMETRIA.md`).
+
+### 17.5 Prueba con datos reales
+
+Cierre del 12-nov-2026, 3.313 acciones de EE. UU. de Yahoo (solo
+supervivientes; pre-filtro de memoria de 1 M$ de volumen y 1 USD), 372 s y
+4,7 GB. Informe y JSON en `docs/results/decision_real_2026-11-12_v15.*`.
+
+| Medida | Resultado |
+|---|---|
+| Veredicto del enjambre | NO ACCIONABLE (G1 p = 0,039; G4 p = 0,282; evidencia NINGUNA) |
+| Senal retenida por el encogimiento ("point") | 0 % en 3-15 sesiones, 10 % a 21, 6 % a 31 |
+| Plazo elegido | 31 sesiones (crecimiento +0,054 %/sesion; las diferencias entre plazos quedan cerca del error de Monte Carlo) |
+| Cartera | 23 posiciones, mayor peso 23,8 % (CHT); retorno esperado +1,7 % a 31 sesiones, igual para todas |
+| Alternativas, mismos escenarios | optimo +1,7 %; todo en CHT +1,6 %; 5 primeras equiponderadas +1,6 % |
+| Top 10 | CHT, TXNM, KO, FTS, L, PG, ATO, DUK, JNJ, EPD |
+| Salidas | En 21 de 23 posiciones la rejilla completa no supera a «solo plazo» |
+| Ejecucion simulada, 100 USD | 23 compras, 99,49 USD invertidos (colchon 0,5 %) |
+| Excluidas del optimizador | 448 acciones sin 1.260 sesiones de historia completa |
+
+Lectura: con solo precio y volumen la puntuacion del enjambre no distingue
+ganadores (la senal retenida es casi nula), asi que la mejor eleccion forzada
+es la cartera de menor riesgo con medias iguales, no una apuesta. La rama
+paralela, con `tau="integrated"` y 756 sesiones de historia, obtuvo sobre el
+mismo panel 24 posiciones con mayor peso del 14,8 % y senal retenida del
+12-29 %: la diferencia sale de esos dos ajustes, no de la seleccion. Que una
+accion destaque exige informacion nueva (eventos), no mas matematicas sobre las
+mismas variables.
+
+### 17.6 Limites
+
+Las mismas de la seccion 16, mas: la eleccion del plazo y del plan de salida es
+un maximo sobre varias estimaciones (sesgo del ganador, mitigado con el
+desempate al plazo mas largo y el bootstrap por fechas); las barreras de salida
+no entran en los escenarios del optimizador; los costes son una tabla por
+tramos de precio (0,05 % desde 5 USD, 1 % entre 1 y 5, 3 % por debajo), no
+cotizaciones reales; `cycle --decision conviction` no usa plazo variable; con
+`lookback` = 1.260 sesiones las acciones con menos de 5 anos de historia
+completa no son asignables (448 de 3.313 en la prueba real), un efecto de
+seleccion contra las empresas jovenes que no se ha medido.
+
 ## 5. Flujo completo
 
 ```

@@ -4,10 +4,11 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "swarmtrader"
-version = "1.4.0"
+version = "1.5.0"
 description = "Enjambre de agentes para seleccion de acciones a 1 mes, con control de comparacion multiple"
 requires-python = ">=3.11"
-dependencies = ["numpy>=1.26", "pandas>=2.1", "scipy>=1.11", "joblib>=1.3"]
+dependencies = ["numpy>=1.26", "pandas>=2.1", "scipy>=1.11", "joblib>=1.3",
+                "tzdata>=2024.1; sys_platform == 'win32'"]
 
 [project.optional-dependencies]
 data = ["pyarrow>=14", "yfinance>=0.2"]

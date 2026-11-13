@@ -24,20 +24,24 @@ controles estadísticos que permiten abstenerse cuando no hay evidencia.**
 Funciona en macOS (Apple Silicon), Linux y Windows. Python 3.11+. Sin claves ni
 cuentas para el modo CSV. Licencia MIT.
 
-**Estado de v1.4.0 (12 de noviembre de 2026):** investigación y backtesting.
+**Estado de v1.5.0 (13 de noviembre de 2026):** investigación y backtesting.
 La auditoría disponible no demuestra que los primeros valores del ranking
 batan al universo; con el filtro G4, el resultado medido es **NO ACCIONABLE**.
 Desde la v1.4 existe un modo opcional, `--decision conviction`, que compra
 igualmente la mejor cartera que el sistema sabe construir, avisando de que la
 ventaja no está demostrada ([detalles](#modo-convicción-v14-elegir-aunque-la-ventaja-no-esté-demostrada)).
+La v1.5 añade `decide` + `execute`: plazo variable (3 a 31 sesiones), hora de
+entrada, plan de salida por acción y plan de órdenes ejecutable tras la
+apertura ([detalles](#decisión-con-plazo-y-salidas-v15-decide--execute)).
 Los datos reales auditados tienen sesgo de supervivencia. El paper trading
 contra un broker externo no se ha validado y el trading real no está activado.
 Consulta el [estado y las limitaciones](docs/ESTADO.json), la
 [auditoría](docs/AUDITORIA_GEOMETRIA.md) y la
 [arquitectura](docs/ARCHITECTURE.md).
 
-Verificación local para esta publicación: **277 tests pasan, 6 se omiten**
-en Python 3.13.13; hay 6 avisos de compatibilidad futura de pandas.
+Verificación local de la v1.5.0: **297 tests pasan, 7 se omiten** (PyTorch,
+arch y duckdb no instalados) en Python 3.13.18 sobre Linux; hay 6 avisos de
+compatibilidad futura de pandas.
 El workflow de CI comprueba Python 3.11 y 3.12 en Linux y macOS.
 Las [notas de publicación](docs/PUBLICATION_NOTES.md) documentan correcciones de
 la CLI y de la contabilidad del simulador. Los resultados históricos que
@@ -399,6 +403,42 @@ swarmtrader swarm --store ~/swarmdata --top 3
 # cuantifica el sesgo sobre TUS metricas, no sobre las de un paper
 python3 experiments/survivorship.py --momentum 0.02 --delist-rate 0.12 --drift-days 0
 ```
+
+### Decisión con plazo y salidas (v1.5): `decide` + `execute`
+
+`decide` es la decisión completa para la última sesión: **qué comprar** (la
+cartera de crecimiento óptimo del modo convicción, sin topes, todo invertido),
+**a qué plazo** (compara 3, 5, 10, 15, 21 y 31 sesiones; 31 ≈ 45 días
+naturales), **cuándo entrar** (apertura de la sesión siguiente) y **cuándo
+salir de cada acción** (objetivo, stop, stop móvil y plazo máximo propios,
+aprendidos de los casos pasados del mismo tramo de puntuación). Escribe un plan
+de órdenes JSON con identificador; `execute` lo ejecuta tras la apertura con la
+misma lógica de órdenes que el ciclo (vender, esperar, comprar con el saldo
+real). Lo puede ejecutar el CLI o un agente de IA que lea el JSON.
+
+```bash
+swarmtrader decide --panel panel.parquet --plan runs/plan.json            # análisis tras el cierre
+swarmtrader decide --alpaca --broker alpaca --plan runs/plan.json         # universo y cuenta PAPER de Alpaca
+swarmtrader execute runs/plan.json --broker alpaca                        # simula contra la cuenta
+swarmtrader execute runs/plan.json --broker alpaca --execute              # envía a la cuenta PAPER
+```
+
+El informe incluye el top 10 del universo con valoración de 0 a 1 y los
+agentes que actúan como catalizador, la tabla de plazos, la cartera, el plan de
+salida de cada posición y las alternativas medidas con los mismos escenarios.
+El ciclo diario (`cycle`) lee después el plan de salida de cada posición y lo
+aplica en lugar de las barreras globales.
+
+Prueba con datos reales (cierre del 12-nov-2026, 3.313 acciones, solo
+supervivientes): veredicto NO ACCIONABLE; la puntuación apenas distingue
+acciones (señal retenida 0-10 %), así que la elección forzada es una cartera de
+bajo riesgo de 23 posiciones (mayor peso 23,8 %), con un retorno esperado de
++1,7 % a 31 sesiones, prácticamente igual para todas. No es una apuesta: es lo
+que la información de precio y volumen justifica. Detalles y decisiones de
+diseño: `docs/ARCHITECTURE.md`, sección 17.
+
+Dinero real: además de `SWARMTRADER_ALLOW_LIVE=1` y `--live`, `execute` exige
+`--confirm <plan_id>` del plan concreto; un plan modificado se rechaza.
 
 ### Modo convicción (v1.4): elegir aunque la ventaja no esté demostrada
 
