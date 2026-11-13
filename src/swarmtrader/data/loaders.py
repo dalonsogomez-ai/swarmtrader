@@ -29,19 +29,26 @@ class MarketData:
     # split inverso 1:20 aparece a 10 USD en el historico ajustado y pasa un
     # filtro de precio minimo que en su dia no habria pasado.
     nominal: pd.DataFrame | None = None
+    # Maximo y minimo NOMINALES del dia (opcionales): permiten estimar el spread
+    # (Abdi-Ranaldo 2017) cuando no hay cotizaciones bid/ask historicas.
+    high: pd.DataFrame | None = None
+    low: pd.DataFrame | None = None
 
     def __post_init__(self) -> None:
         self.volumes = self.volumes.reindex_like(self.prices)
-        if self.nominal is not None:
-            self.nominal = self.nominal.reindex_like(self.prices)
+        for k in ("nominal", "high", "low"):
+            v = getattr(self, k)
+            if v is not None:
+                setattr(self, k, v.reindex_like(self.prices))
 
     @property
     def symbols(self) -> list[str]:
         return list(self.prices.columns)
 
     def slice(self, start, end) -> "MarketData":
+        cut = lambda x: None if x is None else x.loc[start:end]  # noqa: E731
         return MarketData(self.prices.loc[start:end], self.volumes.loc[start:end],
-                          None if self.nominal is None else self.nominal.loc[start:end])
+                          cut(self.nominal), cut(self.high), cut(self.low))
 
 
 def load_synthetic(
@@ -179,6 +186,10 @@ def load_long_panel(path: str | Path, min_dollar_volume: float = 0.0, min_price:
     else:
         dv = p.pivot(index="date", columns="ticker", values="dollar_volume").reindex_like(px)
         vol = dv / (nom if nom is not None else px)
+    hi = (p.pivot(index="date", columns="ticker", values="high").reindex_like(px)
+          if "high" in p.columns else None)
+    lo = (p.pivot(index="date", columns="ticker", values="low").reindex_like(px)
+          if "low" in p.columns else None)
     px, dropped = _sanitize_prices(px)
     if dropped:
         import warnings
@@ -196,9 +207,11 @@ def load_long_panel(path: str | Path, min_dollar_volume: float = 0.0, min_price:
         keep = [k for k in keep if k in px.columns]
         px, vol = px[keep], vol[keep]
         nom = nom[keep] if nom is not None else None
+        hi = hi[keep] if hi is not None else None
+        lo = lo[keep] if lo is not None else None
     px = px.loc[:, px.notna().sum() > 0]
     vol = vol.reindex_like(px).fillna(0.0)
     nom = nom.reindex_like(px) if nom is not None else None
     px.index.name = vol.index.name = "date"
-    return MarketData(px.astype(float), vol.astype(float),
-                      None if nom is None else nom.astype(float))
+    f = lambda x: None if x is None else x.reindex_like(px).astype(float)  # noqa: E731
+    return MarketData(px.astype(float), vol.astype(float), f(nom), f(hi), f(lo))

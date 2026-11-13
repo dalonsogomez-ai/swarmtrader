@@ -3,6 +3,39 @@
 Registro en texto libre de que se hizo y que sigue. El estado estructurado esta
 en `ESTADO.json`. Antes de continuar trabajo previo, leer ambos.
 
+## 2026-11-13 — v1.6.0: mas acciones (tres vias)
+
+Peticion: ampliar dentro de Alpaca (ventana 756, quitar el prefiltro), elegir y
+construir agentes de valor/calidad con datos contables historicos, y anadir
+Lightyear, eToro o la plataforma con mas penny stocks.
+
+Hecho:
+- Via A: `decide` con 756 sesiones, sin suelo de precio, liquidez por mediana de
+  21 sesiones (>= 100.000 $), spread de Abdi-Ranaldo con maximo/minimo nominales
+  (coste en las no liquidas, corte al 10 %), no fraccionables por acciones enteras
+  en Alpaca, clases BRK-B <-> BRK.B, ADR conservados en la descarga, guardas del
+  plan iguales a las del analisis (defecto). `MarketData` con `high`/`low`.
+- Via B: `data/fundamentals.py` (companyfacts PIT, primera presentacion, duracion
+  de flujos, F-score, SUE); agentes `value` y `quality`; capitalizacion con precio
+  nominal (defecto); `swarmtrader fundamentals`; `scripts/fetch_sec.py`;
+  `experiments/fundamentals_measure.py` preregistrado.
+- Via C: `venues.py` (IBKR por accion con minimo y tope, Lightyear, Trading 212,
+  simbolo canonico con sufijo de bolsa: SAN.MC != SAN), universos de Lightyear
+  (sitemap publico), OTC de la SEC y eToro (API); adaptadores `etoro.py`,
+  `ibkr.py`, `manual.py`; `swarmtrader universe`; `decide/execute --broker
+  etoro|ibkr|manual`.
+- Corregidos de paso: comando `paper` roto (F821), `Path` sin importar en
+  `data/brokers.py`.
+- 28 tests nuevos. Suite: 332 pasan, 7 omitidos. Controles en verde.
+
+Medido: ver `hallazgos_v1_6` en ESTADO.json y ARCHITECTURE §18.
+
+Sigue:
+1. Ejecutar en el Mac (64 GB) el decide completo: panel con OTC si se usa IBKR,
+   desde 2018, con --fundamentals y --earnings de la SEC oficial.
+2. Validar los adaptadores en demo/paper (Alpaca, eToro, IBKR).
+3. Datos con deslistados y mapeo historico de tickers para repetir las mediciones.
+
 ## 2026-11-13 — v1.5.0: decision con plazo variable, salidas y plan de ordenes
 
 Origen: una rama paralela desarrollada fuera del repositorio (13-nov) resolvio

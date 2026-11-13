@@ -41,9 +41,11 @@ def test_union_is_not_the_sum_of_parts(universe):
     assert s["en_las_tres"] >= 1
 
 
-def test_symbol_normalisation_strips_exchange_suffix(universe):
-    assert "SAN" in universe.symbols
-    assert "SAN.MC" not in universe.symbols
+def test_symbol_normalisation_keeps_exchange_suffix(universe):
+    # v1.6: SAN.MC (Madrid, EUR) y SAN (ADR en NYSE, USD) son instrumentos distintos;
+    # recortar el sufijo los fundia y mezclaba dos historicos de precios
+    assert "SAN.MC" in universe.symbols
+    assert "SAN" not in universe.symbols
 
 
 def test_executable_on_reflects_membership(universe):
@@ -64,7 +66,8 @@ def test_fixed_commission_destroys_small_positions():
     barato = round_trip_cost(25.0, ALPACA)["pct"]
     caro = round_trip_cost(25.0, ETORO_EU, fx=True)["pct"]
     assert barato < 0.001
-    assert caro > 0.15, "una comision fija sobre 25 $ debe ser demoledora"
+    # v1.6: 1 USD por operacion (antes 2): sigue siendo demoledor sobre 25 $
+    assert caro > 0.08, "una comision fija sobre 25 $ debe ser demoledora"
 
 
 def test_cost_falls_with_size_for_fixed_commission():
@@ -101,8 +104,8 @@ def test_router_rejects_symbol_no_venue_offers(router):
 
 
 def test_router_refuses_venues_where_cost_eats_the_edge(router):
-    """Con 25 $, eToro EU cuesta 17,6% e IBKR 8%: ninguna es viable."""
-    d = router.route("SAN", 25.0)          # solo en etoro_eu e ibkr
+    """Con 25 $, eToro EU cuesta ~9,6 % e IBKR ~2,8 % (minimo de 0,35 $): ninguna es viable."""
+    d = router.route("SAN.MC", 25.0)       # solo en etoro_eu e ibkr
     assert d.venue is None
     assert any("coste" in x for x in router.routing_log)
 
@@ -120,13 +123,13 @@ def test_router_checks_cash_per_venue_not_aggregate(universe):
         b.set_prices({s: 50.0 for s in universe.symbols})
     r = VenueRouter(brokers=brokers, universe=universe, fx_venues=(),
                     max_cost_pct=1.0)                     # sin filtro de coste
-    d = r.route("SAN", 60.0)                              # solo en etoro_eu, que tiene 20 $
+    d = r.route("SAN.MC", 60.0)                           # solo en etoro_eu, que tiene 20 $
     assert d.venue is None
     assert any("efectivo" in x for x in r.routing_log)
 
 
 def test_submit_returns_rejected_instead_of_failing_silently(router):
-    res = router.submit("SAN", "buy", 25.0)
+    res = router.submit("SAN.MC", "buy", 25.0)
     assert res.status == "rejected" and res.notional == 0.0
 
 

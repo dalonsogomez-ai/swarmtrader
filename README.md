@@ -24,7 +24,7 @@ controles estadísticos que permiten abstenerse cuando no hay evidencia.**
 Funciona en macOS (Apple Silicon), Linux y Windows. Python 3.11+. Sin claves ni
 cuentas para el modo CSV. Licencia MIT.
 
-**Estado de v1.5.0 (13 de noviembre de 2026):** investigación y backtesting.
+**Estado de v1.6.0 (13 de noviembre de 2026):** investigación y backtesting.
 La auditoría disponible no demuestra que los primeros valores del ranking
 batan al universo; con el filtro G4, el resultado medido es **NO ACCIONABLE**.
 Desde la v1.4 existe un modo opcional, `--decision conviction`, que compra
@@ -33,13 +33,17 @@ ventaja no está demostrada ([detalles](#modo-convicción-v14-elegir-aunque-la-v
 La v1.5 añade `decide` + `execute`: plazo variable (3 a 31 sesiones), hora de
 entrada, plan de salida por acción y plan de órdenes ejecutable tras la
 apertura ([detalles](#decisión-con-plazo-y-salidas-v15-decide--execute)).
+La v1.6 amplía el universo: todas las cotizadas de Alpaca (penny stocks
+incluidos, con coste estimado por spread), fundamentales point-in-time de la
+SEC con agentes de valor y calidad, y más plataformas (IBKR con OTC, eToro,
+Lightyear) ([detalles](#más-acciones-v16-universo-ampliado-fundamentales-sec-y-más-plataformas)).
 Los datos reales auditados tienen sesgo de supervivencia. El paper trading
 contra un broker externo no se ha validado y el trading real no está activado.
 Consulta el [estado y las limitaciones](docs/ESTADO.json), la
 [auditoría](docs/AUDITORIA_GEOMETRIA.md) y la
 [arquitectura](docs/ARCHITECTURE.md).
 
-Verificación local de la v1.5.0: **304 tests pasan, 7 se omiten** (PyTorch,
+Verificación local de la v1.6.0: **332 tests pasan, 7 se omiten** (PyTorch,
 arch y duckdb no instalados) en Python 3.13.18 sobre Linux; hay 6 avisos de
 compatibilidad futura de pandas.
 El workflow de CI comprueba Python 3.11 y 3.12 en Linux y macOS.
@@ -403,6 +407,57 @@ swarmtrader swarm --store ~/swarmdata --top 3
 # cuantifica el sesgo sobre TUS metricas, no sobre las de un paper
 python3 experiments/survivorship.py --momentum 0.02 --delist-rate 0.12 --drift-days 0
 ```
+
+### Más acciones (v1.6): universo ampliado, fundamentales SEC y más plataformas
+
+Primero la premisa, medida: un universo mayor solo ayuda a elegir mejor las 5
+primeras si el modelo ordena bien la parte ALTA del ranking, y la ganancia crece
+con el logaritmo del tamaño. El enjambre de precio no lo cumple; por eso la
+pieza que más importa de esta versión son los fundamentales (vía B).
+Detalles y cifras en [ARCHITECTURE §18](docs/ARCHITECTURE.md).
+
+**Vía A — todo Alpaca.** `decide` ya no corta en 1 USD ni en 1 M$ el último
+día: exige mediana de 21 sesiones ≥ 100.000 $ y spread estimado ≤ 10 %, usa
+756 sesiones de historia y compra los no fraccionables por acciones enteras.
+Asignables en el panel del 12-nov: 3.835 frente a 2.994 (253 por debajo de 1 USD).
+
+```bash
+python3 scripts/fetch_panel.py data/panel.parquet 2018-01-01 data/nasdaqtraded.txt   # con máximo/mínimo, ADR y clases
+swarmtrader decide --panel data/panel.parquet --plan runs/plan.json                  # nuevos defectos de la v1.6
+```
+
+**Vía B — fundamentales de la SEC (gratis).** Valor tal como se presentó por
+primera vez, fechado por su presentación. Agentes `value` y `quality`, y datos
+para `earnings`. Medido sobre supervivientes: calidad y valor tienen IC
+positivo y significativo tras Holm; no hacen ganadoras a las 5 primeras.
+
+```bash
+export SEC_USER_AGENT="Nombre Apellido correo@dominio.com"     # la SEC exige identificarse
+python3 scripts/fetch_sec.py data/
+swarmtrader fundamentals --companyfacts data/companyfacts.zip --tickers data/company_tickers_exchange.json
+swarmtrader decide --panel data/panel.parquet --fundamentals data/fundamentals_sec.csv \
+    --earnings data/earnings_sec.csv --plan runs/plan.json
+```
+
+Si no quieres montar la tubería: Sharadar Core US Fundamentals (de pago) resuelve
+también el mapeo histórico de tickers; Compustat/CRSP vía WRDS si tu universidad
+lo tiene.
+
+**Vía C — más plataformas.** La que más penny stocks y pequeñas ofrece es
+**IBKR** (todas las cotizadas más las OTC con permiso de penny stocks). Lightyear
+y eToro no añaden acciones de EE. UU. que Alpaca no tenga; añaden Europa.
+
+```bash
+swarmtrader universe --listed data/nasdaqtraded.txt --lightyear web \
+    --sec-tickers data/company_tickers_exchange.json          # unión etiquetada por plataforma
+swarmtrader execute runs/plan.json --broker ibkr              # TWS paper (7497), limitadas, acciones enteras
+swarmtrader execute runs/plan.json --broker etoro             # demo, 1x, solo largo (ETORO_API_KEY/ETORO_USER_KEY)
+swarmtrader execute runs/plan.json --broker manual --manual-venue lightyear \
+    --positions-csv cartera.csv --cash 100 --prices precios.json   # Lightyear no tiene API: CSV de órdenes
+```
+
+Los adaptadores de eToro e IBKR están probados con clientes falsos, no contra
+las APIs reales: valídalos en demo/paper antes de usarlos.
 
 ### Decisión con plazo y salidas (v1.5): `decide` + `execute`
 

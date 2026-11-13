@@ -1,0 +1,143 @@
+# swarmtrader v1.6.0 - decide sobre datos reales (12-nov-2026)
+# python -m swarmtrader.cli decide --panel panel_v16_listed.parquet --prefilter-dollar-volume 250000 --start 2020-07-01 --fundamentals fundamentals_sec.csv --plan plan.json --out decision.json
+# Reducido por memoria del entorno (7 GB): desde 2020-07 y prefiltro de 250.000 $ de mediana de 60 sesiones. En un equipo de 64 GB: sin --start ni prefiltro, y con --earnings.
+# universo cargado: 4.079 acciones cotizadas x 1.601 sesiones; excluidas por guardas: 19 (11 precio/liquidez, 8 spread); 6,02 GB; 656 s
+
+ANALISIS 2026-11-12   entrada: apertura del 2026-11-13 (15:30 hora de Madrid)
+Evidencia estadistica del enjambre: NO ACCIONABLE   (G1 p=0.000, G4 p=0.445, evidencia DEBIL)
+
+TOP 10 DEL UNIVERSO (valoracion 0 = peor, 1 = mejor)
+   #  accion     valor  plazo  ret.esp  P(>+5%)  P(perder)  catalizadores
+   1  CHT       1.000   31s    +3.1%     32%       25%    a favor: liquidity, lowrisk, momentum, reversal, value
+   2  FTS       1.000   31s    +3.1%     36%       29%    a favor: lowrisk, momentum
+   3  TXNM      0.999   31s    +3.1%     34%       28%    a favor: liquidity, lowrisk, momentum
+   4  BRK-B     0.999   31s    +3.1%     37%       30%    a favor: lowrisk, momentum, value
+   5  ATO       0.999   31s    +3.1%     38%       30%    a favor: lowrisk, momentum; en contra: seasonal
+   6  EVRG      0.999   31s    +3.1%     39%       31%    a favor: lowrisk, momentum; en contra: quality
+   7  DUK       0.998   31s    +3.1%     37%       31%    a favor: lowrisk, momentum; en contra: seasonal
+   8  CMS       0.998   31s    +3.1%     37%       31%    a favor: lowrisk, momentum; en contra: seasonal
+   9  L         0.998   31s    +3.1%     38%       30%    a favor: quality, lowrisk, momentum
+  10  OGE       0.997   31s    +3.1%     37%       30%    a favor: lowrisk, momentum; en contra: seasonal
+
+PLAZO DE LA CARTERA (crecimiento por sesion del optimo log)
+    3 sesiones: +0.095%/sesion   29 posiciones   mayor peso 8%   senal retenida 25%
+    5 sesiones: +0.090%/sesion   25 posiciones   mayor peso 20%   senal retenida 0%
+   10 sesiones: +0.095%/sesion   27 posiciones   mayor peso 16%   senal retenida 2%
+   15 sesiones: +0.097%/sesion   25 posiciones   mayor peso 17%   senal retenida 0%
+   21 sesiones: +0.098%/sesion   29 posiciones   mayor peso 16%   senal retenida 0%
+   31 sesiones: +0.098%/sesion   25 posiciones   mayor peso 17%   senal retenida 0%  <- elegido
+
+CARTERA (100% del capital disponible; plazo de cartera 31 sesiones)
+   CHT        17.0%   valoracion 1.000   ret.esperado +3.1%   P(>+5%) 32%
+   FNRN       12.3%   valoracion 0.990   ret.esperado +3.1%   P(>+5%) 34%
+   EXC         8.1%   valoracion 0.983   ret.esperado +3.1%   P(>+5%) 38%
+   PBAM        8.1%   valoracion 0.985   ret.esperado +3.1%   P(>+5%) 35%
+   TSLX        4.6%   valoracion 0.970   ret.esperado +3.1%   P(>+5%) 40%
+   GOOG        4.4%   valoracion 0.774   ret.esperado +3.1%   P(>+5%) 41%
+   IBN         4.4%   valoracion 0.951   ret.esperado +3.1%   P(>+5%) 38%
+   RDY         4.2%   valoracion 0.899   ret.esperado +3.1%   P(>+5%) 40%
+   COR         3.6%   valoracion 0.919   ret.esperado +3.1%   P(>+5%) 42%
+   CHD         3.0%   valoracion 0.976   ret.esperado +3.1%   P(>+5%) 38%
+   TXNM        2.9%   valoracion 0.999   ret.esperado +3.1%   P(>+5%) 34%
+   RCBC        2.9%   valoracion 0.948   ret.esperado +3.1%   P(>+5%) 38%
+   OHI         2.8%   valoracion 0.983   ret.esperado +3.1%   P(>+5%) 37%
+   CME         2.4%   valoracion 0.966   ret.esperado +3.1%   P(>+5%) 40%
+   META        2.3%   valoracion 0.639   ret.esperado +3.1%   P(>+5%) 41%
+   DDOG        2.3%   valoracion 0.407   ret.esperado +3.1%   P(>+5%) 42%
+   BJ          2.1%   valoracion 0.867   ret.esperado +3.1%   P(>+5%) 41%
+   EQNR        2.1%   valoracion 0.713   ret.esperado +3.1%   P(>+5%) 41%
+   ESLT        2.0%   valoracion 0.667   ret.esperado +3.1%   P(>+5%) 40%
+   SEB         1.7%   valoracion 0.746   ret.esperado +3.1%   P(>+5%) 40%
+   PDEX        1.6%   valoracion 0.305   ret.esperado +3.1%   P(>+5%) 42%
+   MCK         1.3%   valoracion 0.876   ret.esperado +3.1%   P(>+5%) 41%
+   RGR         1.3%   valoracion 0.740   ret.esperado +3.1%   P(>+5%) 42%
+   AGRO        1.2%   valoracion 0.571   ret.esperado +3.1%   P(>+5%) 41%
+   CHKP        1.2%   valoracion 0.770   ret.esperado +3.1%   P(>+5%) 44%
+
+PLAN DE SALIDA POR ACCION (comprobado al cierre; venta en la apertura siguiente)
+   CHT       plazo max  5 sesiones (venta como tarde en la apertura del 2026-11-20)
+             objetivo —   stop —   stop movil — desde maximo
+             casos: 6000  sale por objetivo 0%, stop 0%, movil 0%, plazo 100%; mediana 5 sesiones; solo plazo
+   FNRN      plazo max  5 sesiones (venta como tarde en la apertura del 2026-11-20)
+             objetivo —   stop —   stop movil — desde maximo
+             casos: 6000  sale por objetivo 0%, stop 0%, movil 0%, plazo 100%; mediana 5 sesiones; solo plazo
+   EXC       plazo max  5 sesiones (venta como tarde en la apertura del 2026-11-20)
+             objetivo —   stop —   stop movil — desde maximo
+             casos: 6000  sale por objetivo 0%, stop 0%, movil 0%, plazo 100%; mediana 5 sesiones; solo plazo
+   PBAM      plazo max  5 sesiones (venta como tarde en la apertura del 2026-11-20)
+             objetivo —   stop —   stop movil — desde maximo
+             casos: 6000  sale por objetivo 0%, stop 0%, movil 0%, plazo 100%; mediana 5 sesiones; solo plazo
+   TSLX      plazo max  5 sesiones (venta como tarde en la apertura del 2026-11-20)
+             objetivo —   stop —   stop movil — desde maximo
+             casos: 6000  sale por objetivo 0%, stop 0%, movil 0%, plazo 100%; mediana 5 sesiones; solo plazo
+   GOOG      plazo max  5 sesiones (venta como tarde en la apertura del 2026-11-20)
+             objetivo —   stop —   stop movil — desde maximo
+             casos: 6000  sale por objetivo 0%, stop 0%, movil 0%, plazo 100%; mediana 5 sesiones; solo plazo
+   IBN       plazo max  5 sesiones (venta como tarde en la apertura del 2026-11-20)
+             objetivo —   stop —   stop movil — desde maximo
+             casos: 6000  sale por objetivo 0%, stop 0%, movil 0%, plazo 100%; mediana 5 sesiones; solo plazo
+   RDY       plazo max  5 sesiones (venta como tarde en la apertura del 2026-11-20)
+             objetivo —   stop —   stop movil — desde maximo
+             casos: 6000  sale por objetivo 0%, stop 0%, movil 0%, plazo 100%; mediana 5 sesiones; solo plazo
+   COR       plazo max  5 sesiones (venta como tarde en la apertura del 2026-11-20)
+             objetivo —   stop —   stop movil — desde maximo
+             casos: 6000  sale por objetivo 0%, stop 0%, movil 0%, plazo 100%; mediana 5 sesiones; solo plazo
+   CHD       plazo max  5 sesiones (venta como tarde en la apertura del 2026-11-20)
+             objetivo —   stop —   stop movil — desde maximo
+             casos: 6000  sale por objetivo 0%, stop 0%, movil 0%, plazo 100%; mediana 5 sesiones; solo plazo
+   TXNM      plazo max  5 sesiones (venta como tarde en la apertura del 2026-11-20)
+             objetivo —   stop —   stop movil — desde maximo
+             casos: 6000  sale por objetivo 0%, stop 0%, movil 0%, plazo 100%; mediana 5 sesiones; solo plazo
+   RCBC      plazo max  5 sesiones (venta como tarde en la apertura del 2026-11-20)
+             objetivo —   stop —   stop movil — desde maximo
+             casos: 6000  sale por objetivo 0%, stop 0%, movil 0%, plazo 100%; mediana 5 sesiones; solo plazo
+   OHI       plazo max  5 sesiones (venta como tarde en la apertura del 2026-11-20)
+             objetivo —   stop —   stop movil — desde maximo
+             casos: 6000  sale por objetivo 0%, stop 0%, movil 0%, plazo 100%; mediana 5 sesiones; solo plazo
+   CME       plazo max  5 sesiones (venta como tarde en la apertura del 2026-11-20)
+             objetivo —   stop —   stop movil — desde maximo
+             casos: 6000  sale por objetivo 0%, stop 0%, movil 0%, plazo 100%; mediana 5 sesiones; solo plazo
+   META      plazo max  5 sesiones (venta como tarde en la apertura del 2026-11-20)
+             objetivo —   stop —   stop movil — desde maximo
+             casos: 6000  sale por objetivo 0%, stop 0%, movil 0%, plazo 100%; mediana 5 sesiones; solo plazo
+   DDOG      plazo max  5 sesiones (venta como tarde en la apertura del 2026-11-20)
+             objetivo —   stop —   stop movil -13.8% desde maximo
+             casos: 6000  sale por objetivo 0%, stop 0%, movil 4%, plazo 96%; mediana 5 sesiones; rejilla completa
+   BJ        plazo max  5 sesiones (venta como tarde en la apertura del 2026-11-20)
+             objetivo —   stop —   stop movil — desde maximo
+             casos: 6000  sale por objetivo 0%, stop 0%, movil 0%, plazo 100%; mediana 5 sesiones; solo plazo
+   EQNR      plazo max  5 sesiones (venta como tarde en la apertura del 2026-11-20)
+             objetivo —   stop —   stop movil — desde maximo
+             casos: 6000  sale por objetivo 0%, stop 0%, movil 0%, plazo 100%; mediana 5 sesiones; solo plazo
+   ESLT      plazo max  5 sesiones (venta como tarde en la apertura del 2026-11-20)
+             objetivo —   stop —   stop movil — desde maximo
+             casos: 6000  sale por objetivo 0%, stop 0%, movil 0%, plazo 100%; mediana 5 sesiones; solo plazo
+   SEB       plazo max  5 sesiones (venta como tarde en la apertura del 2026-11-20)
+             objetivo —   stop —   stop movil — desde maximo
+             casos: 6000  sale por objetivo 0%, stop 0%, movil 0%, plazo 100%; mediana 5 sesiones; solo plazo
+   PDEX      plazo max  5 sesiones (venta como tarde en la apertura del 2026-11-20)
+             objetivo —   stop —   stop movil — desde maximo
+             casos: 6000  sale por objetivo 0%, stop 0%, movil 0%, plazo 100%; mediana 5 sesiones; solo plazo
+   MCK       plazo max  5 sesiones (venta como tarde en la apertura del 2026-11-20)
+             objetivo —   stop —   stop movil — desde maximo
+             casos: 6000  sale por objetivo 0%, stop 0%, movil 0%, plazo 100%; mediana 5 sesiones; solo plazo
+   RGR       plazo max  5 sesiones (venta como tarde en la apertura del 2026-11-20)
+             objetivo +9.4% (54.13)   stop —   stop movil -8.6% desde maximo
+             casos: 6000  sale por objetivo 8%, stop 0%, movil 3%, plazo 89%; mediana 5 sesiones; rejilla completa
+   AGRO      plazo max  5 sesiones (venta como tarde en la apertura del 2026-11-20)
+             objetivo —   stop —   stop movil — desde maximo
+             casos: 6000  sale por objetivo 0%, stop 0%, movil 0%, plazo 100%; mediana 5 sesiones; solo plazo
+   CHKP      plazo max  5 sesiones (venta como tarde en la apertura del 2026-11-20)
+             objetivo —   stop —   stop movil — desde maximo
+             casos: 6000  sale por objetivo 0%, stop 0%, movil 0%, plazo 100%; mediana 5 sesiones; solo plazo
+
+ALTERNATIVAS (equivalente cierto por plazo, mismos escenarios)
+   optimo                                       +3.1%
+   todo_en_CHT                                  +3.0%
+   equiponderar_top5_por_puntuacion             +2.8%
+
+  - evidencia estadistica: NO ACCIONABLE (G2 complejidad; G4 cartera). Seleccion por esperanza condicionada, sin ventaja demostrada
+  - 475 simbolos sin historia completa en 756 sesiones: no asignables
+  - el minimo de orden ha eliminado posiciones pequenas (coste en utilidad: 2.36e-05)
+
+plan de ordenes 8fc6a6694d26 -> runs_v16/plan.json

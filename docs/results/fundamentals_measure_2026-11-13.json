@@ -1,0 +1,104 @@
+{
+  "fechas": 80,
+  "obs": 208025,
+  "cobertura": {
+    "bm": 0.835,
+    "ep": 0.825,
+    "cfp": 0.822,
+    "gp_a": 0.58,
+    "fscore": 0.854,
+    "accruals": 0.883,
+    "inv_ag": 0.861,
+    "anti_issuance": 0.82,
+    "sue": 0.699
+  },
+  "control_fuga": {
+    "muestras": 2000,
+    "discrepancias": 0
+  },
+  "H1_quality": {
+    "ic_medio": 0.0268,
+    "ic95": [
+      0.0044,
+      0.0463
+    ],
+    "p": 0.0088
+  },
+  "H2_value": {
+    "ic_medio": 0.0467,
+    "ic95": [
+      0.0194,
+      0.0787
+    ],
+    "p": 0.0
+  },
+  "H3_earnings": {
+    "ic_medio": 0.0083,
+    "ic95": [
+      -0.003,
+      0.0199
+    ],
+    "p": 0.0746
+  },
+  "H4_combinado_top5": {
+    "exceso_combinado": 0.00281,
+    "exceso_enjambre": 0.00526,
+    "diferencia": -0.00245,
+    "ic95": [
+      -0.01939,
+      0.01281
+    ],
+    "p": 0.5696
+  },
+  "H5_valor_profundo": {
+    "exceso": 0.00256,
+    "ic95": [
+      -0.00698,
+      0.01104
+    ],
+    "p": 0.3094
+  },
+  "holm": {
+    "H2_value": 0.0,
+    "H1_quality": 0.0352,
+    "H3_earnings": 0.2238,
+    "H5_valor_profundo": 0.6188,
+    "H4_combinado_top5": 0.6188
+  },
+  "exploratorio": {
+    "swarm": {
+      "exceso_decil_superior": -0.00294,
+      "top5_p_mas25": 0.0475,
+      "top5_p_menos15": 0.06
+    },
+    "value": {
+      "exceso_decil_superior": 0.00627,
+      "top5_p_mas25": 0.0475,
+      "top5_p_menos15": 0.0825
+    },
+    "quality": {
+      "exceso_decil_superior": 9e-05,
+      "top5_p_mas25": 0.0425,
+      "top5_p_menos15": 0.075
+    },
+    "earnings": {
+      "exceso_decil_superior": 0.00144,
+      "top5_p_mas25": 0.0425,
+      "top5_p_menos15": 0.06
+    },
+    "combined": {
+      "exceso_decil_superior": 0.0013,
+      "top5_p_mas25": 0.0275,
+      "top5_p_menos15": 0.0325
+    },
+    "universo": {
+      "p_mas25": 0.0521,
+      "p_menos15": 0.0968
+    },
+    "ic_quality_precio<5": 0.0279,
+    "ic_value_precio<5": 0.0313,
+    "ic_quality_precio>=5": 0.0262,
+    "ic_value_precio>=5": 0.0469
+  },
+  "aviso": "PRE-REGISTRADO salvo el bloque exploratorio. Universo de supervivientes (Yahoo) y mapeo CIK-ticker actual: comparacion entre reglas, no rentabilidad."
+}
