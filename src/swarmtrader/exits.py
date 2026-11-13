@@ -130,9 +130,17 @@ class ExitPlan:
 
 
 class PathBank:
-    """Trayectorias reales posteriores a cada prediccion fuera de muestra."""
+    """Trayectorias reales posteriores a cada prediccion fuera de muestra.
 
-    def __init__(self, prices: pd.DataFrame, oos: pd.DataFrame, cfg: ExitConfig = ExitConfig()):
+    Con `listings` point-in-time (columnas `reason`, `delist_return`, indice =
+    simbolo), una trayectoria que cruza la baja de la accion termina en su valor
+    TERMINAL (ultimo precio x (1 + retorno de baja)) y se queda ahi, igual que
+    `data.pit.forward_returns_pit`. Sin `listings`, tras el ultimo precio la
+    trayectoria se congela (supervivientes: no hay bajas que aplicar).
+    """
+
+    def __init__(self, prices: pd.DataFrame, oos: pd.DataFrame, cfg: ExitConfig = ExitConfig(),
+                 listings: pd.DataFrame | None = None):
         self.cfg = cfg
         px = prices.sort_index()
         K = cfg.max_horizon
@@ -147,7 +155,22 @@ class PathBank:
         cols = pd.Series(np.arange(px.shape[1]), index=px.columns)
         s_pos = cols.reindex(o["symbol"]).to_numpy().astype(int)
 
+        raw = px.to_numpy(dtype=float)
         logp = np.log(px.ffill(limit=None).to_numpy(dtype=float))
+        if listings is not None and {"reason", "delist_return"} <= set(listings.columns):
+            from .data.pit import DelistReason
+            reason = listings["reason"].reindex(px.columns)
+            dr = listings["delist_return"].reindex(px.columns).fillna(0.0)
+            for j, sym in enumerate(px.columns):
+                if pd.isna(reason[sym]) or reason[sym] == DelistReason.ACTIVE:
+                    continue
+                valid = np.where(np.isfinite(raw[:, j]) & (raw[:, j] > 0))[0]
+                if len(valid) == 0 or valid[-1] >= len(px) - 1:
+                    continue
+                last = valid[-1]
+                # la posicion se liquida en la sesion siguiente a la ultima
+                # cotizacion, al valor terminal, y ya no se mueve
+                logp[last + 1:, j] = logp[last, j] + np.log1p(max(float(dr[sym]), -0.999999))
         lr = np.diff(logp, axis=0, prepend=np.nan)
         sd = pd.DataFrame(lr).rolling(cfg.vol_lookback, min_periods=20).std().to_numpy()
         base = logp[d_pos, s_pos]
@@ -158,6 +181,7 @@ class PathBank:
         self.z = (path[good] / sig[good, None]).astype(np.float64)
         self.pct = o["pct"].to_numpy()[good]
         self.dates = o["date"].to_numpy()[good]
+        self.dpos = d_pos[good]                 # sesion de entrada (indice en prices)
         self.n = int(good.sum())
 
     def neighbours(self, u: float) -> np.ndarray:
@@ -214,6 +238,22 @@ def _best(Z: np.ndarray, grid, sigma: float, cost: float):
     return grid[k], float(g[k])
 
 
+def _crossfit_folds(di: np.ndarray, dp: np.ndarray, K: int) -> list:
+    """Dos pliegues temporales (mitad por fecha) con purga de solapes.
+
+    di  fecha de entrada (cualquier orden total); dp  sesion de entrada (indice);
+    K   sesiones de resultado de cada trayectoria. Del AJUSTE se excluye toda
+    trayectoria cuya ventana [dp, dp + K] se solape con la de alguna de
+    evaluacion. Devuelve [(ajuste, evaluacion), ...] como mascaras, o [] si una
+    mitad queda vacia.
+    """
+    A = di <= np.quantile(di, 0.5)
+    if not A.any() or not (~A).any():
+        return []
+    return [(A & (dp + K < dp[~A].min()), ~A),       # ajusta antes, evalua despues
+            (~A & (dp > dp[A].max() + K), A)]         # ajusta despues, evalua antes
+
+
 def plan_exit(bank: PathBank, symbol: str, percentile: float, sigma: float, price: float,
               cost: float) -> ExitPlan:
     """Plan de salida para una accion con percentil de puntuacion `percentile`.
@@ -224,7 +264,7 @@ def plan_exit(bank: PathBank, symbol: str, percentile: float, sigma: float, pric
     """
     cfg = bank.cfg
     idx = bank.neighbours(float(percentile))
-    Z, dts = bank.z[idx], bank.dates[idx]
+    Z, dts, dp = bank.z[idx], bank.dates[idx], bank.dpos[idx]
     full, simple = _grid(cfg, False), _grid(cfg, True)
 
     # Validacion cruzada temporal en dos mitades: cada procedimiento elige su plan
@@ -234,14 +274,18 @@ def plan_exit(bank: PathBank, symbol: str, percentile: float, sigma: float, pric
     # La rejilla completa solo se adopta si mejora al procedimiento simple con
     # probabilidad >= `cfg.adopt_prob`; con una superficie plana (ruido) su
     # mejor plan es suerte y gana la regla simple.
+    # Purga: una trayectoria de ajuste cuyo resultado (entrada .. entrada +
+    # max_horizon sesiones) se solapa con el de alguna de evaluacion compartiria
+    # retornos realizados con ella. Con fechas cada 21 sesiones y trayectorias de
+    # 31, las fechas vecinas a la frontera se solapan; se excluyen del AJUSTE.
     di = dts.astype("datetime64[ns]").astype(np.int64)
-    A = di <= np.quantile(di, 0.5)
+    folds = _crossfit_folds(di, dp, cfg.max_horizon)
     cf = {"full": 0.0, "simple": 0.0, "p_mejora": 0.0}
-    usable = all(m.sum() >= 30 for m in (A, ~A))
+    usable = len(folds) == 2 and all(f.sum() >= 30 and e.sum() >= 30 for f, e in folds)
     if usable:
         rng = np.random.default_rng(zlib.crc32(symbol.encode()))
         draws = np.zeros(cfg.n_boot)
-        for fit, ev in ((A, ~A), (~A, A)):
+        for fit, ev in folds:
             ud, inv = np.unique(di[ev], return_inverse=True)
             w = rng.dirichlet(np.ones(len(ud)), size=cfg.n_boot)      # B x fechas
             per = {}

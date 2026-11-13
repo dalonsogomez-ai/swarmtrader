@@ -39,7 +39,7 @@ Consulta el [estado y las limitaciones](docs/ESTADO.json), la
 [auditoría](docs/AUDITORIA_GEOMETRIA.md) y la
 [arquitectura](docs/ARCHITECTURE.md).
 
-Verificación local de la v1.5.0: **297 tests pasan, 7 se omiten** (PyTorch,
+Verificación local de la v1.5.0: **304 tests pasan, 7 se omiten** (PyTorch,
 arch y duckdb no instalados) en Python 3.13.18 sobre Linux; hay 6 avisos de
 compatibilidad futura de pandas.
 El workflow de CI comprueba Python 3.11 y 3.12 en Linux y macOS.

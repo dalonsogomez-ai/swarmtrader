@@ -55,25 +55,28 @@
   },
   "exits.py (plan de salida por accion)": {
    "estado": "probado",
-   "limitacion": "barreras sobre cierres; sin deslistados las trayectorias interrumpidas se congelan; en 21 de 23 posiciones reales gana 'solo plazo'"
+   "limitacion": "barreras sobre cierres; validacion cruzada con purga de solapes; en 17 de 23 posiciones reales gana 'solo plazo'"
   },
   "execution/plan.py (plan JSON + execute sobre rebalance_to)": {
    "estado": "probado con PaperBroker; sin ejecutar contra Alpaca paper real",
-   "cambio_v1_5": "el ejecutor delega en rebalance_to: tambien recorta posiciones que pesan de mas y aplaza lo no financiable"
+   "cambio_v1_5": "el ejecutor delega en rebalance_to: tambien recorta posiciones que pesan de mas y aplaza lo no financiable; respeta el mandato persistido (si esta parado solo reduce) y conserva como pendientes los planes de salida de compras aun sin llenar"
   },
   "portfolio/conviction.py market_level/tau/costs": {
    "estado": "probado; con valores por defecto es identico fila a fila al modulo v1.4 (conviction_measure en la misma maquina)",
    "evidencia": "docs/results/conviction_measure_tau_integrated.json: 'integrated' tambien falla H1 (lambda 0,35); se mantiene 'point'"
   },
   "data/loaders.py load_long_panel + _sanitize_prices": {
-   "estado": "probado sobre el panel real (50 simbolos corruptos descartados)"
+   "estado": "probado sobre el panel real"
   },
   "cycle.py plan de salida propio por posicion": {
    "estado": "probado (tests/test_decision.py)"
+  },
+  "exits.py PathBank con listings PIT": {
+   "estado": "probado en sintetico (retorno terminal de baja); sin datos PIT reales todavia"
   }
  },
  "pruebas": {
-  "suite": "297 pasan, 7 omitidos (PyTorch, arch y duckdb no instalados); Python 3.13.18, Linux",
+  "suite": "304 pasan, 7 omitidos (PyTorch, arch y duckdb no instalados); Python 3.13.18, Linux. CI de GitHub: Ubuntu y macOS ARM64, Python 3.11 y 3.12",
   "controles": "swarm_null_test: ruido -> NO ACCIONABLE (SPA p=0,882); senal -> ACCIONABLE (p=0,000). null_test: el gate rechaza el ruido (Sharpe campeon +2,36 con la contabilidad corregida)"
  },
  "defectos_conocidos_sin_corregir": [
@@ -131,5 +134,6 @@
   "Con solo precio y volumen la puntuacion no distingue acciones (senal retenida 0-10 %): la eleccion forzada es una cartera de bajo riesgo de 23 posiciones, mayor peso 23,8 %, retorno esperado +1,7 % a 31 sesiones para todas.",
   "Alternativas con los mismos escenarios: optimo +1,7 %, todo en CHT +1,6 %, 5 primeras equiponderadas +1,6 %.",
   "La rama paralela (tau integrado, 756 sesiones) obtuvo 24 posiciones, mayor peso 14,8 % y senal retenida 12-29 % sobre el mismo panel."
- ]
+ ],
+ "revision_pr3": "Seis defectos senalados por la revision automatica (Codex) de la PR #3, comprobados y corregidos con un test cada uno: plan de salida de compras sin llenar, mandato en execute, purga en la validacion cruzada de salidas, banco de trayectorias vacio, retornos de baja en las trayectorias, decision 100 % efectivo"
 }

@@ -28,6 +28,14 @@ liquidez minimos, perdida diaria y drawdown. Los activos que el broker
 rechazaria (no fraccionables en Alpaca) se excluyen ya en el analisis; si
 alguno llega hasta aqui se descarta con una nota y su parte queda en efectivo.
 
+Mandato
+-------
+Si se pasa el mandato persistido (`runs/mandate.json`, el mismo del ciclo), se
+evalua ANTES de enviar nada, igual que en `DailyCycle.run`: si esta parado
+(drawdown maximo, meta cumplida o plazo vencido) solo se permiten ventas y
+reducciones; ninguna compra. La parada por drawdown no se puede saltar
+ejecutando un plan en lugar de un ciclo.
+
 Lo que exige dinero real
 ------------------------
 `AlpacaBroker(paper=False)` ya exige SWARMTRADER_ALLOW_LIVE=1. Ademas, aqui se
@@ -204,10 +212,23 @@ def _simulate(broker: BrokerAdapter, targets: dict, plan: OrderPlan) -> tuple[li
     return orders, budget
 
 
+def _only_reduce(targets: dict, positions: dict, equity: float) -> dict:
+    """Objetivos que no compran nada: cada peso limitado al actual."""
+    cur = {s: float(p.market_value) / equity for s, p in positions.items()} if equity > 0 else {}
+    return {s: min(float(targets.get(s, 0.0)), w) for s, w in cur.items()
+            if min(float(targets.get(s, 0.0)), w) > 0}
+
+
 def execute_plan(broker: BrokerAdapter, plan: OrderPlan, *, dry_run: bool = True,
                  confirm: str | None = None,
-                 ledger_path: str | Path | None = None) -> ExecutionReport:
-    """Ejecuta un plan: lleva la cartera a sus pesos con `rebalance_to`."""
+                 ledger_path: str | Path | None = None,
+                 mandate=None) -> ExecutionReport:
+    """Ejecuta un plan: lleva la cartera a sus pesos con `rebalance_to`.
+
+    mandate  `Mandate` persistido. En ejecucion real se arranca si no lo estaba y
+             se marca con el patrimonio actual; si no queda en RUNNING, solo se
+             reduce. En simulacion se consulta sin escribir.
+    """
     live = getattr(broker, "paper", True) is False
     if live and not dry_run and confirm != plan.plan_id:
         raise LiveConfirmationRequired(
@@ -231,6 +252,20 @@ def execute_plan(broker: BrokerAdapter, plan: OrderPlan, *, dry_run: bool = True
     missing = [s for s in plan.sells if s not in positions]
     if missing:
         notes.append(f"ya no estaban en cartera: {', '.join(missing)}")
+
+    if mandate is not None:
+        from ..mandate import STATUS_NOT_STARTED, STATUS_RUNNING
+        if dry_run:
+            status = mandate.state.status
+        else:
+            if mandate.state.started_utc is None:
+                mandate.start(nav=equity, cash=float(broker.cash))
+            status = mandate.mark(nav=equity, cash=float(broker.cash),
+                                  note=f"execute {plan.plan_id}")["status"]
+        if status not in (STATUS_RUNNING, STATUS_NOT_STARTED):
+            targets = _only_reduce(targets, positions, equity)
+            notes.append(f"mandato en estado {status}: no se abre ni se amplia ninguna "
+                         "posicion; solo ventas y reducciones")
 
     if dry_run:
         orders, budget = _simulate(broker, targets, plan)
@@ -261,16 +296,26 @@ def execute_plan(broker: BrokerAdapter, plan: OrderPlan, *, dry_run: bool = True
         for s in list(led.entries):
             if s not in now_pos:
                 del led.entries[s]
+        bought = {o.symbol for o in orders
+                  if o.side == "buy" and o.status not in ("rejected", "deferred")}
         for s, pl in plan.exit_plans.items():
-            # nueva posicion, o renovacion de una que la decision vuelve a elegir:
-            # en ambos casos se ancla el plan nuevo al precio de entrada
+            entry = LedgerEntry(
+                s, plan.entry_session, 0.0, 0.0, target_weight=plan.targets.get(s, 0.0),
+                note=f"plan {plan.plan_id}", horizon=pl.get("horizon"),
+                target_pct=pl.get("target_pct"), stop_pct=pl.get("stop_pct"),
+                trail_pct=pl.get("trail_pct"))
             if s in now_pos and (s not in led.entries or s not in plan.keep):
-                px = float(now_pos[s].avg_price)
-                led.entries[s] = LedgerEntry(
-                    s, plan.entry_session, px, px, target_weight=plan.targets.get(s, 0.0),
-                    note=f"plan {plan.plan_id}", horizon=pl.get("horizon"),
-                    target_pct=pl.get("target_pct"), stop_pct=pl.get("stop_pct"),
-                    trail_pct=pl.get("trail_pct"))
+                # nueva posicion, o renovacion de una que la decision vuelve a
+                # elegir: en ambos casos se ancla el plan nuevo al precio de entrada
+                entry.entry_price = entry.peak_price = float(now_pos[s].avg_price)
+                led.entries[s] = entry
+                led.pending.pop(s, None)
+            elif s not in now_pos and s in bought:
+                # orden aceptada pero aun sin ejecutar: el plan espera a la posicion
+                led.pending[s] = entry
+        if any(s in led.pending for s in bought):
+            notes.append("compras aceptadas aun sin ejecutar: su plan de salida queda "
+                         "pendiente y se asigna cuando aparezca la posicion")
         led.save()
 
     return ExecutionReport(plan.plan_id, False, live, equity, budget,

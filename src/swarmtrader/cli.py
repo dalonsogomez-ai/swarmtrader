@@ -478,16 +478,20 @@ def cmd_decide(args) -> int:
         Path(args.out).parent.mkdir(parents=True, exist_ok=True)
         Path(args.out).write_text(json.dumps(d.to_dict(), indent=2, ensure_ascii=False,
                                              default=str))
-    if args.plan and not d.weights.empty:
+    # Todo efectivo (con --allow-cash) es una decision valida: su plan vende lo
+    # que haya en cartera y no compra nada.
+    decided = not d.weights.empty or d.cash > 1e-9
+    if args.plan and decided:
         plan = build_order_plan(d, positions, dollar_volumes=dv.fillna(0.0).to_dict())
         plan.save(args.plan)
         print(f"\nplan de ordenes {plan.plan_id} -> {args.plan}")
-    return 0 if not d.weights.empty else 3
+    return 0 if decided else 3
 
 
 def cmd_execute(args) -> int:
     """Ejecuta un plan de ordenes (tras la apertura). Simulacion salvo --execute."""
     from .execution.plan import LiveConfirmationRequired, execute_plan, load_plan
+    from .mandate import Mandate, MandateConfig
     try:
         plan = load_plan(args.plan)
     except (FileNotFoundError, ValueError) as exc:
@@ -510,7 +514,8 @@ def cmd_execute(args) -> int:
           f"  {'ENVIO DE ORDENES' if args.execute else 'SIMULACION'}")
     try:
         rep = execute_plan(broker, plan, dry_run=not args.execute, confirm=args.confirm,
-                           ledger_path=Path(args.state_dir) / "positions.json")
+                           ledger_path=Path(args.state_dir) / "positions.json",
+                           mandate=Mandate(args.mandate_file, MandateConfig()))
     except LiveConfirmationRequired as exc:
         print(str(exc))
         return 4
@@ -935,6 +940,9 @@ def main(argv: list[str] | None = None) -> int:
                     help="cuenta REAL (exige SWARMTRADER_ALLOW_LIVE=1 y --confirm <plan_id>)")
     ex.add_argument("--confirm", default=None, help="identificador del plan que se confirma")
     ex.add_argument("--state-dir", default="runs")
+    ex.add_argument("--mandate-file", default="runs/mandate.json",
+                    help="mandato persistido (el mismo que usa `cycle`); si esta parado "
+                         "por drawdown solo se permiten ventas")
     ex.add_argument("--capital", type=float, default=100.0, help="solo broker=paper")
     ex.add_argument("--prices", default=None, help="JSON {simbolo: precio} para broker=paper")
     ex.set_defaults(func=cmd_execute)

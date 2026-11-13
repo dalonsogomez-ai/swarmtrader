@@ -1,5 +1,5 @@
 {
-  "created_utc": "2026-11-13T07:03:15+00:00",
+  "created_utc": "2026-11-13T10:28:56+00:00",
   "as_of": "2026-11-12",
   "entry_session": "2026-11-13",
   "entry_time_madrid": "2026-11-13T15:30:00+01:00",
@@ -31,6 +31,7 @@
     "KR": 0.014887,
     "ESLT": 0.013805
   },
+  "cash": 0.0,
   "positions": [
     {
       "symbol": "CHT",
@@ -55,7 +56,7 @@
       "p_up_h": 0.240667,
       "last_price": 58.82,
       "exit_horizon": 31,
-      "target_pct": null,
+      "target_pct": 0.038294,
       "stop_pct": null,
       "trail_pct": null,
       "catalysts": "a favor: liquidity, lowrisk, momentum"
@@ -209,7 +210,7 @@
       "p_up_h": 0.348667,
       "last_price": 110.879997,
       "exit_horizon": 15,
-      "target_pct": null,
+      "target_pct": 0.078762,
       "stop_pct": null,
       "trail_pct": null,
       "catalysts": "a favor: momentum"
@@ -306,10 +307,10 @@
       "exp_return_h": 0.017185,
       "p_up_h": 0.322333,
       "last_price": 47.029999,
-      "exit_horizon": 31,
-      "target_pct": null,
-      "stop_pct": null,
-      "trail_pct": null,
+      "exit_horizon": 5,
+      "target_pct": 0.030125,
+      "stop_pct": -0.043544,
+      "trail_pct": 0.043544,
       "catalysts": "a favor: liquidity, lowrisk, momentum"
     },
     {
@@ -334,10 +335,10 @@
       "exp_return_h": 0.017185,
       "p_up_h": 0.319333,
       "last_price": 69.809998,
-      "exit_horizon": 15,
-      "target_pct": null,
-      "stop_pct": null,
-      "trail_pct": null,
+      "exit_horizon": 5,
+      "target_pct": 0.04315,
+      "stop_pct": -0.041365,
+      "trail_pct": 0.061402,
       "catalysts": "a favor: liquidity, momentum, seasonal"
     },
     {
@@ -535,6 +536,7 @@
       "n_positions": 18,
       "top_weight": 0.226637,
       "effective_positions": 9.360237,
+      "cash": 0.0,
       "gap": 0.0,
       "map_bins": 10,
       "map_dates": 80,
@@ -548,6 +550,7 @@
       "n_positions": 18,
       "top_weight": 0.228201,
       "effective_positions": 9.177044,
+      "cash": 0.0,
       "gap": 0.0,
       "map_bins": 10,
       "map_dates": 80,
@@ -561,6 +564,7 @@
       "n_positions": 21,
       "top_weight": 0.211341,
       "effective_positions": 10.55413,
+      "cash": 0.0,
       "gap": 0.0,
       "map_bins": 10,
       "map_dates": 80,
@@ -574,6 +578,7 @@
       "n_positions": 21,
       "top_weight": 0.234614,
       "effective_positions": 10.014235,
+      "cash": 0.0,
       "gap": 0.0,
       "map_bins": 10,
       "map_dates": 80,
@@ -587,6 +592,7 @@
       "n_positions": 22,
       "top_weight": 0.266029,
       "effective_positions": 9.210241,
+      "cash": 0.0,
       "gap": 0.0,
       "map_bins": 10,
       "map_dates": 80,
@@ -600,6 +606,7 @@
       "n_positions": 23,
       "top_weight": 0.237896,
       "effective_positions": 10.230482,
+      "cash": 0.0,
       "gap": 0.0,
       "map_bins": 10,
       "map_dates": 79,
@@ -645,33 +652,33 @@
     "TXNM": {
       "symbol": "TXNM",
       "horizon": 31,
-      "target_pct": null,
+      "target_pct": 0.0382944367289633,
       "stop_pct": null,
       "trail_pct": null,
-      "target_price": null,
+      "target_price": 61.072478451535304,
       "stop_price": 0.0,
       "entry_ref_price": 58.81999969482422,
       "daily_vol": 0.0033747299460405666,
-      "growth_per_session": 3.338938107559092e-05,
-      "mean_log_return": 0.0010350708133433184,
-      "mean_return": 0.0012866374621091955,
+      "growth_per_session": 5.322856291087049e-05,
+      "mean_log_return": 0.0016263455111787369,
+      "mean_return": 0.0022589200380736347,
       "median_hold": 31.0,
-      "p_target": 0.0,
+      "p_target": 0.049666666666666665,
       "p_stop": 0.0,
       "p_trail": 0.0,
-      "p_vertical": 1.0,
-      "p_win": 0.537,
+      "p_vertical": 0.9503333333333334,
+      "p_win": 0.5376666666666666,
       "n_paths": 6000,
-      "source": "solo plazo",
+      "source": "rejilla completa",
       "crossfit": {
-        "full": 2.7e-05,
-        "simple": 2.1e-05,
-        "p_mejora": 0.8875,
+        "full": -3.4e-05,
+        "simple": -7.4e-05,
+        "p_mejora": 0.96,
         "evaluada": true
       },
       "policy_z": {
         "T": 31,
-        "target": Infinity,
+        "target": 2.0,
         "stop": Infinity,
         "trail": Infinity
       }
@@ -698,9 +705,9 @@
       "n_paths": 6000,
       "source": "solo plazo",
       "crossfit": {
-        "full": -0.000127,
+        "full": -8.6e-05,
         "simple": -0.000133,
-        "p_mejora": 0.8925,
+        "p_mejora": 0.935,
         "evaluada": true
       },
       "policy_z": {
@@ -970,9 +977,9 @@
       "n_paths": 6000,
       "source": "solo plazo",
       "crossfit": {
-        "full": -0.000369,
+        "full": -0.000275,
         "simple": -0.000504,
-        "p_mejora": 0.7725,
+        "p_mejora": 0.8125,
         "evaluada": true
       },
       "policy_z": {
@@ -1004,9 +1011,9 @@
       "n_paths": 6000,
       "source": "solo plazo",
       "crossfit": {
-        "full": 0.000311,
+        "full": -1.4e-05,
         "simple": -5.3e-05,
-        "p_mejora": 0.81,
+        "p_mejora": 0.9375,
         "evaluada": true
       },
       "policy_z": {
@@ -1019,33 +1026,33 @@
     "BJ": {
       "symbol": "BJ",
       "horizon": 15,
-      "target_pct": null,
+      "target_pct": 0.07876189930204436,
       "stop_pct": null,
       "trail_pct": null,
-      "target_price": null,
+      "target_price": 119.61311643170264,
       "stop_price": 0.0,
       "entry_ref_price": 110.87999725341797,
       "daily_vol": 0.01957508907651528,
-      "growth_per_session": 0.0003377119879556132,
-      "mean_log_return": 0.005065679819334198,
-      "mean_return": 0.008614684792555193,
+      "growth_per_session": 0.00042612800461208243,
+      "mean_log_return": 0.0057463361421939314,
+      "mean_return": 0.008504022662148409,
       "median_hold": 15.0,
-      "p_target": 0.0,
+      "p_target": 0.24566666666666667,
       "p_stop": 0.0,
       "p_trail": 0.0,
-      "p_vertical": 1.0,
-      "p_win": 0.5501666666666667,
+      "p_vertical": 0.7543333333333333,
+      "p_win": 0.5626666666666666,
       "n_paths": 6000,
-      "source": "solo plazo",
+      "source": "rejilla completa",
       "crossfit": {
-        "full": -3.1e-05,
+        "full": -7.3e-05,
         "simple": -0.000252,
-        "p_mejora": 0.7,
+        "p_mejora": 1.0,
         "evaluada": true
       },
       "policy_z": {
         "T": 15,
-        "target": Infinity,
+        "target": 1.0,
         "stop": Infinity,
         "trail": Infinity
       }
@@ -1072,9 +1079,9 @@
       "n_paths": 6000,
       "source": "solo plazo",
       "crossfit": {
-        "full": 0.000362,
+        "full": 0.000328,
         "simple": -3.2e-05,
-        "p_mejora": 0.805,
+        "p_mejora": 0.78,
         "evaluada": true
       },
       "policy_z": {
@@ -1106,9 +1113,9 @@
       "n_paths": 6000,
       "source": "solo plazo",
       "crossfit": {
-        "full": 0.000534,
+        "full": 0.000265,
         "simple": -0.000157,
-        "p_mejora": 0.8525,
+        "p_mejora": 0.9225,
         "evaluada": true
       },
       "policy_z": {
@@ -1208,9 +1215,9 @@
       "n_paths": 6000,
       "source": "solo plazo",
       "crossfit": {
-        "full": 0.000411,
+        "full": 0.0001,
         "simple": -2.5e-05,
-        "p_mejora": 0.7875,
+        "p_mejora": 0.7925,
         "evaluada": true
       },
       "policy_z": {
@@ -1242,9 +1249,9 @@
       "n_paths": 6000,
       "source": "solo plazo",
       "crossfit": {
-        "full": -8e-06,
+        "full": 4.2e-05,
         "simple": -2e-05,
-        "p_mejora": 0.6575,
+        "p_mejora": 0.8775,
         "evaluada": true
       },
       "policy_z": {
@@ -1256,36 +1263,36 @@
     },
     "OHI": {
       "symbol": "OHI",
-      "horizon": 31,
-      "target_pct": null,
-      "stop_pct": null,
-      "trail_pct": null,
-      "target_price": null,
-      "stop_price": 0.0,
+      "horizon": 5,
+      "target_pct": 0.030125280992531707,
+      "stop_pct": -0.04354414166015288,
+      "trail_pct": 0.04354414166015288,
+      "target_price": 48.446790707601615,
+      "stop_price": 44.982117850174355,
       "entry_ref_price": 47.029998779296875,
       "daily_vol": 0.013273490419436762,
-      "growth_per_session": 0.00016074658825430927,
-      "mean_log_return": 0.004983144235883587,
-      "mean_return": 0.00847365410784672,
-      "median_hold": 31.0,
-      "p_target": 0.0,
-      "p_stop": 0.0,
-      "p_trail": 0.0,
-      "p_vertical": 1.0,
-      "p_win": 0.5395,
+      "growth_per_session": 0.0002159751182545692,
+      "mean_log_return": 0.0009673525546622155,
+      "mean_return": 0.001425849804263224,
+      "median_hold": 5.0,
+      "p_target": 0.212,
+      "p_stop": 0.08116666666666666,
+      "p_trail": 0.023166666666666665,
+      "p_vertical": 0.6836666666666666,
+      "p_win": 0.5341666666666667,
       "n_paths": 6000,
-      "source": "solo plazo",
+      "source": "rejilla completa",
       "crossfit": {
-        "full": -4.3e-05,
+        "full": -0.00012,
         "simple": -0.000233,
-        "p_mejora": 0.7725,
+        "p_mejora": 0.9925,
         "evaluada": true
       },
       "policy_z": {
-        "T": 31,
-        "target": Infinity,
-        "stop": Infinity,
-        "trail": Infinity
+        "T": 5,
+        "target": 1.0,
+        "stop": 1.5,
+        "trail": 1.5
       }
     },
     "SPOK": {
@@ -1310,9 +1317,9 @@
       "n_paths": 6000,
       "source": "solo plazo",
       "crossfit": {
-        "full": 0.000476,
+        "full": 0.00029,
         "simple": -6.6e-05,
-        "p_mejora": 0.9025,
+        "p_mejora": 0.8325,
         "evaluada": true
       },
       "policy_z": {
@@ -1324,36 +1331,36 @@
     },
     "KR": {
       "symbol": "KR",
-      "horizon": 15,
-      "target_pct": null,
-      "stop_pct": null,
-      "trail_pct": null,
-      "target_price": null,
-      "stop_price": 0.0,
+      "horizon": 5,
+      "target_pct": 0.04315009169025556,
+      "stop_pct": -0.041365180364733356,
+      "trail_pct": 0.06140162247664835,
+      "target_price": 72.8223053541436,
+      "stop_price": 66.92229441832093,
       "entry_ref_price": 69.80999755859375,
       "daily_vol": 0.01889256941931473,
-      "growth_per_session": 0.0003136953233858511,
-      "mean_log_return": 0.004705429850787766,
-      "mean_return": 0.007691453477783994,
-      "median_hold": 15.0,
-      "p_target": 0.0,
-      "p_stop": 0.0,
-      "p_trail": 0.0,
-      "p_vertical": 1.0,
-      "p_win": 0.5468333333333333,
+      "growth_per_session": 0.0004098586747838312,
+      "mean_log_return": 0.0017677887741217946,
+      "mean_return": 0.0026331643557133966,
+      "median_hold": 5.0,
+      "p_target": 0.20783333333333334,
+      "p_stop": 0.1755,
+      "p_trail": 0.006166666666666667,
+      "p_vertical": 0.6105,
+      "p_win": 0.5353333333333333,
       "n_paths": 6000,
-      "source": "solo plazo",
+      "source": "rejilla completa",
       "crossfit": {
-        "full": 0.000206,
-        "simple": -4e-06,
-        "p_mejora": 0.6675,
+        "full": -9.8e-05,
+        "simple": -0.000253,
+        "p_mejora": 0.9925,
         "evaluada": true
       },
       "policy_z": {
-        "T": 15,
-        "target": Infinity,
-        "stop": Infinity,
-        "trail": Infinity
+        "T": 5,
+        "target": 1.0,
+        "stop": 1.0,
+        "trail": 1.5
       }
     },
     "ESLT": {
@@ -1378,9 +1385,9 @@
       "n_paths": 6000,
       "source": "solo plazo",
       "crossfit": {
-        "full": 0.000718,
+        "full": 0.000713,
         "simple": 0.000229,
-        "p_mejora": 0.8275,
+        "p_mejora": 0.815,
         "evaluada": true
       },
       "policy_z": {
@@ -1494,36 +1501,36 @@
     },
     "PG": {
       "symbol": "PG",
-      "horizon": 31,
-      "target_pct": null,
-      "stop_pct": null,
-      "trail_pct": null,
-      "target_price": null,
-      "stop_price": 0.0,
+      "horizon": 5,
+      "target_pct": 0.029899234180069414,
+      "stop_pct": -0.029031222849556736,
+      "trail_pct": 0.043229233676290446,
+      "target_price": 173.05396706207586,
+      "stop_price": 163.15188243932437,
       "entry_ref_price": 168.02999877929688,
       "daily_vol": 0.01317534478338851,
-      "growth_per_session": 0.0001739883394812271,
-      "mean_log_return": 0.00539363852391804,
-      "mean_return": 0.012762819682823112,
-      "median_hold": 31.0,
-      "p_target": 0.0,
-      "p_stop": 0.0,
-      "p_trail": 0.0,
-      "p_vertical": 1.0,
-      "p_win": 0.5358333333333334,
+      "growth_per_session": 0.00025266691603738063,
+      "mean_log_return": 0.0010882364073729984,
+      "mean_return": 0.001498909472311442,
+      "median_hold": 5.0,
+      "p_target": 0.20416666666666666,
+      "p_stop": 0.1735,
+      "p_trail": 0.0035,
+      "p_vertical": 0.6188333333333333,
+      "p_win": 0.5313333333333333,
       "n_paths": 6000,
-      "source": "solo plazo",
+      "source": "rejilla completa",
       "crossfit": {
-        "full": -0.000138,
-        "simple": -0.000112,
-        "p_mejora": 0.15,
+        "full": 1.3e-05,
+        "simple": -0.000247,
+        "p_mejora": 0.96,
         "evaluada": true
       },
       "policy_z": {
-        "T": 31,
-        "target": Infinity,
-        "stop": Infinity,
-        "trail": Infinity
+        "T": 5,
+        "target": 1.0,
+        "stop": 1.0,
+        "trail": 1.5
       }
     },
     "ATO": {
@@ -1582,9 +1589,9 @@
       "n_paths": 6000,
       "source": "solo plazo",
       "crossfit": {
-        "full": -8.5e-05,
-        "simple": -9.7e-05,
-        "p_mejora": 0.78,
+        "full": -0.000171,
+        "simple": -0.000198,
+        "p_mejora": 0.895,
         "evaluada": true
       },
       "policy_z": {

@@ -52,8 +52,8 @@ PLAN DE SALIDA POR ACCION (comprobado al cierre; venta en la apertura siguiente)
              objetivo +3.0% (50.57)   stop —   stop movil — desde maximo
              casos: 6000  sale por objetivo 24%, stop 0%, movil 0%, plazo 76%; mediana 15 sesiones; rejilla completa
    TXNM      plazo max 31 sesiones (venta como tarde en la apertura del 2026-12-30)
-             objetivo —   stop —   stop movil — desde maximo
-             casos: 6000  sale por objetivo 0%, stop 0%, movil 0%, plazo 100%; mediana 31 sesiones; solo plazo
+             objetivo +3.8% (61.07)   stop —   stop movil — desde maximo
+             casos: 6000  sale por objetivo 5%, stop 0%, movil 0%, plazo 95%; mediana 31 sesiones; rejilla completa
    QNBC      plazo max 31 sesiones (venta como tarde en la apertura del 2026-12-30)
              objetivo —   stop —   stop movil — desde maximo
              casos: 6000  sale por objetivo 0%, stop 0%, movil 0%, plazo 100%; mediana 31 sesiones; solo plazo
@@ -85,8 +85,8 @@ PLAN DE SALIDA POR ACCION (comprobado al cierre; venta en la apertura siguiente)
              objetivo —   stop —   stop movil — desde maximo
              casos: 6000  sale por objetivo 0%, stop 0%, movil 0%, plazo 100%; mediana 5 sesiones; solo plazo
    BJ        plazo max 15 sesiones (venta como tarde en la apertura del 2026-12-07)
-             objetivo —   stop —   stop movil — desde maximo
-             casos: 6000  sale por objetivo 0%, stop 0%, movil 0%, plazo 100%; mediana 15 sesiones; solo plazo
+             objetivo +7.9% (119.61)   stop —   stop movil — desde maximo
+             casos: 6000  sale por objetivo 25%, stop 0%, movil 0%, plazo 75%; mediana 15 sesiones; rejilla completa
    SENEA     plazo max  5 sesiones (venta como tarde en la apertura del 2026-11-20)
              objetivo —   stop —   stop movil — desde maximo
              casos: 6000  sale por objetivo 0%, stop 0%, movil 0%, plazo 100%; mediana 5 sesiones; solo plazo
@@ -105,15 +105,15 @@ PLAN DE SALIDA POR ACCION (comprobado al cierre; venta en la apertura siguiente)
    EDU       plazo max  5 sesiones (venta como tarde en la apertura del 2026-11-20)
              objetivo —   stop —   stop movil — desde maximo
              casos: 6000  sale por objetivo 0%, stop 0%, movil 0%, plazo 100%; mediana 5 sesiones; solo plazo
-   OHI       plazo max 31 sesiones (venta como tarde en la apertura del 2026-12-30)
-             objetivo —   stop —   stop movil — desde maximo
-             casos: 6000  sale por objetivo 0%, stop 0%, movil 0%, plazo 100%; mediana 31 sesiones; solo plazo
+   OHI       plazo max  5 sesiones (venta como tarde en la apertura del 2026-11-20)
+             objetivo +3.0% (48.45)   stop -4.4% (44.98)   stop movil -4.4% desde maximo
+             casos: 6000  sale por objetivo 21%, stop 8%, movil 2%, plazo 68%; mediana 5 sesiones; rejilla completa
    SPOK      plazo max  5 sesiones (venta como tarde en la apertura del 2026-11-20)
              objetivo —   stop —   stop movil — desde maximo
              casos: 6000  sale por objetivo 0%, stop 0%, movil 0%, plazo 100%; mediana 5 sesiones; solo plazo
-   KR        plazo max 15 sesiones (venta como tarde en la apertura del 2026-12-07)
-             objetivo —   stop —   stop movil — desde maximo
-             casos: 6000  sale por objetivo 0%, stop 0%, movil 0%, plazo 100%; mediana 15 sesiones; solo plazo
+   KR        plazo max  5 sesiones (venta como tarde en la apertura del 2026-11-20)
+             objetivo +4.3% (72.82)   stop -4.1% (66.92)   stop movil -6.1% desde maximo
+             casos: 6000  sale por objetivo 21%, stop 18%, movil 1%, plazo 61%; mediana 5 sesiones; rejilla completa
    ESLT      plazo max  5 sesiones (venta como tarde en la apertura del 2026-11-20)
              objetivo —   stop —   stop movil — desde maximo
              casos: 6000  sale por objetivo 0%, stop 0%, movil 0%, plazo 100%; mediana 5 sesiones; solo plazo
@@ -127,4 +127,4 @@ ALTERNATIVAS (equivalente cierto por plazo, mismos escenarios)
   - 448 simbolos sin historia completa en 1260 sesiones: no asignables
   - el minimo de orden ha eliminado posiciones pequenas (coste en utilidad: 1.37e-05)
 
-plan de ordenes e4546999a495 -> /home/claude/work/runs_v15/plan.json
+plan de ordenes dab3c3794455 -> runs/plan.json

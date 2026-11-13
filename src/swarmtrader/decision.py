@@ -103,6 +103,9 @@ class DecisionResult:
     verdict: dict
     swarm: SwarmRankResult | None = None
     notes: list = field(default_factory=list)
+    # fraccion en efectivo de la cartera elegida (solo > 0 con allow_cash). Una
+    # decision valida puede ser 100 % efectivo: weights vacio y cash = 1.
+    cash: float = 0.0
     created_utc: str = field(default_factory=lambda: datetime.now(timezone.utc)
                              .isoformat(timespec="seconds"))
 
@@ -116,6 +119,7 @@ class DecisionResult:
             "entry_rationale": ENTRY_RATIONALE, "mode": self.mode,
             "horizon_sessions": self.horizon,
             "weights": {k: round(float(v), 6) for k, v in self.weights.items()},
+            "cash": round(float(self.cash), 6),
             "positions": _clean(self.positions), "top": _clean(self.top),
             "horizons": _clean(self.horizons),
             "exit_plans": {k: v.to_dict() for k, v in self.exit_plans.items()},
@@ -206,7 +210,9 @@ def decide(md: MarketData, swarm_cfg: SwarmRankConfig = SwarmRankConfig(),
         a = allocate(oos_h, scores, md.prices, h, cfg.conviction, held=held, exclude=exclude,
                      top_k=swarm_cfg.rank.top_k, success_threshold=cfg.success_threshold,
                      costs=costs, bank=bank)
-        if a.weights.empty:
+        # Cartera vacia = fallo de la asignacion (`info` vacio), salvo que el
+        # optimo valido sea todo efectivo, que con allow_cash es una decision.
+        if a.weights.empty and not (cfg.conviction.allow_cash and a.info):
             notes.extend(f"plazo {h}: {n}" for n in a.notes)
             continue
         allocs[h], banks[h] = a, bank
@@ -215,8 +221,10 @@ def decide(md: MarketData, swarm_cfg: SwarmRankConfig = SwarmRankConfig(),
         w = a.weights
         rows.append({"horizon": h, "growth_per_session": float(np.log1p(a.certainty_equivalent) / h),
                      "ce": a.certainty_equivalent, "n_positions": int(len(w)),
-                     "top_weight": float(w.max()),
-                     "effective_positions": float(w.sum() ** 2 / (w ** 2).sum()),
+                     "top_weight": float(w.max()) if len(w) else 0.0,
+                     "effective_positions": (float(w.sum() ** 2 / (w ** 2).sum())
+                                             if len(w) else 0.0),
+                     "cash": float(a.cash),
                      "gap": a.gap, "map_bins": a.info.get("n_map_bins", 0),
                      "map_dates": a.info.get("n_map_dates", 0),
                      # fraccion del efecto de la puntuacion que sobrevive al
@@ -257,17 +265,23 @@ def decide(md: MarketData, swarm_cfg: SwarmRankConfig = SwarmRankConfig(),
     top.insert(0, "rank", np.arange(1, len(top) + 1))
 
     # ---- 5. planes de salida ----
-    pbank = PathBank(md.prices, res.oos, cfg.exits)
+    pbank = PathBank(md.prices, res.oos, cfg.exits, listings=listings)
     lr = np.log(md.prices).diff().tail(cfg.vol_lookback)
     sig = lr.std()
     plans = {}
-    for s in list(dict.fromkeys(list(weights.index) + list(top["symbol"]))):
-        if not np.isfinite(sig.get(s, np.nan)) or s not in scores.index:
-            continue
-        plans[s] = plan_exit(pbank, s, float(uni.loc[s, "score_pct"]), float(sig[s]),
-                             float(last_px.get(s)), float(costs.get(s, 0.0)))
     if pbank.n == 0:
-        notes.append("sin trayectorias historicas cerradas: planes de salida no estimables")
+        # Puede pasar con historia corta: hay predicciones cerradas a 21 sesiones
+        # (las que usa la asignacion) pero ninguna a `max_horizon`. Sin casos no
+        # hay plan propio; el ciclo aplicara las barreras globales.
+        notes.append("sin trayectorias historicas cerradas a "
+                     f"{cfg.exits.max_horizon} sesiones: planes de salida no estimables; "
+                     "el ciclo usara las barreras globales")
+    else:
+        for s in list(dict.fromkeys(list(weights.index) + list(top["symbol"]))):
+            if not np.isfinite(sig.get(s, np.nan)) or s not in scores.index:
+                continue
+            plans[s] = plan_exit(pbank, s, float(uni.loc[s, "score_pct"]), float(sig[s]),
+                                 float(last_px.get(s)), float(costs.get(s, 0.0)))
 
     # ---- tabla de posiciones ----
     pos = []
@@ -295,7 +309,7 @@ def decide(md: MarketData, swarm_cfg: SwarmRankConfig = SwarmRankConfig(),
         as_of=str(signal), entry_session=str(entry), entry_time_madrid=entry_dt.isoformat(),
         mode="conviction", horizon=h_star, weights=weights, positions=positions, top=top,
         horizons=htab, exit_plans=plans, alternatives=alloc.alternatives, verdict=verdict,
-        swarm=res, notes=notes,
+        swarm=res, notes=notes, cash=float(alloc.cash),
     )
 
 
@@ -330,8 +344,15 @@ def format_decision_report(d: DecisionResult) -> str:
                      f"   {int(r['n_positions'])} posiciones   mayor peso "
                      f"{r['top_weight']:.0%}   senal retenida {r['signal_kept']:.0%}{mark}")
         L.append("")
+    if d.positions.empty and d.cash > 1e-9:
+        L.append(f"CARTERA: 100% en efectivo (el optimo con efectivo permitido no compra "
+                 f"nada; plazo {d.horizon} sesiones). El plan vende lo que haya en cartera.")
+        L.append("")
     if not d.positions.empty:
-        L.append(f"CARTERA (100% del capital disponible; plazo de cartera {d.horizon} sesiones)")
+        inv = 1.0 - float(d.cash)
+        L.append(f"CARTERA ({inv:.0%} del capital disponible"
+                 + (f", {d.cash:.0%} en efectivo" if d.cash > 1e-9 else "")
+                 + f"; plazo de cartera {d.horizon} sesiones)")
         for _, r in d.positions.iterrows():
             L.append(f"   {r['symbol']:<9} {r['weight']:6.1%}   valoracion {r['valoracion']:.3f}"
                      f"   ret.esperado {_pct(r['exp_return_h'])}   P(>+5%) {r['p_up_h']:.0%}")

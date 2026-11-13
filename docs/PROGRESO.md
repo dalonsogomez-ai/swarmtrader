@@ -28,6 +28,14 @@ Medido:
   senal retenida 0-10 %; 23 posiciones, mayor peso 23,8 %, +1,7 % esperado a
   31 sesiones; 448 acciones excluidas por historia < 1.260 sesiones.
 
+Revision de la PR #3 (Codex), seis defectos reales corregidos con test:
+plan de salida de compras aun sin llenar (pendientes en el libro), mandato
+respetado en `execute`, purga de solapes en la validacion cruzada de salidas,
+banco de trayectorias vacio, retornos de baja en las trayectorias con datos
+PIT y decision 100 % efectivo con `--allow-cash`. Suite: 304 pasan. Repetida
+la prueba real: cartera identica; la rejilla de salidas se adopta en 6 de 23
+posiciones (2 antes de la purga).
+
 Sigue:
 1. Validar decide + execute contra Alpaca paper con credenciales.
 2. Datos point-in-time y repetir las mediciones.

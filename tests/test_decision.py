@@ -316,3 +316,133 @@ def test_cli_decide_then_execute_end_to_end(tmp_path, capsys):
                "--state-dir", str(tmp_path)])
     out = capsys.readouterr().out
     assert rc == 0 and "SIMULACION" in out and '"simulada"' in out
+
+
+# ------------------------------------------- correcciones tras la revision (v1.5)
+def test_exit_plan_survives_a_buy_that_fills_after_execution(tmp_path):
+    """Compra aceptada pero aun sin llenar: el plan queda pendiente y el ciclo lo
+    asigna cuando aparece la posicion (antes se perdia y se usaban barreras globales)."""
+    from swarmtrader.cycle import PositionLedger
+    b = _broker(1000.0)
+    real_positions = b.positions
+    calls = {"n": 0}
+
+    def lagging_positions():                      # 2a lectura: el broker aun no refleja la compra
+        calls["n"] += 1
+        return {} if calls["n"] >= 2 else real_positions()
+    b.positions = lagging_positions
+    plan = build_order_plan(_fake_decision({"AAA": 1.0}), {})
+    rep = execute_plan(b, plan, dry_run=False, ledger_path=tmp_path / "pos.json")
+    led = PositionLedger(tmp_path / "pos.json")
+    assert "AAA" not in led.entries and "AAA" in led.pending
+    assert any("pendiente" in n for n in rep.notes)
+    # la compra se llena; el ciclo sincroniza con el broker
+    b.positions = real_positions
+    led.sync(b.positions(), pd.Series({"AAA": 10.0}), "2026-11-13")
+    e = led.entries["AAA"]
+    assert e.horizon == 10 and e.target_pct == pytest.approx(0.12) and e.stop_pct == pytest.approx(-0.08)
+    assert e.entry_price == pytest.approx(10.0) and not led.pending
+    led.save()
+    assert "AAA" in PositionLedger(tmp_path / "pos.json").entries        # formato compatible
+
+
+def test_stale_pending_plans_are_dropped():
+    from swarmtrader.cycle import LedgerEntry, PositionLedger
+    led = PositionLedger("/nonexistent/pos.json")
+    led.pending["ZZZ"] = LedgerEntry("ZZZ", "2026-11-01", 0.0, 0.0, horizon=5)
+    led.sync({}, pd.Series(dtype=float), "2026-11-13")
+    assert not led.pending
+
+
+def test_halted_mandate_blocks_buys_in_execute(tmp_path):
+    """Con el mandato parado por drawdown, `execute` solo vende o reduce."""
+    from swarmtrader.mandate import STATUS_HALTED_DRAWDOWN, Mandate, MandateConfig
+    b = _broker(1000.0, holdings={"OLD": 500.0})
+    m = Mandate(tmp_path / "mandate.json", MandateConfig())
+    m.start(nav=2000.0, cash=500.0)                 # pico de 2000; ahora vale ~1000: -50 %
+    plan = build_order_plan(_fake_decision({"AAA": 0.6, "OLD": 0.4}), b.positions())
+    rep = execute_plan(b, plan, dry_run=False, mandate=m)
+    assert Mandate(tmp_path / "mandate.json", MandateConfig()).state.status == STATUS_HALTED_DRAWDOWN
+    assert all(o["side"] == "sell" for o in rep.orders)
+    assert "AAA" not in b.positions()
+    assert any("mandato" in n for n in rep.notes)
+
+
+def test_crossfit_folds_purge_overlapping_outcome_windows():
+    dp = np.arange(0, 21 * 20, 21)                  # entradas cada 21 sesiones
+    di = dp.astype(np.int64)
+    K = 31                                          # trayectorias de 31 sesiones
+    from swarmtrader.exits import _crossfit_folds
+    for fit, ev in _crossfit_folds(di, dp, K):
+        for f in dp[fit]:
+            assert np.all(np.abs(dp[ev] - f) > K)   # ninguna ventana compartida
+    # sin purga, la ultima fecha de la primera mitad se solaparia con la siguiente
+    (fit0, ev0), _ = _crossfit_folds(di, dp, K)
+    assert (dp <= np.quantile(di, 0.5)).sum() > fit0.sum()
+
+
+def test_path_bank_applies_delisting_return():
+    """Con listings point-in-time, la trayectoria que cruza la baja termina en el
+    valor terminal en vez de congelarse en el ultimo precio."""
+    from swarmtrader.exits import PathBank
+    idx = pd.bdate_range("2024-01-01", periods=200)
+    rng = np.random.default_rng(3)
+    px = pd.DataFrame(10 * np.exp(np.cumsum(rng.normal(0, 0.02, (200, 2)), axis=0)),
+                      index=idx, columns=["LIVE", "DEAD"])
+    px.loc[idx[120]:, "DEAD"] = np.nan                       # deja de cotizar
+    oos = pd.DataFrame({"date": [idx[100]] * 2, "symbol": ["LIVE", "DEAD"],
+                        "score": [0.1, 0.2], "fwd": [0.0, 0.0]})
+    cfg = ExitConfig()                              # max_horizon = 31
+    listings = pd.DataFrame({"reason": ["active", "bankrupt"], "delist_return": [0.0, -0.9]},
+                            index=["LIVE", "DEAD"])
+    frozen = PathBank(px, oos, cfg)
+    pit = PathBank(px, oos, cfg, listings=listings)
+    j = list(oos["symbol"]).index("DEAD")
+    assert frozen.n == pit.n == 2
+    # el terminal (-90 %) aparece como una caida enorme frente al camino congelado
+    assert pit.z[j, -1] < frozen.z[j, -1] - 10
+    assert np.allclose(pit.z[1 - j], frozen.z[1 - j])        # la viva no cambia
+
+
+def test_all_cash_decision_is_valid_and_its_plan_sells_holdings(monkeypatch):
+    """Con allow_cash, 100 % efectivo es una decision: el plan vende lo que haya."""
+    import swarmtrader.decision as dec
+    from swarmtrader.decision import DecisionConfig, decide
+    from swarmtrader.portfolio.conviction import ConvictionConfig, ConvictionResult
+    from swarmtrader.rank import RankConfig
+    from swarmtrader.swarm_rank import SwarmRankConfig
+
+    def all_cash(*a, **k):
+        return ConvictionResult(pd.Series(dtype=float), 1.0, pd.DataFrame(), 0.0, 0.0,
+                                {"optimo": 0.0}, {"risk_aversion": 1.0, "n_map_bins": 0,
+                                                  "n_map_dates": 0, "shrinkage": [0.0],
+                                                  "log_wealth_se": 0.0}, [])
+    monkeypatch.setattr(dec, "allocate", all_cash)
+    md = load_synthetic(n_symbols=20, n_days=600, signal_strength=0.0, seed=5)
+    scfg = SwarmRankConfig(rank=RankConfig(oos_months=12), allow_deep=False, spa_boot=100)
+    cfg = DecisionConfig(conviction=ConvictionConfig(allow_cash=True, n_scenarios=200,
+                                                     market_level="history"))
+    d = decide(md, scfg, cfg)
+    assert d.weights.empty and d.cash == pytest.approx(1.0)
+    assert "efectivo" in dec.format_decision_report(d)
+    b = _broker(1000.0, holdings={"OLD": 400.0})
+    plan = build_order_plan(d, b.positions())
+    assert plan.targets == {} and plan.sells == ["OLD"]
+    execute_plan(b, plan, dry_run=False)
+    assert b.positions() == {}
+
+
+def test_decide_without_closed_exit_paths_does_not_crash():
+    """Predicciones cerradas a 21 sesiones pero ninguna a `max_horizon`: no hay plan
+    de salida propio, pero la decision se produce."""
+    from swarmtrader.decision import DecisionConfig, decide
+    from swarmtrader.portfolio.conviction import ConvictionConfig
+    from swarmtrader.rank import RankConfig
+    from swarmtrader.swarm_rank import SwarmRankConfig
+    md = load_synthetic(n_symbols=20, n_days=600, signal_strength=0.0, seed=6)
+    scfg = SwarmRankConfig(rank=RankConfig(oos_months=12), allow_deep=False, spa_boot=100)
+    cfg = DecisionConfig(horizons=(5, 10), exits=ExitConfig(verticals=(3, 5000)),
+                         conviction=ConvictionConfig(n_scenarios=200, market_level="history"))
+    d = decide(md, scfg, cfg)
+    assert not d.weights.empty and d.exit_plans == {}
+    assert any("planes de salida no estimables" in n for n in d.notes)

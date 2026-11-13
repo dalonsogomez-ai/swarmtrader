@@ -104,17 +104,28 @@ class PositionLedger:
     stop movil depende de ambos.
     """
 
+    # Clave reservada del fichero: planes de salida de compras ya enviadas que el
+    # broker aun no ha ejecutado (orden de mercado fuera de horario, o que no se
+    # lleno antes de leer las posiciones). Se asignan al aparecer la posicion.
+    PENDING_KEY = "__pending__"
+    PENDING_MAX_DAYS = 7
+
     def __init__(self, path: str | Path):
         self.path = Path(path)
         self.entries: dict[str, LedgerEntry] = {}
+        self.pending: dict[str, LedgerEntry] = {}
         if self.path.exists():
             raw = json.loads(self.path.read_text())
+            pend = raw.pop(self.PENDING_KEY, {}) or {}
             self.entries = {k: LedgerEntry(**v) for k, v in raw.items()}
+            self.pending = {k: LedgerEntry(**v) for k, v in pend.items()}
 
     def save(self) -> None:
         self.path.parent.mkdir(parents=True, exist_ok=True)
-        self.path.write_text(json.dumps({k: asdict(v) for k, v in self.entries.items()},
-                                        indent=2, ensure_ascii=False))
+        out = {k: asdict(v) for k, v in self.entries.items()}
+        if self.pending:
+            out[self.PENDING_KEY] = {k: asdict(v) for k, v in self.pending.items()}
+        self.path.write_text(json.dumps(out, indent=2, ensure_ascii=False))
 
     def sync(self, positions: dict, prices: pd.Series, as_of: str) -> None:
         """Alinea el libro con la verdad del broker.
@@ -126,7 +137,14 @@ class PositionLedger:
         """
         for sym, pos in positions.items():
             px = float(prices.get(sym, pos.avg_price))
-            if sym not in self.entries:
+            if sym not in self.entries and sym in self.pending:
+                # compra enviada por `execute` que se ha llenado despues: su plan
+                # de salida propio, anclado al precio real de entrada
+                e = self.pending.pop(sym)
+                e.entry_price = float(pos.avg_price)
+                e.peak_price = max(px, float(pos.avg_price))
+                self.entries[sym] = e
+            elif sym not in self.entries:
                 self.entries[sym] = LedgerEntry(sym, as_of, float(pos.avg_price),
                                                 max(px, float(pos.avg_price)),
                                                 note="alta por sincronizacion")
@@ -136,6 +154,12 @@ class PositionLedger:
         for sym in list(self.entries):
             if sym not in positions:
                 del self.entries[sym]
+        # una compra que no se lleno en una semana (cancelada, rechazada) ya no
+        # corresponde a ninguna posicion: su plan pendiente se descarta
+        today = pd.Timestamp(as_of)
+        for sym in list(self.pending):
+            if (today - pd.Timestamp(self.pending[sym].entry_date)).days > self.PENDING_MAX_DAYS:
+                del self.pending[sym]
 
 
 @dataclass

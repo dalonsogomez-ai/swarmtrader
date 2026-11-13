@@ -1015,6 +1015,20 @@ produce en esta maquina las mismas cifras, fila a fila, con el modulo original
 que con el fusionado. Las diferencias de orden 1e-7 frente al JSON publicado
 vienen de la aritmetica de coma flotante del equipo en que se genero.
 
+### 17.3b Correcciones tras la revision automatica de la PR
+
+La revision de la PR (Codex) senalo seis defectos; los seis se comprobaron
+contra el codigo, eran reales y estan corregidos con un test cada uno.
+
+| Defecto | Correccion |
+|---|---|
+| Una compra aceptada pero aun sin llenar perdia su plan de salida: el ciclo la daba de alta con las barreras globales | `PositionLedger.pending`: el plan queda pendiente y `sync` lo asigna al aparecer la posicion, anclado al precio real; se descarta a los 7 dias si la compra no se llena |
+| `execute` no consultaba el mandato: con la parada por drawdown activa podia abrir una cartera nueva | `execute_plan(mandate=...)` lo arranca y lo marca como el ciclo; si no esta en RUNNING solo vende o reduce. En simulacion lo consulta sin escribir |
+| La validacion cruzada de las salidas no purgaba: con fechas cada 21 sesiones y trayectorias de 31, las vecinas a la frontera compartian 10 sesiones de retornos | `_crossfit_folds`: del ajuste se excluye toda trayectoria cuya ventana [entrada, entrada + 31] se solape con alguna de evaluacion |
+| Con historia corta (predicciones cerradas a 21 sesiones, ninguna a 31) `decide` fallaba al pedir planes de salida | Banco vacio: no hay plan propio, se informa y el ciclo usa las barreras globales |
+| Con datos PIT las trayectorias de salida se congelaban en el ultimo precio de una accion dada de baja | `PathBank(listings=...)` aplica el retorno terminal de baja, igual que `forward_returns_pit` |
+| Con `--allow-cash`, un optimo de 100 % efectivo se trataba como fallo y no se escribia plan | Es una decision valida: `DecisionResult.cash`; el plan no compra y vende lo que haya |
+
 ### 17.4 Hora de entrada
 
 Apertura de la sesion siguiente al analisis, orden de mercado por nocional. (1)
@@ -1026,7 +1040,7 @@ capacidad predictiva (rank IC 0,0746 frente a 0,0749; `docs/AUDITORIA_GEOMETRIA.
 ### 17.5 Prueba con datos reales
 
 Cierre del 12-nov-2026, 3.313 acciones de EE. UU. de Yahoo (solo
-supervivientes; pre-filtro de memoria de 1 M$ de volumen y 1 USD), 372 s y
+supervivientes; pre-filtro de memoria de 1 M$ de volumen y 1 USD), 363 s y
 4,7 GB. Informe y JSON en `docs/results/decision_real_2026-11-12_v15.*`.
 
 | Medida | Resultado |
@@ -1037,7 +1051,7 @@ supervivientes; pre-filtro de memoria de 1 M$ de volumen y 1 USD), 372 s y
 | Cartera | 23 posiciones, mayor peso 23,8 % (CHT); retorno esperado +1,7 % a 31 sesiones, igual para todas |
 | Alternativas, mismos escenarios | optimo +1,7 %; todo en CHT +1,6 %; 5 primeras equiponderadas +1,6 % |
 | Top 10 | CHT, TXNM, KO, FTS, L, PG, ATO, DUK, JNJ, EPD |
-| Salidas | En 21 de 23 posiciones la rejilla completa no supera a «solo plazo» |
+| Salidas | En 17 de 23 posiciones la rejilla completa no supera a «solo plazo» (21 de 23 antes de purgar la validacion cruzada, 17.3b); la cartera no cambia |
 | Ejecucion simulada, 100 USD | 23 compras, 99,49 USD invertidos (colchon 0,5 %) |
 | Excluidas del optimizador | 448 acciones sin 1.260 sesiones de historia completa |
 
