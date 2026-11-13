@@ -20,6 +20,8 @@ lista actual; no sirve para concluir que el sistema habria funcionado.
 
 from __future__ import annotations
 
+from pathlib import Path
+
 import os
 from dataclasses import dataclass
 

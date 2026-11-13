@@ -1,6 +1,6 @@
 {
  "proyecto": "swarmtrader",
- "version": "1.5.0",
+ "version": "1.6.0",
  "actualizado_utc": "2026-11-13",
  "fase": "investigacion/diseno y backtesting; paper trading NO iniciado; trading real NO activado",
  "componentes": {
@@ -73,25 +73,35 @@
   },
   "exits.py PathBank con listings PIT": {
    "estado": "probado en sintetico (retorno terminal de baja); sin datos PIT reales todavia"
-  }
+  },
+  "data/fundamentals.py (SEC companyfacts PIT)": "probado (tests sinteticos) y ejecutado sobre el espejo publico de companyfacts (122 M de hechos, 6.458 empresas); zip oficial SIN ejecutar en este entorno (la SEC rechaza la IP del entorno)",
+  "agentes value y quality": "probados; medicion preregistrada: H1 y H2 pasan Holm",
+  "decide v1.6 (756 sesiones, sin suelo de precio, mediana de liquidez, spread)": "probado y ejecutado sobre datos reales (reducido por memoria: desde 2020-07, prefiltro 250.000 $)",
+  "execution/alpaca.py acciones enteras y clases": "probado con cliente falso; SIN ejecutar contra Alpaca",
+  "execution/etoro.py": "probado con cliente falso; SIN ejecutar contra la API de eToro",
+  "execution/ibkr.py": "probado con cliente falso (ib_async instalado); SIN ejecutar contra TWS/Gateway",
+  "execution/manual.py (Lightyear)": "probado",
+  "data/venues.py universos y costes v1.6": "probado; universo de Lightyear desde su sitemap publico (5.983 acciones); eToro sin contar (conector sin sesion)"
  },
  "pruebas": {
-  "suite": "304 pasan, 7 omitidos (PyTorch, arch y duckdb no instalados); Python 3.13.18, Linux. CI de GitHub: Ubuntu y macOS ARM64, Python 3.11 y 3.12",
-  "controles": "swarm_null_test: ruido -> NO ACCIONABLE (SPA p=0,882); senal -> ACCIONABLE (p=0,000). null_test: el gate rechaza el ruido (Sharpe campeon +2,36 con la contabilidad corregida)"
+  "suite": "332 pasan, 7 omitidos (Python 3.13.18, Linux)",
+  "controles": "null_test y swarm_null_test en verde (13-nov-2026)"
  },
  "defectos_conocidos_sin_corregir": [
-  "data/venues.py::build_union cruza activos solo por ticker: 178 tickers existen a la vez como accion de EE. UU. y como cripto en Binance/Kraken (LTC, DASH, STX, BCH...). La ruta de eToro no filtra por tipo de instrumento.",
   "Calendario de 252 sesiones/ano incrustado en ~20 sitios: cualquier activo que cotice 7 dias rompe ventanas y anualizacion.",
   "data/brokers.py::alpaca_universe filtra solo status=ACTIVE.",
   "sharadar_market_data sigue derivando el motivo de baja con una heuristica de fechas en vez de las tablas tickers+actions.",
   "Los adaptadores de Alpaca y yfinance no proporcionan el cierre sin ajustar: con ellos el filtro de precio no es point-in-time.",
   "La etiqueta de entrenamiento (rango relativo sobre toda la seccion cruzada) esta desalineada con una cartera que solo compra; no se puede corregir con rigor sobre datos de supervivientes.",
-  "cli.py, comando `paper`: usa `args.venues` (el subcomando no lo define) y una variable `md` inexistente; falla al ejecutarse. Detectado en la v1.4, no corregido.",
   "La eleccion del plazo de cartera y del plazo de salida es un maximo sobre varias estimaciones: sesgo del ganador no corregido (mitigado por el desempate al plazo mas largo y el bootstrap por fechas en las salidas).",
   "La cartera se optimiza con retornos a plazo fijo; las barreras de salida no entran en los escenarios del optimizador.",
   "cycle --decision conviction usa el plazo fijo del enjambre; el plazo variable y las salidas propias solo estan en decide + execute.",
-  "Con lookback=1260 las acciones con menos de 5 anos de historia completa no son asignables (448 de 3.313 en la prueba real): efecto de seleccion no medido.",
-  "El listado de Nasdaq no distingue fondos cerrados/ETN de acciones; scripts/equity_filter.py filtra por nombre (heuristico)."
+  "En decide la ventana es ahora 756 sesiones (v1.6); aun asi las acciones con menos de 3 anos de historia completa no son asignables (475 en la prueba real reducida de la v1.6): efecto de seleccion contra las empresas jovenes no medido.",
+  "El listado de Nasdaq no distingue fondos cerrados/ETN de acciones; scripts/equity_filter.py filtra por nombre (heuristico).",
+  "Universo no estadounidense (Lightyear, eToro, IBKR): se lista y se ejecuta, pero no se analiza junto a EE. UU. (divisa, calendario NYSE en market_calendar.py, modelo no validado). Un panel por mercado solo sirve para analisis.",
+  "Mapeo CIK-ticker de la SEC solo actual: con datos con deslistados hace falta un mapeo historico.",
+  "IBKR: no verificado si el tope del 1 % prevalece sobre el minimo de 0,35 $; se cobra el minimo (conservador).",
+  "El decide completo (8.000+ simbolos desde 2018 con fundamentales) no cabe en 7 GB; en el Mac de 64 GB si."
  ],
  "decisiones_pendientes_del_usuario": [
   "Que se quiere del sistema a la vista de la auditoria: filtro de exclusion, selector de compras (exige nuevas fuentes de datos) o perfil de loteria.",
@@ -105,13 +115,17 @@
   "Modo conviccion: mantener la triple barrera (por defecto, si) y dejar fijas las posiciones abiertas (por defecto, si).",
   "Hora del ciclo: con el mercado cerrado una rotacion completa tarda dos ciclos.",
   "Validar decide + execute contra Alpaca paper con credenciales reales.",
-  "Ventana de historia del optimizador en decide: 1260 sesiones (defecto, excluye acciones jovenes) o 756.",
-  "Si cycle --decision conviction debe usar tambien plazo variable y salidas propias (hoy solo decide + execute)."
+  "Si cycle --decision conviction debe usar tambien plazo variable y salidas propias (hoy solo decide + execute).",
+  "Fuente de fundamentales: SEC gratis (implementada) o Sharadar Core US Fundamentals de pago (mapeo historico y capitalizacion diaria PIT); comprobar si Comillas da acceso a WRDS.",
+  "Si se quieren OTC (IBKR con permiso de penny stocks): solo 164 pasan liquidez, spread e historia en el panel del 12-nov.",
+  "Volver a iniciar sesion en el conector de eToro para contar su universo y validar el adaptador en demo."
  ],
  "bloqueos_externos": [
   "Sin datos point-in-time con deslistados: toda medicion real es sobre supervivientes.",
   "Sin credenciales de Alpaca paper en el entorno de trabajo.",
-  "Sin verificar en la documentacion de Alpaca: liquidacion T+1 y violaciones de buena fe en cuentas pequenas; aceptacion de ordenes por nocional con el mercado cerrado."
+  "Sin verificar en la documentacion de Alpaca: liquidacion T+1 y violaciones de buena fe en cuentas pequenas; aceptacion de ordenes por nocional con el mercado cerrado.",
+  "La SEC devuelve 403 (umbral de peticiones) a la IP del entorno; los fundamentales se midieron con el espejo publico de companyfacts en Hugging Face, contrastado con un dato oficial.",
+  "Conector de eToro sin sesion y conector de IBKR con error al consultar contratos (13-nov-2026)."
  ],
  "observaciones_a_investigar": [
   "fisher_rank mejora a la euclidea a 5 sesiones (+0,62%, mismo signo en ambas mitades): confirmar con datos PIT antes de considerarla."
@@ -135,5 +149,12 @@
   "Alternativas con los mismos escenarios: optimo +1,7 %, todo en CHT +1,6 %, 5 primeras equiponderadas +1,6 %.",
   "La rama paralela (tau integrado, 756 sesiones) obtuvo 24 posiciones, mayor peso 14,8 % y senal retenida 12-29 % sobre el mismo panel."
  ],
- "revision_pr3": "Seis defectos senalados por la revision automatica (Codex) de la PR #3, comprobados y corregidos con un test cada uno: plan de salida de compras sin llenar, mandato en execute, purga en la validacion cruzada de salidas, banco de trayectorias vacio, retornos de baja en las trayectorias, decision 100 % efectivo"
+ "revision_pr3": "Seis defectos senalados por la revision automatica (Codex) de la PR #3, comprobados y corregidos con un test cada uno: plan de salida de compras sin llenar, mandato en execute, purga en la validacion cruzada de salidas, banco de trayectorias vacio, retornos de baja en las trayectorias, decision 100 % efectivo",
+ "hallazgos_v1_6": [
+  "Ampliar el universo solo mejora las primeras si el modelo ordena la parte alta; con IC uniforme 0,075, de 500 a todas: +2,78 % -> +3,28 % (MC). El enjambre de precio: IC 0,002 en la mitad alta. Contraste preregistrado sin potencia (control C1 falla con 80 fechas).",
+  "Asignables en Alpaca: 2.994 (regla v1.5) -> 3.835 (v1.6), 253 por debajo de 1 USD; 398 ADR/clases recuperados del prefiltro de descarga.",
+  "Fundamentales SEC (80 fechas, supervivientes): IC quality 0,027 (Holm 0,035), value 0,047 (Holm <0,001), SUE 0,008 (no pasa); combinado no mejora las 5 primeras (-0,25 puntos, no pasa); valor profundo +0,26 puntos (no pasa). El combinado reduce P(<-15 %) de las 5 primeras de 6,0 % a 3,3 %.",
+  "Union de plataformas: 10.087 simbolos; Lightyear aporta 1.532 fuera de EE. UU. y casi nada en EE. UU.; las OTC de IBKR aportan 2.571, de las que 164 pasan liquidez, spread e historia.",
+  "Decide real v1.6 (reducido): NO ACCIONABLE (G1 p=0,000, G4 p=0,445); 25 posiciones, mayor peso 17 %, +3,1 % esperado a 31 sesiones; value y quality aparecen como catalizadores; BRK-B entra al recuperarse las clases."
+ ]
 }

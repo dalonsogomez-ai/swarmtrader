@@ -1,0 +1,28 @@
+{
+  "fecha_datos": "2026-11-12 (ultima sesion del panel)",
+  "fuente": "Yahoo (supervivientes) + nasdaqtraded.txt + SEC company_tickers_exchange (espejo HF, 8-nov-2026) + sitemap publico de Lightyear (13-nov-2026)",
+  "via_A_alpaca": {
+    "acciones_ordinarias_cotizadas_tras_filtro_de_fondos": 5489,
+    "regla_v15_precio_ge_1_y_volumen_ultimo_dia_ge_1M": 3475,
+    "regla_v15_y_historia_ge_1260": 2994,
+    "regla_v16_mediana21_ge_100k_y_spread_le_10pct": 4413,
+    "regla_v16_y_historia_ge_756": 3835,
+    "de_ellas_precio_lt_1": 253,
+    "de_ellas_precio_lt_5": 991,
+    "excluidas_por_spread": 22,
+    "simbolos_recuperados_del_prefiltro_de_descarga": {"adr_y_clases": 398},
+    "spread_abdi_ranaldo_mediano_por_tramo": {"<1$": 0.0234, "1-5$": 0.015, "5-20$": 0.0036, ">20$": 0.0041}
+  },
+  "via_C_union_de_plataformas": {
+    "union": 10087,
+    "por_plaza": {"alpaca_cotizadas": 5886, "lightyear": 5869, "otc_con_informes_sec_ibkr": 2572},
+    "exclusivos": {"alpaca": 1647, "lightyear": 1629, "otc_ibkr": 2571},
+    "lightyear_fuera_de_eeuu": 1532,
+    "lightyear_eeuu_no_en_cotizadas": 102,
+    "otc_con_datos_en_ultima_sesion": 2109,
+    "otc_que_pasan_liquidez_y_spread": 200,
+    "otc_que_pasan_y_historia_ge_756": 164,
+    "lightyear_por_bolsa": {"NASDAQ": 2500, "NYSE": 1669, "LSE": 302, "XETRA": 300, "XSTO": 193, "PAR": 148, "AMEX": 143, "XSWX": 126, "XGAT": 113, "XOSL": 79, "AEX": 74, "BME": 63, "CSE": 49, "XHEL": 38, "VSE": 34, "BSE": 32, "BUX": 27, "XLIT": 24, "OTC": 20, "XTAL": 17, "XLIS": 13, "XRIS": 8, "TXSE": 3, "IRE": 3, "AIM": 2}
+  },
+  "aviso": "MEDIDO sobre el panel descargado el 13-nov-2026. eToro no se ha contado: su conector necesita volver a iniciar sesion y la API exige claves."
+}

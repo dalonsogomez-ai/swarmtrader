@@ -1076,6 +1076,132 @@ cotizaciones reales; `cycle --decision conviction` no usa plazo variable; con
 completa no son asignables (448 de 3.313 en la prueba real), un efecto de
 seleccion contra las empresas jovenes que no se ha medido.
 
+## 18. v1.6 — mas acciones: universo de Alpaca ampliado, fundamentales SEC y mas plataformas
+
+Peticion (13-nov-2026): aplicar tres vias para tener mas acciones, con la idea de
+que un universo mayor deja encontrar mas "joyas" o valor profundo. Antes de
+aplicarlas se midio la premisa (`experiments/universe_size.py`, preregistrado):
+ampliar el universo solo mejora la seleccion de los primeros si el modelo ordena
+bien la parte ALTA del ranking, y la mejora crece con el logaritmo del tamano
+(con un IC uniforme de 0,075, pasar de 500 acciones a todas sube el exceso de las
+5 primeras de +2,78 % a +3,28 %). El enjambre de precio no cumple esa condicion
+(IC 0,002 en la mitad alta frente a 0,024 en la baja). Las tres vias se aplican,
+pero solo la B anade informacion que puede cambiar eso. **[MEDIDO]**
+(`docs/results/universe_size_2026-11-13.json`, `..._control_mc_...json`).
+
+### 18.1 Via A: universo completo de Alpaca
+
+| Cambio | Antes | Ahora | Por que |
+|---|---|---|---|
+| Ventana del optimizador en `decide` | 1.260 sesiones | 756 (`--lookback`) | decision del usuario; 1.260 dejaba fuera a las empresas con menos de 5 anos |
+| Precio minimo en `decide` | 1 USD | 0 (`--min-price`) | penny stocks cotizados incluidos; decide el coste, no un corte |
+| Liquidez minima | 1 M$ el ultimo dia | mediana de 21 sesiones >= 100.000 $ (`--min-dollar-volume`) | por debajo el cierre suele ser una operacion suelta; la mediana no depende de un dia raro |
+| Coste por accion | tabla por tramos de precio | spread de Abdi-Ranaldo (2017) con maximo/minimo nominales en las no liquidas; tabla en las liquidas (>= 5 M$/dia y >= 5 USD) | la tabla daba el mismo 3 % a cualquier penny; el estimador diario sobreestima el spread de las liquidas (0,36 % de mediana entre 5 y 20 USD) |
+| Spread maximo | no habia | 10 % (`--max-spread`) | una ida y vuelta se come esa fraccion |
+| No fraccionables en Alpaca | excluidos | acciones enteras; fuera solo si una accion supera el 5 % del patrimonio (`--max-lot-pct`) | Alpaca solo fracciona > 1 USD y > 10.000 acciones/dia: todos los penny eran inoperables |
+| Clases de accion (BRK.B) | perdidas en la descarga | BRK-B en el panel, BRK.B en Alpaca (traduccion en la frontera) | |
+| ADR | ~470 tirados por la palabra "Depositary" | conservados (solo se quitan las preferentes depositadas) | eran acciones de empresas extranjeras, muchas pequenas |
+| Guardas del plan | `decide` usaba las de defecto aunque se cambiaran los flags | las mismas que viajan en el plan | defecto corregido |
+
+Efecto medido sobre el panel del 12-nov-2026 **[MEDIDO]**: 5.489 acciones
+ordinarias cotizadas; asignables con la regla v1.5 (>= 1 USD, >= 1 M$ el ultimo
+dia, 1.260 sesiones): 2.994; con la v1.6: 3.835 (+28 %), de ellas 253 por debajo
+de 1 USD y 991 por debajo de 5. Excluidas por spread: 22.
+
+### 18.2 Via B: fundamentales point-in-time desde la SEC
+
+Comparacion de fuentes (precios consultados el 13-nov-2026):
+
+| Fuente | Coste | Point-in-time | Deslistadas | Mapeo a ticker | Veredicto |
+|---|---|---|---|---|---|
+| SEC `companyfacts.zip` (XBRL) | 0 | si: fecha `filed` por dato | si (por CIK) | solo el actual (la SEC no publica historico) | **elegida**: oficial y gratuita; con supervivientes el mapeo actual es coherente |
+| SEC Financial Statement Data Sets | 0 | si | si | igual | mismos datos en zips trimestrales; mas trabajo |
+| Sharadar Core US Fundamentals (SF1) | ~19 $/mes (pendiente de reverificar en su web) | si (`datekey`, dimension "as reported") | si | si (permaticker) | **mejor de pago**: resuelve el mapeo historico y trae `daily` (capitalizacion PIT) |
+| Valuein Pro | 49 $/mes | si (`accepted_at`) | si | — | alternativa sobre los mismos datos de la SEC, desde 2011 |
+| EODHD Fundamentals | 59,99 $/mes | no garantizado | si | si | caro para lo que anade |
+| FMP Premium | 49 $/mes | separa "as reported" | lista de deslistadas | — | sin garantia PIT por fila |
+| Compustat + CRSP (WRDS) | 0 si la universidad lo paga | si | si | si (CCM) | patron oro; **no verificado** que Comillas lo tenga |
+
+Implementacion (`data/fundamentals.py`): lectura del zip oficial o de un volcado
+Parquet equivalente; valor tal como se presento por primera vez para cada periodo
+(nunca una reexpresion posterior); clasificacion de flujos por duracion
+(trimestre 80-100 dias, ano 340-390), que separa el dato de 3 meses del acumulado
+de 6 que trae el mismo 10-Q; una fila por (empresa, fecha de presentacion) con el
+estado conocido en esa fecha. Se publican las mismas columnas que ya aceptaba
+`--fundamentals` mas `fscore`, `asset_growth`, `net_issuance`, y `sue` para
+`--earnings` (paseo aleatorio estacional; el cuarto trimestre = anual - 9 meses).
+La capitalizacion se calcula con el precio NOMINAL (antes, con el ajustado: daba
+capitalizaciones que no existieron). Dos agentes nuevos con tesis fijada antes
+de medir: `value` (bm, ep, cfp) y `quality` (gp_a, fscore, accruals, inv_ag,
+anti_issuance). El agente `earnings` ya existia y ahora tiene datos.
+
+Reevaluacion del rechazo de "mas de 14 factores": no son mas factores de precio
+minados sobre los mismos datos (el problema que motivo el rechazo), sino una
+fuente de informacion nueva con tesis previa, agrupada en dos agentes que
+compiten como candidatos y pasan por G1-G4. El rechazo se mantiene para factores
+de precio; se matiza para fuentes nuevas.
+
+Medicion preregistrada (`experiments/fundamentals_measure.py`, 80 fechas,
+2020-2026, supervivientes; fundamentales del espejo publico de companyfacts en
+Hugging Face, contrastado con un dato oficial: ingresos de Apple del ejercicio
+2023, 383.285 M$, presentados el 3-nov-2023) **[MEDIDO]**:
+
+| Hipotesis | Resultado | p (Holm) |
+|---|---|---|
+| H1 IC de quality > 0 | 0,027 (IC 95 % 0,004-0,046) | 0,035 **pasa** |
+| H2 IC de value > 0 | 0,047 (0,019-0,079) | <0,001 **pasa** |
+| H3 IC de earnings (SUE tras la presentacion) > 0 | 0,008 | 0,22 no pasa |
+| H4 las 5 primeras del combinado baten a las del enjambre solo | -0,25 puntos | 0,62 no pasa |
+| H5 valor profundo: los 5 de mayor F-score del tercio mas barato baten a ese tercio | +0,26 puntos | 0,62 no pasa |
+
+Control de fuga: 2.000 muestras, 0 discrepancias. Exploratorio: el combinado
+reduce la cola de perdidas de las 5 primeras (P(<-15 %) 3,3 % frente a 6,0 %) y
+tambien la de ganancias (P(>+25 %) 2,8 % frente a 4,8 %). Lectura: los
+fundamentales SI anaden informacion (sobre todo para ordenar el universo y
+evitar trampas), pero no convierten las 5 primeras en ganadoras; sobre
+supervivientes el efecto valor esta sesgado a favor.
+
+### 18.3 Via C: Lightyear, eToro y la plataforma con mas penny stocks
+
+| Plataforma | Acciones | Penny / pequenas | API de ordenes | Coste con 4-25 $ por posicion | Implementado |
+|---|---|---|---|---|---|
+| Alpaca | 5.886 ordinarias cotizadas en EE. UU. | todas las cotizadas; OTC solo cerrar | si | ~0 (spread) | ya estaba; ahora con penny y acciones enteras |
+| IBKR | todas las cotizadas + 2.572 OTC con informes a la SEC (+ ~90 bolsas) | **la que mas**: OTCQX/OTCQB/Pink con permiso; no Caveat Emptor/Grey | si (TWS/Gateway) | minimo 0,35 $ por orden: 2,8 % con 25 $ | `execution/ibkr.py` (paper por defecto, limitadas, acciones enteras) |
+| Lightyear | 5.983 (4.336 EE. UU., ~1.650 Europa) | las de EE. UU. son un subconjunto de Alpaca | **no** | min 0,10 $ por orden: 5,1 % con 4 $ | universo por su sitemap publico; ordenes manuales (`execution/manual.py`) |
+| eToro | ~3.000 EE. UU. + Europa (6.000+ instrumentos) | subconjunto de las cotizadas | si (demo y real) | ~1 $ por orden: ~9,6 % con 25 $ | `execution/etoro.py` (demo por defecto, 1x, solo largo) y universo por API |
+| Trading 212 | ~13.000 instrumentos, algunas OTC | algunas OTC | v0 beta | 0 + 0,15 % de cambio | coste en `venues.py`; sin adaptador |
+
+Union medida **[MEDIDO]**: 10.087 simbolos; exclusivos de Alpaca 1.647, de
+Lightyear 1.629 (1.532 fuera de EE. UU.), de las OTC de IBKR 2.571. De las 2.109
+OTC con datos en la ultima sesion, solo 200 pasan liquidez y spread y 164 tienen
+ademas 756 sesiones de historia: el aporte real de penny stocks no cotizados es
+pequeno y de datos peores (en Yahoo, maximo y minimo de muchas OTC coinciden con
+el cierre).
+
+Otros cambios: `venues.py` modela comision por accion con minimo y tope (IBKR)
+y proporcional con minimo y tope (Lightyear); si en IBKR el tope del 1 %
+prevalece sobre el minimo no esta verificado y se cobra el minimo (lo
+conservador). El simbolo canonico conserva el sufijo de bolsa: `SAN.MC` y `SAN`
+(ADR) ya no se funden (defecto anterior). El universo de eToro filtra por tipo
+"acciones", lo que evita la colision con criptomonedas del mismo ticker.
+`swarmtrader universe` construye la union; `decide`/`execute --broker
+etoro|ibkr|manual` usan los adaptadores.
+
+### 18.4 Limites
+
+- El universo no estadounidense (Lightyear, eToro, IBKR) se puede listar y
+  ejecutar, pero no analizar junto al de EE. UU.: mezcla divisas y calendarios,
+  `market_calendar.py` es de la NYSE y el modelo no se ha validado en esos
+  mercados. Un panel por mercado si funciona (solo analisis).
+- Adaptadores de eToro e IBKR: escritos contra su documentacion y probados con
+  clientes falsos; sin ejecutar contra las APIs reales.
+- Mapeo CIK-ticker actual: valido con supervivientes; con datos con deslistados
+  hace falta un mapeo historico (Sharadar o CRSP).
+- La fecha de presentacion del 10-Q es posterior al anuncio de resultados: la
+  SUE medida es una cota inferior de la PEAD clasica.
+- El estimador de spread con datos diarios es ruidoso; se usa solo donde el
+  spread es grande respecto a la volatilidad.
+
 ## 5. Flujo completo
 
 ```

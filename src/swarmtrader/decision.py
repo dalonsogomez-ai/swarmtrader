@@ -77,14 +77,55 @@ class DecisionConfig:
     # market_level="history": el nivel de mercado no puede salir de las fechas
     # fuera de muestra de cada plazo, porque entonces elegir plazo seria elegir
     # el ruido de mercado mas favorable (ver portfolio/conviction.py, punto 3b).
+    # lookback=756 (3 anos): con 1260 las acciones con menos de 5 anos de
+    # historia completa no eran asignables (448 de 3.313 en la prueba real de la
+    # v1.5). Decision del usuario (2026-11-13). Fuera de `decide` sigue 1260.
     conviction: ConvictionConfig = field(
         default_factory=lambda: ConvictionConfig(risk_aversion=1.0, allow_cash=False,
-                                                 market_level="history"))
+                                                 market_level="history", lookback=756))
     exits: ExitConfig = field(default_factory=ExitConfig)
     report_top: int = 10
     success_threshold: float = 0.05
     vol_lookback: int = 60
     agent_strong: float = 0.6       # rango de agente (en [-1, 1]) que cuenta como catalizador
+    spread_window: int = 63         # sesiones para estimar el spread con maximo/minimo
+    min_cost_rt: float = 0.0005     # suelo del coste de ida y vuelta estimado (5 pb)
+    liquid_dollar_volume: float = 5_000_000.0   # por encima, coste por tabla (ver estimate_costs)
+
+
+def estimate_costs(md: MarketData, last_px_nom: pd.Series,
+                   cfg: DecisionConfig = DecisionConfig()) -> pd.Series:
+    """Coste de ida y vuelta por accion para la ultima sesion.
+
+    Acciones liquidas (mediana de 21 sesiones del volumen en dolares >=
+    `liquid_dollar_volume` y precio >= 5 USD): la tabla por tramos de siempre
+    (`exits.cost_from_price`, 0,05 %). En ellas el spread real es una fraccion
+    minima de la volatilidad diaria y cualquier estimador con maximo/minimo mide
+    sobre todo ruido (en el panel real da ~0,4 % de mediana entre 5 y 20 USD,
+    varias veces el spread cotizado).
+    Resto (pequenas, poco liquidas, penny): spread de Abdi-Ranaldo (2017) con
+    maximo/minimo/cierre NOMINALES de las ultimas `spread_window` sesiones, con
+    suelo de un tick (0,01 USD; 0,0001 por debajo de 1 USD) y de `min_cost_rt`.
+    Es donde la tabla falla: da el mismo 3 % a una accion de 0,80 USD con 50
+    millones negociados al dia que a otra de 0,80 USD que casi no cotiza.
+    Sin maximo/minimo, o sin estimacion: la tabla.
+    """
+    tier = cost_from_price(last_px_nom)
+    if md.high is None or md.low is None or md.nominal is None:
+        return tier
+    from .data.labels import abdi_ranaldo_spread
+    cols = [c for c in last_px_nom.index if c in md.nominal.columns]
+    w = cfg.spread_window + 1
+    est = abdi_ranaldo_spread(md.nominal[cols].tail(w), md.high[cols].tail(w),
+                              md.low[cols].tail(w), window=cfg.spread_window)
+    est = est.iloc[:-1].ffill().iloc[-1] if len(est) > 1 else est.iloc[-1]
+    px = last_px_nom.astype(float)
+    tick = pd.Series(np.where(px < 1.0, 0.0001, 0.01), index=px.index) / px.where(px > 0)
+    est = est.reindex(px.index)
+    est = np.maximum(est, np.maximum(tick, cfg.min_cost_rt))
+    dvm = (md.nominal[cols] * md.volumes[cols]).tail(21).median().reindex(px.index)
+    liquid = (dvm >= cfg.liquid_dollar_volume) & (px >= 5.0)
+    return tier.where(liquid | est.isna(), est)
 
 
 @dataclass
@@ -192,7 +233,7 @@ def decide(md: MarketData, swarm_cfg: SwarmRankConfig = SwarmRankConfig(),
         last_px_nom = nom.fillna(last_px)
     else:
         last_px_nom = last_px
-    costs = cost_from_price(last_px_nom)
+    costs = estimate_costs(md, last_px_nom, cfg)
     exclude = set(exclude)
 
     # ---- 2-4. cartera log-optima para cada plazo y eleccion del plazo ----

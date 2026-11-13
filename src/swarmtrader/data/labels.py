@@ -57,6 +57,7 @@ import numpy as np
 import pandas as pd
 
 __all__ = ["TripleBarrierConfig", "triple_barrier_labels", "corwin_schultz_spread",
+           "abdi_ranaldo_spread",
            "EXIT_PROFIT", "EXIT_STOP", "EXIT_VERTICAL", "EXIT_DELIST", "EXIT_NONE"]
 
 EXIT_PROFIT = "profit_target"
@@ -218,3 +219,27 @@ def corwin_schultz_spread(highs: pd.DataFrame, lows: pd.DataFrame,
         spread = 2.0 * (np.exp(alpha) - 1.0) / (1.0 + np.exp(alpha))
     spread = spread.clip(lower=0.0)
     return spread.rolling(window, min_periods=max(5, window // 3)).mean()
+
+
+def abdi_ranaldo_spread(closes: pd.DataFrame, highs: pd.DataFrame, lows: pd.DataFrame,
+                        window: int = 63) -> pd.DataFrame:
+    """Spread efectivo estimado con cierre, maximo y minimo (Abdi-Ranaldo 2017, RFS).
+
+        eta_t = (ln H_t + ln L_t) / 2           (punto medio del rango)
+        S^2   = 4 E[(c_t - eta_t)(c_t - eta_{t+1})]
+
+    con c_t = ln(cierre). La esperanza se estima con la media movil de `window`
+    sesiones y los valores negativos se truncan a cero antes de la raiz, como
+    proponen los autores. En acciones poco liquidas es mas preciso que
+    Corwin-Schultz porque usa el cierre, que es donde se concentran las
+    operaciones. Devuelve el spread COMPLETO (comprar en el ask y vender en el
+    bid): es el coste de ida y vuelta por spread. Precios NOMINALES (sin ajustar):
+    el ajuste por dividendos desplaza el cierre respecto al rango del dia.
+    """
+    C = np.log(closes.sort_index().astype(float))
+    H = np.log(highs.reindex_like(C).astype(float))
+    L = np.log(lows.reindex_like(C).astype(float))
+    eta = (H + L) / 2.0
+    prod = (C - eta) * (C - eta.shift(-1))
+    m = prod.rolling(window, min_periods=max(10, window // 3)).mean()
+    return np.sqrt((4.0 * m).clip(lower=0.0))

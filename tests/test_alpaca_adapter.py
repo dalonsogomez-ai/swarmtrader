@@ -122,6 +122,52 @@ def test_settle_gives_up_after_the_timeout():
     assert len(t.polled) >= 1
 
 
-def test_untradable_flags_non_fractionable_inactive_and_unknown():
+def test_untradable_flags_inactive_and_unknown_but_not_non_fractionable():
+    # v1.6: un no fraccionable SE PUEDE comprar por acciones enteras
     b, _ = _broker()
-    assert b.untradable(["AAA", "BBB", "CCC", "ZZZ"]) == {"BBB", "CCC", "ZZZ"}
+    assert b.untradable(["AAA", "BBB", "CCC", "ZZZ"]) == {"CCC", "ZZZ"}
+    assert b.non_fractionable(["AAA", "BBB", "CCC"]) == {"BBB"}
+
+
+class _Px(AlpacaBroker):
+    """Precio fijo: evita el cliente de datos en los tests."""
+    px = 0.4
+
+    def last_price(self, symbol):
+        return self.px
+
+
+def _px_broker(px=0.4):
+    t = FakeTrading()
+    b = _Px(paper=True, trading_client=t, data_client=object())
+    b.px = px
+    return b, t
+
+
+def test_non_fractionable_buy_is_sent_as_whole_shares():
+    b, t = _px_broker(0.4)
+    r = b.submit("BBB", "buy", 10.0)
+    req = t.submitted[-1]
+    assert req.qty == 25 and req.notional is None
+    assert r.notional == pytest.approx(10.0)
+
+
+def test_non_fractionable_buy_below_one_share_is_refused_locally():
+    b, t = _px_broker(30.0)
+    r = b.submit("BBB", "buy", 12.0)
+    assert r.status == "rejected" and "no llega a una" in r.message and not t.submitted
+
+
+def test_fractionable_keeps_notional_orders():
+    b, t = _px_broker(0.4)
+    b.submit("AAA", "buy", 10.0)
+    assert float(t.submitted[-1].notional) == pytest.approx(10.0)
+
+
+def test_class_shares_are_translated_at_the_boundary():
+    from swarmtrader.execution.alpaca import from_alpaca, to_alpaca
+    assert to_alpaca("BRK-B") == "BRK.B" and from_alpaca("BRK.B") == "BRK-B"
+    assert to_alpaca("AAPL") == "AAPL" and to_alpaca("BF-A") == "BF.A"
+    b, t = _px_broker(400.0)
+    b.liquidate("BRK-B")
+    assert t.closed == ["BRK.B"]

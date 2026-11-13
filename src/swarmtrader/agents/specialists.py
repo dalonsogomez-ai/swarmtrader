@@ -87,6 +87,24 @@ DEFAULT_ROSTER: tuple[Specialist, ...] = (
     ),
     # --- agentes de evento: solo se activan si hay senales externas cargadas ---
     Specialist(
+        name="value",
+        factors=("bm", "ep", "cfp"),
+        thesis="las acciones baratas respecto a sus fundamentales (libros, beneficio, caja) "
+               "rinden mas porque el mercado extrapola de mas el mal pasado reciente",
+        reference="Fama-French 1992; Lakonishok-Shleifer-Vishny 1994",
+        requires_external=True,
+    ),
+    Specialist(
+        name="quality",
+        factors=("gp_a", "fscore", "accruals", "inv_ag", "anti_issuance"),
+        thesis="empresas rentables, con beneficio respaldado por caja, que no inflan "
+               "activos ni emiten acciones, rinden mas; el F-score separa el valor sano "
+               "de la trampa de valor",
+        reference="Novy-Marx 2013; Piotroski 2000; Sloan 1996; Cooper-Gulen-Schill 2008; "
+                  "Pontiff-Woodgate 2008",
+        requires_external=True,
+    ),
+    Specialist(
         name="earnings",
         factors=("sue", "earn_react_3d", "days_since_earn"),
         thesis="post-earnings announcement drift: la sorpresa de resultados se "

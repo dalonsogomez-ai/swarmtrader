@@ -38,7 +38,8 @@ def _signals(args, md):
         news=getattr(args, "news", None), analyst=getattr(args, "analyst", None),
         earnings=getattr(args, "earnings", None), insider=getattr(args, "insider", None),
         short=getattr(args, "short", None), fundamentals=getattr(args, "fundamentals", None),
-        available_lag=getattr(args, "available_lag", 1), news_scorer=getattr(args, "news_scorer", "auto"))
+        available_lag=getattr(args, "available_lag", 1), news_scorer=getattr(args, "news_scorer", "auto"),
+        nominal=getattr(md, "nominal", None))
     groups = load_groups(args.groups) if getattr(args, "groups", None) else None
     return extra, groups
 
@@ -419,6 +420,36 @@ def _load_for_decision(args):
     return md, listings
 
 
+def universe_exclusions(md, lim, max_spread: float = 0.10, window: int = 21):
+    """Acciones que no deben recibir capital en la ultima sesion, con el motivo.
+
+    precio    cierre NOMINAL por debajo de `lim.min_price`
+    liquidez  mediana de `window` sesiones del volumen en dolares (nominal) por
+              debajo de `lim.min_dollar_volume`. La mediana y no el ultimo dia:
+              un solo dia raro no debe meter ni sacar una accion.
+    spread    spread estimado (Abdi-Ranaldo, maximo/minimo nominales) por encima
+              de `max_spread`: una sola ida y vuelta se come esa fraccion.
+    attrs: dollar_volume (Series) y price (Series) de la ultima sesion.
+    """
+    import pandas as pd
+    ref = md.nominal if md.nominal is not None else md.prices
+    px = ref.iloc[-1].reindex(md.prices.columns).fillna(md.prices.iloc[-1])
+    dvm = (ref * md.volumes).tail(window).median().reindex(md.prices.columns)
+    rows = [(s, "precio") for s in px.index[px < lim.min_price]]
+    rows += [(s, "liquidez") for s in px.index[~(dvm >= lim.min_dollar_volume)]
+             if not px.get(s, 0) < lim.min_price]
+    seen = {s for s, _ in rows}
+    if md.high is not None and md.low is not None and md.nominal is not None and max_spread > 0:
+        from .data.labels import abdi_ranaldo_spread
+        sp = abdi_ranaldo_spread(md.nominal.tail(64), md.high.tail(64), md.low.tail(64))
+        sp = sp.iloc[:-1].ffill().iloc[-1] if len(sp) > 1 else sp.iloc[-1]
+        rows += [(s, "spread") for s in sp.index[sp > max_spread] if s not in seen]
+    out = pd.DataFrame(rows, columns=["symbol", "reason"])
+    out.attrs["dollar_volume"] = dvm
+    out.attrs["price"] = px
+    return out
+
+
 def cmd_decide(args) -> int:
     """Analisis -> cartera por conviccion, plazo, entrada, salidas y plan de ordenes."""
     from dataclasses import replace
@@ -437,25 +468,33 @@ def cmd_decide(args) -> int:
           f"(ultima {md.prices.index.max().date()})", file=sys.stderr)
 
     broker, positions = None, {}
-    if args.broker == "alpaca":
-        from .execution.alpaca import AlpacaBroker
+    if args.broker != "none":
         try:
-            broker = AlpacaBroker(paper=True)
+            broker = _open_broker(args, live=False)
             positions = broker.positions()
-        except (ImportError, RuntimeError, ValueError) as exc:
-            print(f"no se pudo leer la cuenta de Alpaca: {exc}")
+        except (ImportError, RuntimeError, ValueError, OSError) as exc:
+            print(f"no se pudo leer la cuenta de {args.broker}: {exc}")
             return 2
 
     # Lo que las guardas de la ejecucion o el broker rechazarian no debe recibir
-    # capital: una orden rechazada deja ese dinero sin invertir.
-    lim = plan_risk_limits()
-    last = md.prices.index[-1]
-    px = (md.nominal.loc[last] if md.nominal is not None else md.prices.loc[last]) \
-        .reindex(md.prices.columns).fillna(md.prices.loc[last])
-    dv = (px * md.volumes.loc[last]).reindex(md.prices.columns)
-    exclude = set(px.index[(px < lim.min_price) | ~(dv >= lim.min_dollar_volume)])
+    # capital: una orden rechazada deja ese dinero sin invertir. Las guardas son
+    # las MISMAS que viajan en el plan (antes el analisis usaba las de por defecto
+    # aunque se cambiaran --min-price/--min-dollar-volume).
+    lim = plan_risk_limits(args.min_price, args.min_dollar_volume)
+    excl = universe_exclusions(md, lim, max_spread=args.max_spread)
+    exclude = set(excl["symbol"])
+    dv = excl.attrs["dollar_volume"]
     if broker is not None:
         exclude |= set(broker.untradable(list(md.prices.columns)))
+        # no fraccionables: solo acciones enteras; una accion por encima del
+        # `--max-lot-pct` del patrimonio no se puede dimensionar con sentido
+        nf = getattr(broker, "non_fractionable", lambda s: set())(list(md.prices.columns))
+        last_nom = excl.attrs["price"]
+        cap = float(broker.equity) * args.max_lot_pct
+        exclude |= {s for s in nf if not (last_nom.get(s, np.inf) <= cap)}
+    n_cost = int((excl["reason"] == "spread").sum())
+    print(f"excluidas: {len(exclude)} (precio/liquidez {len(excl) - n_cost}, spread {n_cost}, "
+          f"broker {len(exclude) - len(excl)})", file=sys.stderr)
 
     rc = RankConfig(horizon=args.horizon, top_k=args.top, oos_months=args.oos_months,
                     min_dollar_volume=args.min_dollar_volume, min_price=args.min_price)
@@ -463,7 +502,8 @@ def cmd_decide(args) -> int:
                            drift=DriftConfig(alpha=args.drift_alpha, mode=args.drift_mode))
     dcfg = DecisionConfig(report_top=args.report_top)
     conv = replace(dcfg.conviction, risk_aversion=args.risk_aversion,
-                   allow_cash=args.allow_cash, n_scenarios=args.scenarios)
+                   allow_cash=args.allow_cash, n_scenarios=args.scenarios,
+                   lookback=args.lookback)
     if broker is not None:
         eq = float(broker.equity)
         # minimo de orden de Alpaca: 1 USD (con 100 USD, el 1 % del capital)
@@ -482,10 +522,98 @@ def cmd_decide(args) -> int:
     # que haya en cartera y no compra nada.
     decided = not d.weights.empty or d.cash > 1e-9
     if args.plan and decided:
-        plan = build_order_plan(d, positions, dollar_volumes=dv.fillna(0.0).to_dict())
+        plan = build_order_plan(d, positions, dollar_volumes=dv.fillna(0.0).to_dict(),
+                                min_price=lim.min_price, min_dollar_volume=lim.min_dollar_volume)
         plan.save(args.plan)
         print(f"\nplan de ordenes {plan.plan_id} -> {args.plan}")
     return 0 if decided else 3
+
+
+def _open_broker(args, live: bool = False):
+    """Broker de `decide`/`execute` por nombre. Paper/demo salvo `live`."""
+    name = args.broker
+    if name == "alpaca":
+        from .execution.alpaca import AlpacaBroker
+        return AlpacaBroker(paper=not live)
+    if name == "etoro":
+        from .execution.etoro import EToroBroker
+        return EToroBroker(demo=not live)
+    if name == "ibkr":
+        from .execution.ibkr import IBKRBroker
+        port = getattr(args, "ibkr_port", None) or (7496 if live else 7497)
+        return IBKRBroker(port=port)
+    if name == "manual":
+        from .execution.manual import ManualBroker
+        prices = json.loads(Path(args.prices).read_text()) if getattr(args, "prices", None) else None
+        return ManualBroker(getattr(args, "manual_venue", "lightyear"),
+                            cash=getattr(args, "cash", None) or getattr(args, "capital", 0.0),
+                            positions_csv=getattr(args, "positions_csv", None), prices=prices)
+    return None
+
+
+def _add_broker_flags(sp):
+    sp.add_argument("--ibkr-port", type=int, default=None,
+                    help="IBKR: 7497 TWS paper (defecto), 4002 Gateway paper; reales 7496/4001")
+    sp.add_argument("--manual-venue", default="lightyear",
+                    help="broker=manual: plataforma sin API (las ordenes se escriben en CSV)")
+    sp.add_argument("--positions-csv", default=None,
+                    help="broker=manual: cartera exportada (symbol,qty,avg_price[,market_value])")
+    sp.add_argument("--cash", type=float, default=None, help="broker=manual: efectivo disponible")
+
+
+def cmd_fundamentals(args) -> int:
+    """SEC companyfacts -> tablas point-in-time para --fundamentals y --earnings."""
+    from .data import fundamentals as F
+    tick = F.load_ticker_map(args.tickers)
+    ciks = set(tick["cik"])
+    src = Path(args.companyfacts)
+    if src.suffix == ".zip":
+        facts = F.read_companyfacts_zip(src, ciks=ciks)
+    else:
+        facts = F.read_companyfacts_parquet(src, args.dei_shares, ciks=ciks)
+    P = F.first_reported(facts)
+    fund, earn = F.signal_tables(F.pit_snapshots(facts, P), F.quarterly_sue(P), tick)
+    out = Path(args.out_dir)
+    out.mkdir(parents=True, exist_ok=True)
+    fund.to_csv(out / "fundamentals_sec.csv", index=False)
+    earn.to_csv(out / "earnings_sec.csv", index=False)
+    print(f"fundamentales: {len(fund)} filas, {fund['symbol'].nunique()} simbolos -> "
+          f"{out / 'fundamentals_sec.csv'}\nresultados (SUE): {len(earn)} filas, "
+          f"{earn['symbol'].nunique()} simbolos -> {out / 'earnings_sec.csv'}\n"
+          f"uso: decide ... --fundamentals {out / 'fundamentals_sec.csv'} "
+          f"--earnings {out / 'earnings_sec.csv'}")
+    return 0
+
+
+def cmd_universe(args) -> int:
+    """Union de los universos de varias plataformas, con etiqueta por plaza."""
+    from .data import venues as V
+    parts = {}
+    if args.listed:
+        sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "scripts"))
+        from fetch_panel import listed_symbols
+        parts["alpaca"] = listed_symbols(args.listed)
+    if args.lightyear:
+        ly = V.lightyear_universe(None if args.lightyear == "web" else args.lightyear)
+        parts["lightyear"] = ly["canonical"].dropna().tolist()
+    if args.sec_tickers:
+        otc = V.sec_otc_universe(args.sec_tickers)["canonical"].tolist()
+        parts["ibkr_otc"] = otc
+    if args.etoro:
+        parts["etoro_eu"] = V.etoro_universe()["canonical"].dropna().tolist()
+    if not parts:
+        print("nada que unir: pasa --listed, --lightyear, --sec-tickers y/o --etoro")
+        return 2
+    u = V.build_union(parts)
+    m = u.membership.copy()
+    m["us"] = ~m.index.str.contains(r"\.")
+    m.to_csv(args.out)
+    s = u.summary()
+    print(json.dumps({"union": s["total_union"], "por_plaza": s["por_plaza"],
+                      "exclusivos": s["exclusivos_de_cada_plaza"],
+                      "fuera_de_EEUU": int((~m["us"]).sum()), "csv": args.out},
+                     indent=2, ensure_ascii=False))
+    return 0
 
 
 def cmd_execute(args) -> int:
@@ -497,12 +625,11 @@ def cmd_execute(args) -> int:
     except (FileNotFoundError, ValueError) as exc:
         print(f"plan invalido: {exc}")
         return 2
-    if args.broker == "alpaca":
-        from .execution.alpaca import AlpacaBroker
+    if args.broker != "paper":
         try:
-            broker = AlpacaBroker(paper=not args.live)
-        except (ImportError, RuntimeError, ValueError) as exc:
-            print(f"no se pudo abrir la cuenta de Alpaca: {exc}")
+            broker = _open_broker(args, live=args.live)
+        except (ImportError, RuntimeError, ValueError, OSError) as exc:
+            print(f"no se pudo abrir la cuenta de {args.broker}: {exc}")
             return 2
     else:
         from .execution.paper import PaperBroker
@@ -678,10 +805,11 @@ def cmd_paper(args) -> int:
     genome, meta = _load_champion(args.champion)
     panel = _build_panel(args)
     # Union de universos: amplia lo que se ANALIZA, no donde se ejecuta.
-    if args.venues:
+    # (v1.6) el subcomando paper no define --venues: el bloque solo corre si existe
+    if getattr(args, "venues", None):
         from .data.venues import KNOWN_VENUES, build_union, min_viable_notional
         names = [v.strip() for v in args.venues.split(",") if v.strip()]
-        per_venue = {"alpaca": list(md.prices.columns)}
+        per_venue = {"alpaca": list(panel.symbols)}
         for flag, key in ((args.etoro_universe, "etoro_eu"), (args.ibkr_universe, "ibkr")):
             if flag:
                 import csv
@@ -695,7 +823,7 @@ def cmd_paper(args) -> int:
             s = uni.summary()
             print(f"union de plazas: {s['total_union']} simbolos "
                   f"({s['en_las_tres']} en todas, exclusivos {s['exclusivos_de_cada_plaza']})")
-            usable = [x for x in uni.symbols if x in md.prices.columns]
+            usable = [x for x in uni.symbols if x in panel.symbols]
             faltan = s["total_union"] - len(usable)
             if faltan:
                 print(f"  aviso: {faltan} simbolos de la union SIN historico cargado; "
@@ -913,8 +1041,19 @@ def main(argv: list[str] | None = None) -> int:
     de.add_argument("--top", type=int, default=5)
     de.add_argument("--report-top", type=int, default=10)
     de.add_argument("--oos-months", type=int, default=60)
-    de.add_argument("--min-dollar-volume", type=float, default=1_000_000.0)
-    de.add_argument("--min-price", type=float, default=1.0)
+    de.add_argument("--min-dollar-volume", type=float, default=100_000.0,
+                    help="mediana de 21 sesiones del volumen en dolares (defecto 100.000: "
+                         "por debajo el cierre suele ser una operacion suelta)")
+    de.add_argument("--min-price", type=float, default=0.0,
+                    help="precio nominal minimo (defecto 0: penny stocks incluidos; el "
+                         "coste estimado por spread decide en su lugar)")
+    de.add_argument("--max-spread", type=float, default=0.10,
+                    help="spread estimado maximo (ida y vuelta); 0 lo desactiva")
+    de.add_argument("--max-lot-pct", type=float, default=0.05,
+                    help="no fraccionables: precio de UNA accion como maximo este "
+                         "porcentaje del patrimonio")
+    de.add_argument("--lookback", type=int, default=756,
+                    help="sesiones de historia del optimizador (756 = 3 anos)")
     de.add_argument("--spa-boot", type=int, default=1000)
     de.add_argument("--risk-aversion", type=_nonneg_float, default=1.0,
                     help="1 = Kelly (log); 0 = neutral al riesgo (todo a la de mayor retorno)")
@@ -922,8 +1061,12 @@ def main(argv: list[str] | None = None) -> int:
                     help="permitir que el optimo deje parte en efectivo (defecto: todo invertido)")
     de.add_argument("--scenarios", type=int, default=3000)
     de.add_argument("--no-deep", action="store_true")
-    de.add_argument("--broker", choices=["none", "alpaca"], default="none",
-                    help="alpaca = leer la cuenta PAPER (posiciones, patrimonio, no fraccionables)")
+    de.add_argument("--broker", choices=["none", "alpaca", "etoro", "ibkr", "manual"],
+                    default="none",
+                    help="leer la cuenta PAPER/DEMO (posiciones, patrimonio, no operables); "
+                         "manual = plataforma sin API (Lightyear) con --positions-csv y --cash")
+    de.add_argument("--prices", default=None, help="broker=manual: JSON {simbolo: precio}")
+    _add_broker_flags(de)
     de.add_argument("--plan", default=None, help="guardar plan de ordenes JSON")
     de.add_argument("--out", default=None, help="guardar la decision completa JSON")
     de.add_argument("--json", action="store_true")
@@ -934,7 +1077,8 @@ def main(argv: list[str] | None = None) -> int:
 
     ex = sub.add_parser("execute", help="ejecutar un plan de ordenes tras la apertura")
     ex.add_argument("plan")
-    ex.add_argument("--broker", choices=["paper", "alpaca"], default="paper")
+    ex.add_argument("--broker", choices=["paper", "alpaca", "etoro", "ibkr", "manual"],
+                    default="paper")
     ex.add_argument("--execute", action="store_true", help="enviar ordenes (defecto: simula)")
     ex.add_argument("--live", action="store_true",
                     help="cuenta REAL (exige SWARMTRADER_ALLOW_LIVE=1 y --confirm <plan_id>)")
@@ -944,8 +1088,29 @@ def main(argv: list[str] | None = None) -> int:
                     help="mandato persistido (el mismo que usa `cycle`); si esta parado "
                          "por drawdown solo se permiten ventas")
     ex.add_argument("--capital", type=float, default=100.0, help="solo broker=paper")
-    ex.add_argument("--prices", default=None, help="JSON {simbolo: precio} para broker=paper")
+    ex.add_argument("--prices", default=None, help="JSON {simbolo: precio} para broker=paper/manual")
+    _add_broker_flags(ex)
     ex.set_defaults(func=cmd_execute)
+
+    fu = sub.add_parser("fundamentals",
+                        help="SEC companyfacts -> fundamentales y SUE point-in-time (CSV)")
+    fu.add_argument("--companyfacts", required=True,
+                    help="companyfacts.zip oficial de la SEC o volcado Parquet equivalente")
+    fu.add_argument("--dei-shares", default=None,
+                    help="solo Parquet: EntityCommonStockSharesOutstanding en Parquet")
+    fu.add_argument("--tickers", required=True, help="company_tickers_exchange.json de la SEC")
+    fu.add_argument("--out-dir", default="data")
+    fu.set_defaults(func=cmd_fundamentals)
+
+    un = sub.add_parser("universe", help="union de universos de varias plataformas")
+    un.add_argument("--listed", default=None, help="nasdaqtraded.txt (cotizadas: Alpaca)")
+    un.add_argument("--lightyear", default=None,
+                    help="sitemap de acciones de Lightyear descargado, o 'web'")
+    un.add_argument("--sec-tickers", default=None,
+                    help="company_tickers_exchange.json: OTC con informes a la SEC (IBKR)")
+    un.add_argument("--etoro", action="store_true", help="instrumentos de eToro (API, claves)")
+    un.add_argument("--out", default="data/universe_union.csv")
+    un.set_defaults(func=cmd_universe)
 
     an = sub.add_parser("analogy", help="casos historicos analogos para una posicion abierta")
     an.add_argument("input", nargs="?", default="universe.csv")

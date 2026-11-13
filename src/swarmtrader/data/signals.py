@@ -181,7 +181,9 @@ def earnings_features(path: str | Path, dates: pd.DatetimeIndex, symbols: list[s
     earn_react_3d (retorno t-1..t+1 del anuncio, vigente drift_window),
     days_since_earn (negado y acotado: mas reciente = mayor)."""
     df = _read(path)
-    if "surprise_pct" in df.columns:
+    if "sue" in df.columns:                 # ya estandarizada (p. ej. data/fundamentals.py)
+        df["sue"] = df["sue"].astype(float)
+    elif "surprise_pct" in df.columns:
         df["sue"] = df["surprise_pct"].astype(float)
     elif {"eps_actual", "eps_estimate"} <= set(df.columns):
         est = df["eps_estimate"].astype(float)
@@ -242,10 +244,24 @@ def short_interest_features(path: str | Path, dates: pd.DatetimeIndex, symbols: 
 
 # ---------------------------------------------------------------- fundamentales
 def fundamentals_features(path: str | Path, dates: pd.DatetimeIndex, symbols: list[str],
-                          prices: pd.DataFrame | None = None, available_lag: int = 1) -> pd.DataFrame:
+                          prices: pd.DataFrame | None = None, available_lag: int = 1,
+                          nominal: pd.DataFrame | None = None) -> pd.DataFrame:
     """CSV: date (= fecha de DISPONIBILIDAD/filing), symbol, y alguna de:
-    gross_profit, total_assets, net_income, cfo, book_equity, market_cap, shares.
-    Features: gp_a, accruals (negado), bm, ep."""
+    gross_profit, total_assets, net_income, cfo, book_equity, market_cap, shares,
+    fscore, asset_growth, net_issuance (las genera `data/fundamentals.py`).
+
+    Features (todas orientadas: mayor = mejor segun la tesis previa):
+      valor   bm, ep, cfp           (Fama-French 1992; Lakonishok-Shleifer-Vishny 1994)
+      calidad gp_a, fscore, accruals (negado), inv_ag (crecimiento de activos
+              negado), anti_issuance (emision neta negada)
+              (Novy-Marx 2013; Piotroski 2000; Sloan 1996; Cooper-Gulen-Schill
+              2008; Pontiff-Woodgate 2008)
+
+    La capitalizacion se calcula con el precio NOMINAL (`nominal`) por las acciones
+    publicadas: el precio ajustado ya incorpora splits y dividendos futuros y,
+    multiplicado por las acciones de la fecha, da una capitalizacion que no
+    existio. Sin `nominal` se usa `prices` y se avisa.
+    """
     df = _read(path)
     df = df[df["symbol"].isin(symbols)]
 
@@ -256,18 +272,33 @@ def fundamentals_features(path: str | Path, dates: pd.DatetimeIndex, symbols: li
         return _to_calendar(w, dates, available_lag, "state")
 
     gp, ta, ni, cfo, be, mc = (wide(c) for c in ("gross_profit", "total_assets", "net_income", "cfo", "book_equity", "market_cap"))
+    pos = lambda x: x.where(x > 0)  # noqa: E731
     out = {}
     if gp is not None and ta is not None:
-        out["gp_a"] = gp / ta.replace(0, np.nan)
+        out["gp_a"] = gp / pos(ta)
     if ni is not None and cfo is not None and ta is not None:
-        out["accruals"] = -((ni - cfo) / ta.replace(0, np.nan))
-    if mc is None and prices is not None and "shares" in df.columns:
-        sh = wide("shares")
-        mc = prices.reindex(index=dates, columns=symbols) * sh
-    if be is not None and mc is not None:
-        out["bm"] = be / mc.replace(0, np.nan)
-    if ni is not None and mc is not None:
-        out["ep"] = ni / mc.replace(0, np.nan)
+        out["accruals"] = -((ni - cfo) / pos(ta))
+    if mc is None and "shares" in df.columns:
+        px = nominal if nominal is not None else prices
+        if px is not None:
+            if nominal is None:
+                import warnings
+                warnings.warn("fundamentals: capitalizacion con precio ajustado (falta el "
+                              "cierre nominal); bm/ep/cfp quedan sesgados", stacklevel=2)
+            mc = px.reindex(index=dates, columns=symbols) * wide("shares")
+    if mc is not None:
+        mc = pos(mc)
+        if be is not None:
+            out["bm"] = be / mc
+        if ni is not None:
+            out["ep"] = ni / mc
+        if cfo is not None:
+            out["cfp"] = cfo / mc
+    for col, name, sign in (("fscore", "fscore", 1.0), ("asset_growth", "inv_ag", -1.0),
+                            ("net_issuance", "anti_issuance", -1.0)):
+        w = wide(col)
+        if w is not None:
+            out[name] = sign * w.replace([np.inf, -np.inf], np.nan)
     if not out:
         raise ValueError("fundamentals: ninguna combinacion de columnas reconocida")
     return _stack(out)
@@ -300,7 +331,8 @@ def groups_from_yfinance(symbols: list[str]) -> pd.Series:
 def build_extra(dates: pd.DatetimeIndex, symbols: list[str], prices: pd.DataFrame | None = None,
                 news: str | None = None, analyst: str | None = None, earnings: str | None = None,
                 insider: str | None = None, short: str | None = None, fundamentals: str | None = None,
-                available_lag: int = 1, news_scorer: str = "auto") -> pd.DataFrame | None:
+                available_lag: int = 1, news_scorer: str = "auto",
+                nominal: pd.DataFrame | None = None) -> pd.DataFrame | None:
     parts = []
     if news:
         parts.append(news_features(news, dates, symbols, available_lag, news_scorer))
@@ -313,7 +345,8 @@ def build_extra(dates: pd.DatetimeIndex, symbols: list[str], prices: pd.DataFram
     if short:
         parts.append(short_interest_features(short, dates, symbols, available_lag))
     if fundamentals:
-        parts.append(fundamentals_features(fundamentals, dates, symbols, prices, available_lag))
+        parts.append(fundamentals_features(fundamentals, dates, symbols, prices, available_lag,
+                                           nominal=nominal))
     if not parts:
         return None
     return pd.concat(parts, axis=1)
