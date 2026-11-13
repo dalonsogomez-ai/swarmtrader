@@ -1,7 +1,7 @@
 {
  "proyecto": "swarmtrader",
- "version": "1.4.0",
- "actualizado_utc": "2026-11-12",
+ "version": "1.5.0",
+ "actualizado_utc": "2026-11-13",
  "fase": "investigacion/diseno y backtesting; paper trading NO iniciado; trading real NO activado",
  "componentes": {
   "stats/infogeo.py": {
@@ -48,11 +48,36 @@
    "evidencia": "tests/test_conviction.py, tests/test_conviction_integration.py, tests/test_alpaca_adapter.py; experiments/conviction_measure.py; docs/results/conviction_measure.json",
    "medicion": "H1 NO cumple (lambda medio sin senal 0.2015 >= 0,2; crecimiento -0.43% frente al universo, p=0.83); H2 cumple (posiciones efectivas 3.6 frente a 8.4; +23.2% frente al universo); H3 cumple (8.4 frente a 4.0 posiciones efectivas; sin encoger +0.31%, p=0.27); H4 cumple (5.6 / 6.0 / 6.5 / 7.2)",
    "limitacion": "datos sinteticos y sin costes; con senal, equiponderar las 5 primeras (+32.4%) supera a la conviccion (+27.3%) porque el mapa no distingue dentro de su tramo superior; no demuestra ventaja sobre datos reales, donde el veredicto sigue siendo NO ACCIONABLE"
+  },
+  "decision.py (decide: plazo 3-31 sesiones, entrada, top 10 con valoracion 0-1)": {
+   "estado": "probado en sintetico; ejecutado sobre datos reales de supervivientes",
+   "evidencia": "tests/test_decision.py; docs/results/decision_real_2026-11-12_v15.json (23 posiciones, plazo 31, senal retenida 0-10 %)"
+  },
+  "exits.py (plan de salida por accion)": {
+   "estado": "probado",
+   "limitacion": "barreras sobre cierres; validacion cruzada con purga de solapes; en 17 de 23 posiciones reales gana 'solo plazo'"
+  },
+  "execution/plan.py (plan JSON + execute sobre rebalance_to)": {
+   "estado": "probado con PaperBroker; sin ejecutar contra Alpaca paper real",
+   "cambio_v1_5": "el ejecutor delega en rebalance_to: tambien recorta posiciones que pesan de mas y aplaza lo no financiable; respeta el mandato persistido (si esta parado solo reduce) y conserva como pendientes los planes de salida de compras aun sin llenar"
+  },
+  "portfolio/conviction.py market_level/tau/costs": {
+   "estado": "probado; con valores por defecto es identico fila a fila al modulo v1.4 (conviction_measure en la misma maquina)",
+   "evidencia": "docs/results/conviction_measure_tau_integrated.json: 'integrated' tambien falla H1 (lambda 0,35); se mantiene 'point'"
+  },
+  "data/loaders.py load_long_panel + _sanitize_prices": {
+   "estado": "probado sobre el panel real"
+  },
+  "cycle.py plan de salida propio por posicion": {
+   "estado": "probado (tests/test_decision.py)"
+  },
+  "exits.py PathBank con listings PIT": {
+   "estado": "probado en sintetico (retorno terminal de baja); sin datos PIT reales todavia"
   }
  },
  "pruebas": {
-  "suite": "277 pasan, 6 omitidos en la rama publicada (272 en la copia local sin los tests de publicacion); PyTorch no instalado",
-  "controles": "swarm_null_test: ruido -> NO ACCIONABLE (SPA p=0,882); senal -> ACCIONABLE (p=0,000, G4 p=0,000)"
+  "suite": "304 pasan, 7 omitidos (PyTorch, arch y duckdb no instalados); Python 3.13.18, Linux. CI de GitHub: Ubuntu y macOS ARM64, Python 3.11 y 3.12",
+  "controles": "swarm_null_test: ruido -> NO ACCIONABLE (SPA p=0,882); senal -> ACCIONABLE (p=0,000). null_test: el gate rechaza el ruido (Sharpe campeon +2,36 con la contabilidad corregida)"
  },
  "defectos_conocidos_sin_corregir": [
   "data/venues.py::build_union cruza activos solo por ticker: 178 tickers existen a la vez como accion de EE. UU. y como cripto en Binance/Kraken (LTC, DASH, STX, BCH...). La ruta de eToro no filtra por tipo de instrumento.",
@@ -61,7 +86,12 @@
   "sharadar_market_data sigue derivando el motivo de baja con una heuristica de fechas en vez de las tablas tickers+actions.",
   "Los adaptadores de Alpaca y yfinance no proporcionan el cierre sin ajustar: con ellos el filtro de precio no es point-in-time.",
   "La etiqueta de entrenamiento (rango relativo sobre toda la seccion cruzada) esta desalineada con una cartera que solo compra; no se puede corregir con rigor sobre datos de supervivientes.",
-  "cli.py, comando `paper`: usa `args.venues` (el subcomando no lo define) y una variable `md` inexistente; falla al ejecutarse. Detectado en la v1.4, no corregido."
+  "cli.py, comando `paper`: usa `args.venues` (el subcomando no lo define) y una variable `md` inexistente; falla al ejecutarse. Detectado en la v1.4, no corregido.",
+  "La eleccion del plazo de cartera y del plazo de salida es un maximo sobre varias estimaciones: sesgo del ganador no corregido (mitigado por el desempate al plazo mas largo y el bootstrap por fechas en las salidas).",
+  "La cartera se optimiza con retornos a plazo fijo; las barreras de salida no entran en los escenarios del optimizador.",
+  "cycle --decision conviction usa el plazo fijo del enjambre; el plazo variable y las salidas propias solo estan en decide + execute.",
+  "Con lookback=1260 las acciones con menos de 5 anos de historia completa no son asignables (448 de 3.313 en la prueba real): efecto de seleccion no medido.",
+  "El listado de Nasdaq no distingue fondos cerrados/ETN de acciones; scripts/equity_filter.py filtra por nombre (heuristico)."
  ],
  "decisiones_pendientes_del_usuario": [
   "Que se quiere del sistema a la vista de la auditoria: filtro de exclusion, selector de compras (exige nuevas fuentes de datos) o perfil de loteria.",
@@ -73,7 +103,10 @@
   "Modo conviccion: aversion al riesgo por defecto (1 = Kelly; <1 concentra mas; 0 = todo a la de mayor retorno esperado).",
   "Modo conviccion: permitir efectivo como opcion del optimizador (por defecto, no).",
   "Modo conviccion: mantener la triple barrera (por defecto, si) y dejar fijas las posiciones abiertas (por defecto, si).",
-  "Hora del ciclo: con el mercado cerrado una rotacion completa tarda dos ciclos."
+  "Hora del ciclo: con el mercado cerrado una rotacion completa tarda dos ciclos.",
+  "Validar decide + execute contra Alpaca paper con credenciales reales.",
+  "Ventana de historia del optimizador en decide: 1260 sesiones (defecto, excluye acciones jovenes) o 756.",
+  "Si cycle --decision conviction debe usar tambien plazo variable y salidas propias (hoy solo decide + execute)."
  ],
  "bloqueos_externos": [
   "Sin datos point-in-time con deslistados: toda medicion real es sobre supervivientes.",
@@ -96,5 +129,11 @@
   "fisher_rank bate a la euclidea a 5 sesiones en el motor de analogos.",
   "El canal de dispersion solo es mejor filtro que dispersion+dependencia.",
   "El exceso de los 5 primeros sobre el universo sigue siendo nulo con los deslistados incluidos."
- ]
+ ],
+ "hallazgos_v1_5_datos_reales": [
+  "Con solo precio y volumen la puntuacion no distingue acciones (senal retenida 0-10 %): la eleccion forzada es una cartera de bajo riesgo de 23 posiciones, mayor peso 23,8 %, retorno esperado +1,7 % a 31 sesiones para todas.",
+  "Alternativas con los mismos escenarios: optimo +1,7 %, todo en CHT +1,6 %, 5 primeras equiponderadas +1,6 %.",
+  "La rama paralela (tau integrado, 756 sesiones) obtuvo 24 posiciones, mayor peso 14,8 % y senal retenida 12-29 % sobre el mismo panel."
+ ],
+ "revision_pr3": "Seis defectos senalados por la revision automatica (Codex) de la PR #3, comprobados y corregidos con un test cada uno: plan de salida de compras sin llenar, mandato en execute, purga en la validacion cruzada de salidas, banco de trayectorias vacio, retornos de baja en las trayectorias, decision 100 % efectivo"
 }

@@ -3,6 +3,44 @@
 Registro en texto libre de que se hizo y que sigue. El estado estructurado esta
 en `ESTADO.json`. Antes de continuar trabajo previo, leer ambos.
 
+## 2026-11-13 — v1.5.0: decision con plazo variable, salidas y plan de ordenes
+
+Origen: una rama paralela desarrollada fuera del repositorio (13-nov) resolvio
+la misma peticion que la v1.4 con otro enfoque. Se integra sobre esta base.
+
+Hecho:
+- `decision.py`, `exits.py`, `market_calendar.py`: `swarmtrader decide` (plazo
+  3-31 sesiones, entrada en la apertura siguiente, plan de salida por accion,
+  top 10 con valoracion 0-1 y catalizadores, plan de ordenes JSON).
+- `execution/plan.py`: plan con `plan_id`; `swarmtrader execute` delega en
+  `rebalance_to` (recorta, aplaza, espera ventas); libro con plan de salida.
+- `cycle.py`: aplica el plan de salida propio de cada posicion.
+- `conviction.py`: `costs`, `standalone`, `build_bank`, `market_level`, `tau`.
+  Con valores por defecto, identico fila a fila al modulo v1.4.
+- `swarm_rank`: `oos` siempre en el resultado. `load_long_panel` y
+  `_sanitize_prices`. Scripts `fetch_panel.py` y `equity_filter.py`.
+- 21 tests nuevos. Suite: 297 pasan, 7 omitidos. Controles en verde.
+
+Medido:
+- Criterio fijado antes de medir para `tau`: "integrated" tambien falla H1
+  (lambda 0,35) -> se mantiene "point".
+- Datos reales (12-nov, 3.313 acciones, supervivientes): NO ACCIONABLE;
+  senal retenida 0-10 %; 23 posiciones, mayor peso 23,8 %, +1,7 % esperado a
+  31 sesiones; 448 acciones excluidas por historia < 1.260 sesiones.
+
+Revision de la PR #3 (Codex), seis defectos reales corregidos con test:
+plan de salida de compras aun sin llenar (pendientes en el libro), mandato
+respetado en `execute`, purga de solapes en la validacion cruzada de salidas,
+banco de trayectorias vacio, retornos de baja en las trayectorias con datos
+PIT y decision 100 % efectivo con `--allow-cash`. Suite: 304 pasan. Repetida
+la prueba real: cartera identica; la rejilla de salidas se adopta en 6 de 23
+posiciones (2 antes de la purga).
+
+Sigue:
+1. Validar decide + execute contra Alpaca paper con credenciales.
+2. Datos point-in-time y repetir las mediciones.
+3. Agentes de eventos (insiders, resultados) para que la puntuacion distinga.
+
 ## 2026-11-12 — v1.4.0: modo de decision por conviccion
 
 Hecho:

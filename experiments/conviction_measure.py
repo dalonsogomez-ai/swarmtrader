@@ -28,6 +28,10 @@ realizado a 21 sesiones despues. 60 observaciones pareadas por intensidad.
               {0,5; 1; 2; 4} (en la media de las observaciones).
 
 Uso: python experiments/conviction_measure.py [--out docs/results/conviction_measure.json]
+                                             [--tau point|integrated]
+
+`--tau` (v1.5) solo elige el tratamiento de tau del encogimiento; los criterios
+H1-H4 no cambian. Por defecto "point", el de la medicion original.
 """
 from __future__ import annotations
 
@@ -53,6 +57,7 @@ STRENGTHS = (0.0, 0.25)
 N_SYM, N_DAYS, H, N_DATES = 60, 1000, 21, 6
 GAMMAS = (0.5, 1.0, 2.0, 4.0)
 ALPHA = 0.05
+TAU = "point"
 
 
 def _eff(w: pd.Series) -> float:
@@ -68,7 +73,7 @@ def run_one(seed: int, strength: float) -> list[dict]:
     md = load_synthetic(n_symbols=N_SYM, n_days=N_DAYS, signal_strength=0.0,
                         momentum_strength=strength, seed=seed)
     cfg = sr.SwarmRankConfig(allow_deep=False, decision="conviction",
-                             conviction=ConvictionConfig(n_scenarios=1500, seed=seed))
+                             conviction=ConvictionConfig(n_scenarios=1500, seed=seed, tau=TAU))
     cfg.spa_boot = 300
     captured: dict = {}
     original = sr.allocate
@@ -154,7 +159,10 @@ def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--out", default=str(Path(__file__).resolve().parents[1]
                                          / "docs/results/conviction_measure.json"))
+    ap.add_argument("--tau", choices=["point", "integrated"], default="point")
     args = ap.parse_args()
+    global TAU
+    TAU = args.tau
     t0 = time.time()
     rows = []
     for s in STRENGTHS:
@@ -167,7 +175,8 @@ def main() -> int:
     res["design"] = {"seeds": list(SEEDS), "strengths": list(STRENGTHS), "n_symbols": N_SYM,
                      "n_days": N_DAYS, "horizon": H, "dates_per_seed": N_DATES,
                      "data": "sintetico (load_synthetic); sin costes de transaccion",
-                     "preregistered": "2026-11-12, criterios en el docstring"}
+                     "preregistered": "2026-11-12, criterios en el docstring",
+                     "tau": TAU}
     res["rows"] = rows
     Path(args.out).parent.mkdir(parents=True, exist_ok=True)
     Path(args.out).write_text(json.dumps(res, indent=2, ensure_ascii=False))

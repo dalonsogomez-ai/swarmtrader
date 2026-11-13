@@ -395,6 +395,135 @@ def cmd_cycle(args) -> int:
     return 0 if rep.status in ("completed", "skipped") else 3
 
 
+def _load_for_decision(args):
+    """Carga comun de `decide`: panel largo, Sharadar, almacen local, Alpaca o CSV."""
+    listings = None
+    if args.panel:
+        from .data.loaders import load_long_panel
+        md = load_long_panel(args.panel, args.prefilter_dollar_volume, args.prefilter_price,
+                             start=args.start)
+    elif args.sharadar:
+        from .data.brokers import sharadar_market_data
+        md, listings = sharadar_market_data(args.sharadar)
+    elif args.store:
+        from .data.store import PanelStore
+        st = PanelStore(args.store)
+        md, listings = st.to_market_data(), st.listings()
+    elif args.alpaca:
+        from .data.brokers import AlpacaConfig, alpaca_market_data, alpaca_universe
+        acfg = AlpacaConfig(years=args.years, max_symbols=args.max_symbols)
+        md = alpaca_market_data(alpaca_universe(acfg), acfg)
+    else:
+        from .data.universe import load_universe
+        md = load_universe(args.input, years=args.years)
+    return md, listings
+
+
+def cmd_decide(args) -> int:
+    """Analisis -> cartera por conviccion, plazo, entrada, salidas y plan de ordenes."""
+    from dataclasses import replace
+
+    from .decision import DecisionConfig, decide, format_decision_report
+    from .execution.plan import build_order_plan, plan_risk_limits
+    from .rank import RankConfig
+    from .swarm_rank import SwarmRankConfig
+
+    try:
+        md, listings = _load_for_decision(args)
+    except (ImportError, RuntimeError, FileNotFoundError, ValueError) as exc:
+        print(f"no se pudo cargar el universo: {exc}")
+        return 2
+    print(f"universo: {md.prices.shape[1]} acciones x {md.prices.shape[0]} sesiones "
+          f"(ultima {md.prices.index.max().date()})", file=sys.stderr)
+
+    broker, positions = None, {}
+    if args.broker == "alpaca":
+        from .execution.alpaca import AlpacaBroker
+        try:
+            broker = AlpacaBroker(paper=True)
+            positions = broker.positions()
+        except (ImportError, RuntimeError, ValueError) as exc:
+            print(f"no se pudo leer la cuenta de Alpaca: {exc}")
+            return 2
+
+    # Lo que las guardas de la ejecucion o el broker rechazarian no debe recibir
+    # capital: una orden rechazada deja ese dinero sin invertir.
+    lim = plan_risk_limits()
+    last = md.prices.index[-1]
+    px = (md.nominal.loc[last] if md.nominal is not None else md.prices.loc[last]) \
+        .reindex(md.prices.columns).fillna(md.prices.loc[last])
+    dv = (px * md.volumes.loc[last]).reindex(md.prices.columns)
+    exclude = set(px.index[(px < lim.min_price) | ~(dv >= lim.min_dollar_volume)])
+    if broker is not None:
+        exclude |= set(broker.untradable(list(md.prices.columns)))
+
+    rc = RankConfig(horizon=args.horizon, top_k=args.top, oos_months=args.oos_months,
+                    min_dollar_volume=args.min_dollar_volume, min_price=args.min_price)
+    scfg = SwarmRankConfig(rank=rc, allow_deep=not args.no_deep, spa_boot=args.spa_boot,
+                           drift=DriftConfig(alpha=args.drift_alpha, mode=args.drift_mode))
+    dcfg = DecisionConfig(report_top=args.report_top)
+    conv = replace(dcfg.conviction, risk_aversion=args.risk_aversion,
+                   allow_cash=args.allow_cash, n_scenarios=args.scenarios)
+    if broker is not None:
+        eq = float(broker.equity)
+        # minimo de orden de Alpaca: 1 USD (con 100 USD, el 1 % del capital)
+        conv = replace(conv, min_weight=max(conv.min_weight, 1.05 / eq if eq > 0 else 1.0))
+    dcfg = replace(dcfg, conviction=conv)
+    extra, groups = _signals(args, md)
+    d = decide(md, scfg, dcfg, listings=listings, extra=extra, groups=groups,
+               exclude=exclude, verbose=args.verbose)
+    print(json.dumps(d.to_dict(), indent=2, ensure_ascii=False, default=str) if args.json
+          else format_decision_report(d))
+    if args.out:
+        Path(args.out).parent.mkdir(parents=True, exist_ok=True)
+        Path(args.out).write_text(json.dumps(d.to_dict(), indent=2, ensure_ascii=False,
+                                             default=str))
+    # Todo efectivo (con --allow-cash) es una decision valida: su plan vende lo
+    # que haya en cartera y no compra nada.
+    decided = not d.weights.empty or d.cash > 1e-9
+    if args.plan and decided:
+        plan = build_order_plan(d, positions, dollar_volumes=dv.fillna(0.0).to_dict())
+        plan.save(args.plan)
+        print(f"\nplan de ordenes {plan.plan_id} -> {args.plan}")
+    return 0 if decided else 3
+
+
+def cmd_execute(args) -> int:
+    """Ejecuta un plan de ordenes (tras la apertura). Simulacion salvo --execute."""
+    from .execution.plan import LiveConfirmationRequired, execute_plan, load_plan
+    from .mandate import Mandate, MandateConfig
+    try:
+        plan = load_plan(args.plan)
+    except (FileNotFoundError, ValueError) as exc:
+        print(f"plan invalido: {exc}")
+        return 2
+    if args.broker == "alpaca":
+        from .execution.alpaca import AlpacaBroker
+        try:
+            broker = AlpacaBroker(paper=not args.live)
+        except (ImportError, RuntimeError, ValueError) as exc:
+            print(f"no se pudo abrir la cuenta de Alpaca: {exc}")
+            return 2
+    else:
+        from .execution.paper import PaperBroker
+        broker = PaperBroker(initial_cash=args.capital)
+        if args.prices:
+            broker.set_prices(json.loads(Path(args.prices).read_text()))
+    mode = "REAL" if args.live else "paper"
+    print(f"plan {plan.plan_id}  ({plan.as_of}, entrada {plan.entry_session})  cuenta {mode}"
+          f"  {'ENVIO DE ORDENES' if args.execute else 'SIMULACION'}")
+    try:
+        rep = execute_plan(broker, plan, dry_run=not args.execute, confirm=args.confirm,
+                           ledger_path=Path(args.state_dir) / "positions.json",
+                           mandate=Mandate(args.mandate_file, MandateConfig()))
+    except LiveConfirmationRequired as exc:
+        print(str(exc))
+        return 4
+    print(rep.to_json())
+    bad = [o for o in rep.orders if o["status"] == "rejected"]
+    return 0 if not bad else 3
+
+
 def cmd_analogy(args) -> int:
     from .analogy import AnalogyConfig, find_analogues
     from .data.universe import load_universe
@@ -763,6 +892,60 @@ def main(argv: list[str] | None = None) -> int:
     _add_conviction_flags(cy)
     cy.add_argument("--json", action="store_true")
     cy.set_defaults(func=cmd_cycle)
+
+    de = sub.add_parser("decide",
+                        help="analisis -> cartera por conviccion (sin topes), plazo, entrada, "
+                             "salidas y plan de ordenes")
+    de.add_argument("input", nargs="?", default="universe.csv")
+    de.add_argument("--panel", default=None,
+                    help="Parquet largo: date, ticker, adjclose[, close_nominal], volume")
+    de.add_argument("--prefilter-dollar-volume", type=float, default=0.0,
+                    help="pre-filtro de memoria por liquidez reciente (sesgo de seleccion)")
+    de.add_argument("--prefilter-price", type=float, default=0.0)
+    de.add_argument("--start", default=None, help="descartar historia anterior (YYYY-MM-DD)")
+    de.add_argument("--sharadar", default=None)
+    de.add_argument("--store", default=None)
+    de.add_argument("--alpaca", action="store_true", help="universo y datos desde Alpaca")
+    de.add_argument("--max-symbols", type=int, default=None)
+    de.add_argument("--years", type=float, default=6.0)
+    de.add_argument("--horizon", type=int, default=21,
+                    help="horizonte de ENTRENAMIENTO del enjambre")
+    de.add_argument("--top", type=int, default=5)
+    de.add_argument("--report-top", type=int, default=10)
+    de.add_argument("--oos-months", type=int, default=60)
+    de.add_argument("--min-dollar-volume", type=float, default=1_000_000.0)
+    de.add_argument("--min-price", type=float, default=1.0)
+    de.add_argument("--spa-boot", type=int, default=1000)
+    de.add_argument("--risk-aversion", type=_nonneg_float, default=1.0,
+                    help="1 = Kelly (log); 0 = neutral al riesgo (todo a la de mayor retorno)")
+    de.add_argument("--allow-cash", action="store_true",
+                    help="permitir que el optimo deje parte en efectivo (defecto: todo invertido)")
+    de.add_argument("--scenarios", type=int, default=3000)
+    de.add_argument("--no-deep", action="store_true")
+    de.add_argument("--broker", choices=["none", "alpaca"], default="none",
+                    help="alpaca = leer la cuenta PAPER (posiciones, patrimonio, no fraccionables)")
+    de.add_argument("--plan", default=None, help="guardar plan de ordenes JSON")
+    de.add_argument("--out", default=None, help="guardar la decision completa JSON")
+    de.add_argument("--json", action="store_true")
+    de.add_argument("--verbose", action="store_true")
+    _add_drift_flags(de)
+    _add_signal_flags(de)
+    de.set_defaults(func=cmd_decide)
+
+    ex = sub.add_parser("execute", help="ejecutar un plan de ordenes tras la apertura")
+    ex.add_argument("plan")
+    ex.add_argument("--broker", choices=["paper", "alpaca"], default="paper")
+    ex.add_argument("--execute", action="store_true", help="enviar ordenes (defecto: simula)")
+    ex.add_argument("--live", action="store_true",
+                    help="cuenta REAL (exige SWARMTRADER_ALLOW_LIVE=1 y --confirm <plan_id>)")
+    ex.add_argument("--confirm", default=None, help="identificador del plan que se confirma")
+    ex.add_argument("--state-dir", default="runs")
+    ex.add_argument("--mandate-file", default="runs/mandate.json",
+                    help="mandato persistido (el mismo que usa `cycle`); si esta parado "
+                         "por drawdown solo se permiten ventas")
+    ex.add_argument("--capital", type=float, default=100.0, help="solo broker=paper")
+    ex.add_argument("--prices", default=None, help="JSON {simbolo: precio} para broker=paper")
+    ex.set_defaults(func=cmd_execute)
 
     an = sub.add_parser("analogy", help="casos historicos analogos para una posicion abierta")
     an.add_argument("input", nargs="?", default="universe.csv")
