@@ -313,7 +313,8 @@ def test_cli_decide_then_execute_end_to_end(tmp_path, capsys):
     prices.write_text(json.dumps({s: float(md.prices[s].iloc[-1]) for s in md.prices.columns}))
     capsys.readouterr()
     rc = main(["execute", str(plan_path), "--broker", "paper", "--prices", str(prices),
-               "--state-dir", str(tmp_path)])
+               "--state-dir", str(tmp_path),
+               "--mandate-file", str(tmp_path / "mandate.json")])
     out = capsys.readouterr().out
     assert rc == 0 and "SIMULACION" in out and '"simulada"' in out
 
@@ -460,7 +461,8 @@ def _run_paper_execute(plan_path, tmp_path, capsys, *extra):
     from swarmtrader.cli import main
     capsys.readouterr()
     rc = main(["execute", str(plan_path), "--broker", "paper", "--capital", "1000",
-               "--state-dir", str(tmp_path), "--execute", *extra])
+               "--state-dir", str(tmp_path),
+               "--mandate-file", str(tmp_path / "mandate.json"), "--execute", *extra])
     out = capsys.readouterr().out
     return rc, json.loads(out[out.index("{"):])
 
