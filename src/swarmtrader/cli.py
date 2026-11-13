@@ -625,6 +625,7 @@ def cmd_execute(args) -> int:
     except (FileNotFoundError, ValueError) as exc:
         print(f"plan invalido: {exc}")
         return 2
+    paper_notes: list[str] = []
     if args.broker != "paper":
         try:
             broker = _open_broker(args, live=args.live)
@@ -632,10 +633,22 @@ def cmd_execute(args) -> int:
             print(f"no se pudo abrir la cuenta de {args.broker}: {exc}")
             return 2
     else:
+        # El broker local no tiene cotizaciones: sin precio rechaza la compra. Los
+        # de `--prices` mandan; para el resto vale el cierre de referencia del plan.
         from .execution.paper import PaperBroker
         broker = PaperBroker(initial_cash=args.capital)
-        if args.prices:
-            broker.set_prices(json.loads(Path(args.prices).read_text()))
+        explicit = json.loads(Path(args.prices).read_text()) if args.prices else {}
+        from_plan = {s: p for s, p in plan.reference_prices().items() if s not in explicit}
+        broker.set_prices({**from_plan, **explicit})
+        unpriced = sorted(s for s in plan.targets if s not in from_plan and s not in explicit)
+        if from_plan:
+            paper_notes.append(
+                f"broker simulado: sin --prices para {', '.join(sorted(from_plan))}; se usa el "
+                f"cierre de referencia del plan (analisis del {plan.as_of}), no el precio de hoy")
+        if unpriced:
+            paper_notes.append(
+                f"broker simulado: sin precio para {', '.join(unpriced)}; "
+                "pasalo con --prices <json {simbolo: precio}>")
     mode = "REAL" if args.live else "paper"
     print(f"plan {plan.plan_id}  ({plan.as_of}, entrada {plan.entry_session})  cuenta {mode}"
           f"  {'ENVIO DE ORDENES' if args.execute else 'SIMULACION'}")
@@ -646,6 +659,8 @@ def cmd_execute(args) -> int:
     except LiveConfirmationRequired as exc:
         print(str(exc))
         return 4
+    if args.execute:                       # la simulacion no consulta precios
+        rep.notes.extend(paper_notes)
     print(rep.to_json())
     bad = [o for o in rep.orders if o["status"] == "rejected"]
     return 0 if not bad else 3

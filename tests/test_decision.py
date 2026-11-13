@@ -446,3 +446,63 @@ def test_decide_without_closed_exit_paths_does_not_crash():
     d = decide(md, scfg, cfg)
     assert not d.weights.empty and d.exit_plans == {}
     assert any("planes de salida no estimables" in n for n in d.notes)
+
+
+# --------------------------- broker local sin fichero de precios (tras la v1.6)
+def _saved_plan(tmp_path, weights: dict, ref_prices: dict):
+    d = _fake_decision(weights)
+    for s, px in ref_prices.items():
+        d.exit_plans[s].entry_ref_price = px
+    return build_order_plan(d, {}).save(tmp_path / "plan.json")
+
+
+def _run_paper_execute(plan_path, tmp_path, capsys, *extra):
+    from swarmtrader.cli import main
+    capsys.readouterr()
+    rc = main(["execute", str(plan_path), "--broker", "paper", "--capital", "1000",
+               "--state-dir", str(tmp_path), "--execute", *extra])
+    out = capsys.readouterr().out
+    return rc, json.loads(out[out.index("{"):])
+
+
+def test_plan_reference_prices_skip_targets_without_a_usable_price():
+    d = _fake_decision({"AAA": 0.6, "BBB": 0.4})
+    d.exit_plans["AAA"].entry_ref_price = 10.0
+    d.exit_plans["BBB"].entry_ref_price = float("nan")
+    assert build_order_plan(d, {}).reference_prices() == {"AAA": 10.0}
+
+
+def test_paper_execute_without_prices_fills_at_the_plan_reference_prices(tmp_path, capsys):
+    """Sin `--prices` el broker local no tenia precios y rechazaba todas las compras
+    ("sin precio"): usa el cierre de referencia que viaja en el plan y lo dice."""
+    path = _saved_plan(tmp_path, {"AAA": 0.6, "BBB": 0.4}, {"AAA": 10.0, "BBB": 20.0})
+    rc, rep = _run_paper_execute(path, tmp_path, capsys)
+    assert rc == 0
+    assert [o["status"] for o in rep["orders"]] == ["filled", "filled"]
+    assert sum(o["notional"] for o in rep["orders"]) == pytest.approx(995.0, abs=5.0)
+    note = next(n for n in rep["notes"] if "referencia del plan" in n)
+    assert "AAA" in note and "BBB" in note
+
+
+def test_paper_execute_explicit_prices_win_over_the_plan_reference(tmp_path, capsys):
+    path = _saved_plan(tmp_path, {"AAA": 0.6, "BBB": 0.4}, {"AAA": 10.0, "BBB": 20.0})
+    px = tmp_path / "px.json"
+    px.write_text(json.dumps({"AAA": 50.0}))            # BBB no viene: sigue la referencia
+    rc, rep = _run_paper_execute(path, tmp_path, capsys, "--prices", str(px))
+    by = {o["symbol"]: o for o in rep["orders"]}
+    assert rc == 0
+    assert by["AAA"]["notional"] / by["AAA"]["qty"] == pytest.approx(50.0, rel=0.01)
+    assert by["BBB"]["notional"] / by["BBB"]["qty"] == pytest.approx(20.0, rel=0.01)
+    note = next(n for n in rep["notes"] if "referencia del plan" in n)
+    assert "BBB" in note and "AAA" not in note
+
+
+def test_paper_execute_says_how_to_supply_a_missing_price(tmp_path, capsys):
+    """Plan sin precio de referencia (decision sin planes de salida): la compra se
+    rechaza igual, pero el informe dice como darle el precio."""
+    d = _fake_decision({"AAA": 1.0})
+    d.exit_plans = {}
+    path = build_order_plan(d, {}).save(tmp_path / "plan.json")
+    rc, rep = _run_paper_execute(path, tmp_path, capsys)
+    assert rc == 3 and rep["orders"][0]["status"] == "rejected"
+    assert any("--prices" in n and "AAA" in n for n in rep["notes"])

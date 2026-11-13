@@ -97,6 +97,19 @@ class OrderPlan:
         raw = json.dumps(core, sort_keys=True, default=str, ensure_ascii=False)
         return hashlib.sha256(raw.encode()).hexdigest()[:12]
 
+    def reference_prices(self) -> dict[str, float]:
+        """Cierre de referencia del analisis de cada objetivo que lo tenga.
+
+        Solo sirve al broker SIMULADO local, que no tiene cotizaciones propias.
+        Un broker real ejecuta siempre a su precio de mercado.
+        """
+        out = {}
+        for s in self.targets:
+            px = (self.exit_plans.get(s) or {}).get("entry_ref_price")
+            if isinstance(px, (int, float)) and math.isfinite(px) and px > 0:
+                out[s] = float(px)
+        return out
+
     def to_json(self) -> str:
         return json.dumps(asdict(self), indent=2, ensure_ascii=False, default=str)
 

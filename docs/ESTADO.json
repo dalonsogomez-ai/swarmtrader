@@ -84,8 +84,9 @@
   "data/venues.py universos y costes v1.6": "probado; universo de Lightyear desde su sitemap publico (5.983 acciones); eToro sin contar (conector sin sesion)"
  },
  "pruebas": {
-  "suite": "332 pasan, 7 omitidos (Python 3.13.18, Linux)",
-  "controles": "null_test y swarm_null_test en verde (13-nov-2026)"
+  "suite": "336 pasan, 7 omitidos (Python 3.13.13, macOS; 332 en Python 3.13.18, Linux antes de la correccion del broker local)",
+  "controles": "null_test y swarm_null_test en verde (13-nov-2026)",
+  "repeticion_del_ciclo": "experiments/cycle_replay.py, 24 sesiones consecutivas, sintetico y broker simulado: CUMPLE C1-C6 (docs/results/cycle_replay_2026-11-13.json); conviction en ruido 95 ordenes, gated en ruido 0, ninguna rechazada ni duplicada. Comprueba la tuberia, no la rentabilidad"
  },
  "defectos_conocidos_sin_corregir": [
   "Calendario de 252 sesiones/ano incrustado en ~20 sitios: cualquier activo que cotice 7 dias rompe ventanas y anualizacion.",
